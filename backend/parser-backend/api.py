@@ -7,21 +7,37 @@ this is what makes it reachable from a browser.
 Run with:
     uvicorn api:app --reload --port 8000
 
-STEP 1 + STEP 2 of the frontend-backend connection plan: the core parse
-endpoint, plus the health check. CORS (Step 3) is deliberately not here
-yet - kept as its own separate, reviewable change.
+STEP 1 + STEP 2 + STEP 3 of the frontend-backend connection plan: the
+core parse endpoint, the health check, and CORS. Steps 4+ (the actual
+frontend wiring) happen on the frontend side.
 """
 
 import os
 import tempfile
 
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from pipeline import process, DocumentType
 from msme_bios_shared import config
 
 app = FastAPI(title="MSME-BIOS Parser API")
+
+# Without this, a browser blocks every request from the frontend (a
+# different origin: localhost:5173 vs this server's localhost:8000) even
+# though curl - which doesn't enforce CORS at all - has worked fine this
+# whole time. FRONTEND_URL is read from .env so this doesn't need code
+# changes between local dev and a real deployed frontend later.
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[FRONTEND_URL],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/api/health")
