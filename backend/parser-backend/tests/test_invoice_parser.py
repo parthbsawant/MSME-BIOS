@@ -31,6 +31,31 @@ def test_extract_header_fields():
     assert fields["gstin"] == "27ABCDE1234F1Z5"
 
 
+def test_extract_header_fields_gets_real_vendor_not_customer():
+    """
+    Regression test for a real bug found on a real invoice: the vendor's
+    own name is never labeled "Name:" on the real template - only the
+    CUSTOMER's name (inside "Billing Details") is. The old version
+    searched the whole document for any "Name:" match, so it silently
+    returned the customer's name as the vendor. Confirmed on a real
+    invoice where "Zilla Parishad School Mess" (customer) showed up
+    instead of "Mauli Traders" (the actual vendor).
+    """
+    text = (
+        "TAX INVOICE\nMAULI TRADERS\n"
+        "Kalamwadi, Taluka Walva, District Sangli, Maharashtra - 415406\n"
+        "Mobile: +91 9876543210 | GSTIN: 27ABCDE1234F1Z5\n"
+        "Billing Details\n"
+        "Name: Zilla Parishad School Mess - Kalamwadi\n"
+        "GSTIN: 27CMYVU4330G1ZU\n"
+        "Invoice Number : 00011/25-26\n"
+        "Invoice Date : 01-Apr-2025"
+    )
+    fields = extract_header_fields(text)
+    assert fields["vendor_name"] == "MAULI TRADERS"
+    assert fields["vendor_name"] != "Zilla Parishad School Mess - Kalamwadi"
+
+
 def test_extract_totals():
     text = "Taxable Value 1908.00\nTotal CGST 47.70\nTotal SGST 47.70\nTotal Rs 2003.40"
     totals = extract_totals(text)

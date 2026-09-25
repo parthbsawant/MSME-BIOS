@@ -154,26 +154,53 @@ def extract_header_fields(text: str) -> dict:
     # ---------------------------------------------------------
     # Vendor Name
     #
-    # Important:
-    # Do NOT use a variable before assigning it.
+    # BUG FIX: the previous version searched the WHOLE document for the
+    # first "Name:" match - but on the real invoice template, "Name:" only
+    # ever labels the CUSTOMER's name (inside "Billing Details"), never
+    # the vendor's own name, which appears unlabeled as a header before
+    # that section. This meant vendor_name was silently being filled with
+    # the customer's name instead - confirmed on a real invoice where
+    # "Zilla Parishad School Mess" (the customer) showed up as the vendor
+    # instead of "Mauli Traders" (the actual vendor).
     #
-    # We capture the text after "Name:" and stop when the
-    # next known invoice field begins.
+    # Fix: restrict the vendor-name search to the text BEFORE "Billing
+    # Details" starts, where the real invoice always puts the vendor's own
+    # header. If no "Billing Details" marker is found at all (e.g. a
+    # simpler document without that section), fall back to the original
+    # whole-text "Name:" search, since there's no better signal available
+    # to distinguish vendor from customer in that case.
     # ---------------------------------------------------------
-    name_match = re.search(
-        r"Name\s*:\s*(.+?)"
-        r"(?=\s+(?:GSTIN|Invoice\s*Date|Invoice\s*Number|"
-        r"Invoice\s*No|Mobile|Email)\b|$)",
-        text,
-        re.IGNORECASE,
-    )
+    billing_details_pos = re.search(r"Billing\s*Details", text, re.IGNORECASE)
 
-    if name_match:
-        vendor_name = name_match.group(1).strip()
-        vendor_name = " ".join(vendor_name.split())
-
+    if billing_details_pos:
+        header_text = text[:billing_details_pos.start()]
+        boilerplate_patterns = [
+            r"^page\s*no", r"^tax\s*invoice", r"^original\s*for",
+            r"^recipient$", r"^duplicate", r"^triplicate",
+        ]
+        vendor_name = None
+        for line in header_text.split("\n"):
+            line_stripped = " ".join(line.split())
+            if not line_stripped:
+                continue
+            if any(re.match(p, line_stripped, re.IGNORECASE) for p in boilerplate_patterns):
+                continue
+            vendor_name = line_stripped
+            break
         if vendor_name:
             fields["vendor_name"] = vendor_name
+    else:
+        name_match = re.search(
+            r"Name\s*:\s*(.+?)"
+            r"(?=\s+(?:GSTIN|Invoice\s*Date|Invoice\s*Number|"
+            r"Invoice\s*No|Mobile|Email)\b|$)",
+            text,
+            re.IGNORECASE,
+        )
+        if name_match:
+            vendor_name = " ".join(name_match.group(1).split())
+            if vendor_name:
+                fields["vendor_name"] = vendor_name
 
     return fields
 # ============================================================
