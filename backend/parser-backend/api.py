@@ -7,9 +7,9 @@ this is what makes it reachable from a browser.
 Run with:
     uvicorn api:app --reload --port 8000
 
-STEP 1 of the frontend-backend connection plan: just the core parse
-endpoint. Health check (Step 2) and CORS (Step 3) are deliberately not
-here yet - kept as their own separate, reviewable changes.
+STEP 1 + STEP 2 of the frontend-backend connection plan: the core parse
+endpoint, plus the health check. CORS (Step 3) is deliberately not here
+yet - kept as its own separate, reviewable change.
 """
 
 import os
@@ -19,8 +19,30 @@ from fastapi import FastAPI, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
 from pipeline import process, DocumentType
+from msme_bios_shared import config
 
 app = FastAPI(title="MSME-BIOS Parser API")
+
+
+@app.get("/api/health")
+async def health_check():
+    """
+    Lets the frontend confirm the backend is actually reachable before
+    attempting an upload - and reports which AI vision paths are
+    currently enabled, since that's genuinely useful for the frontend to
+    know (e.g. to show accurate messaging rather than only finding out
+    when a scanned document hits a 501).
+    """
+    return {
+        "status": "ok",
+        "service": "msme-bios-parser-api",
+        "parsers_available": ["bank_statement", "invoice_bill", "photo_bill"],
+        "ai_vision_enabled": {
+            "bank_statement": config.ENABLE_CLAUDE_VISION_BANK,
+            "invoice_bill": config.ENABLE_CLAUDE_VISION_INVOICE,
+            "photo_bill": config.ENABLE_CLAUDE_VISION_HANDWRITTEN,
+        },
+    }
 
 
 @app.post("/api/parse")
