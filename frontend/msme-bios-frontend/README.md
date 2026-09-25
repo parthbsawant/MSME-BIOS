@@ -34,13 +34,28 @@ Pure black-and-white, light/dark toggle. New this version: **Bricolage Grotesque
 
 ## What's real vs. placeholder
 
-**Real:** every navigation flow, the route guards, the custom builder's add/remove logic and price math, the theme system.
+**Real:** every navigation flow, the route guards, the custom builder's add/remove logic and price math, the theme system, **and now the document parsing itself** - `UploadPage.jsx` sends a real file to the real backend API and displays whatever it actually returns.
 
 **Placeholder, clearly labeled:**
 - Auth is fake (`AuthContext.jsx`) - no real backend.
 - Feature prices (`lib/featuresData.js`) are illustrative, not real figures.
-- Parsed results are still mocked (`lib/mockParser.js`) - see the earlier note on connecting `pipeline.process()` for real.
 - Every dashboard card except "Document parser" is a real, styled, clickable button that intentionally does nothing - by design, so slotting in a real feature later means replacing one card's behavior, not restructuring the page.
+
+## Running the full connected app
+
+This frontend expects the backend API to be running at `VITE_API_URL` (see `.env`, defaults to `http://localhost:8000`).
+
+```bash
+# Terminal 1 - backend
+cd backend/parser-backend
+uvicorn api:app --reload --port 8000
+
+# Terminal 2 - frontend
+cd frontend/msme-bios-frontend
+npm run dev
+```
+
+If the backend isn't running or a request fails, the upload page shows a real error message with a "Try again" button - not a silent failure.
 
 ## Extending the upload doc types later
 

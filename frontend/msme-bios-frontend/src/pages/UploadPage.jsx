@@ -28,6 +28,7 @@ export default function UploadPage() {
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [error, setError] = useState(null)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
   const { business } = useBusiness()
@@ -43,6 +44,7 @@ export default function UploadPage() {
   const handleSubmit = async () => {
     if (!file || !selectedType) return
     setIsProcessing(true)
+    setError(null)
 
     const tenantId = business?.businessName ? slugify(business.businessName) : 'default_tenant'
 
@@ -58,21 +60,40 @@ export default function UploadPage() {
       })
 
       if (!response.ok) {
-        // Basic handling for now - Step 6 replaces this with a proper
-        // retry-able error state. This is deliberately minimal, not
-        // the final UX.
         const errorBody = await response.json().catch(() => ({}))
-        console.error('Parse request failed:', response.status, errorBody)
+        if (response.status === 501) {
+          // The parser reached its AI-vision path, but that parser's flag
+          // isn't enabled yet - a known, expected state, not a bug, so it
+          // gets its own clear message rather than a generic failure.
+          setError({
+            title: 'AI-powered reading isn\u2019t enabled for this document yet',
+            detail: 'This document needs AI vision to read, and that\u2019s not turned on for this parser yet. Try a different document, or check back once it\u2019s enabled.',
+          })
+        } else if (response.status === 400) {
+          setError({
+            title: 'This document couldn\u2019t be read',
+            detail: errorBody.message || 'The file may not match the document type you selected.',
+          })
+        } else {
+          setError({
+            title: 'Something went wrong on our end',
+            detail: errorBody.message || `The server responded with an unexpected error (${response.status}).`,
+          })
+        }
         setIsProcessing(false)
         return
       }
 
       const result = await response.json()
       navigate('/results', { state: { result, documentType: selectedType, fileName: file.name } })
-    } catch (err) {
-      // Network failure - backend unreachable, etc. Same note as above:
-      // minimal handling now, Step 6 makes this a real user-facing state.
-      console.error('Could not reach the parser API:', err)
+    } catch {
+      // A genuine network failure - the backend is unreachable, not
+      // running, or CORS is misconfigured. Distinct, actionable message
+      // rather than a silent console-only failure.
+      setError({
+        title: 'Couldn\u2019t reach the server',
+        detail: 'Check that the backend is running, then try again.',
+      })
       setIsProcessing(false)
     }
   }
@@ -90,7 +111,7 @@ export default function UploadPage() {
             {docTypes.map((type) => (
               <button
                 key={type.id}
-                onClick={() => { setSelectedType(type.id); setFile(null) }}
+                onClick={() => { setSelectedType(type.id); setFile(null); setError(null) }}
                 className={`bg-white dark:bg-black p-4 text-left transition-colors ${
                   selectedType === type.id ? 'bg-black text-white dark:bg-white dark:text-black' : ''
                 }`}
@@ -120,7 +141,7 @@ export default function UploadPage() {
                 ref={fileInputRef}
                 type="file"
                 accept={activeType.accept}
-                onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
+                onChange={(e) => { if (e.target.files?.[0]) { setFile(e.target.files[0]); setError(null) } }}
                 className="hidden"
               />
               {file ? (
@@ -143,6 +164,19 @@ export default function UploadPage() {
             >
               {isProcessing ? 'Reading document\u2026' : 'Process document'}
             </button>
+
+            {error && (
+              <div className="mt-4 border border-black/20 dark:border-white/20 p-4">
+                <p className="text-sm font-medium">{error.title}</p>
+                <p className="mt-1 text-sm text-black/60 dark:text-white/60">{error.detail}</p>
+                <button
+                  onClick={handleSubmit}
+                  className="mt-3 text-sm font-medium border border-black dark:border-white px-4 py-1.5 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                >
+                  Try again
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>

@@ -23,10 +23,6 @@ export default function ResultsPage() {
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
       <Navbar />
       <main className="mx-auto max-w-3xl px-6 py-14">
-        <div className="border border-black/15 bg-black/[0.03] px-4 py-2 text-xs dark:border-white/15 dark:bg-white/[0.03]">
-          Demo output — this is placeholder data, not a live parser result yet.
-        </div>
-
         <div className="mt-8 flex items-baseline justify-between">
           <div>
             <p className="font-[family-name:var(--font-data)] text-xs text-black/40 dark:text-white/40">{typeLabels[documentType]}</p>
