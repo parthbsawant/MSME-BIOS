@@ -1,7 +1,9 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { generateMockResult } from '../lib/mockParser'
+import { useBusiness } from '../context/BusinessContext'
+
+const API_URL = import.meta.env.VITE_API_URL
 
 // Kept as a plain array specifically so adding Excel, GST, ITR, and
 // business-rule file types later (parked for the backend phase) is a
@@ -12,6 +14,15 @@ const docTypes = [
   { id: 'photo_bill', label: 'Handwritten bill', hint: 'Photo', accept: 'image/*' },
 ]
 
+// A simple, readable tenant_id derived from the business name, rather
+// than a meaningless hardcoded string - e.g. "Shree Ganesh Stores" ->
+// "shree-ganesh-stores". Not a real user-identity system (that's what
+// real auth will provide later), just a genuine identifier instead of a
+// placeholder one.
+function slugify(name) {
+  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+}
+
 export default function UploadPage() {
   const [selectedType, setSelectedType] = useState(null)
   const [file, setFile] = useState(null)
@@ -19,6 +30,7 @@ export default function UploadPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
+  const { business } = useBusiness()
 
   const activeType = docTypes.find((t) => t.id === selectedType)
 
@@ -28,13 +40,41 @@ export default function UploadPage() {
     if (e.dataTransfer.files?.[0]) setFile(e.dataTransfer.files[0])
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file || !selectedType) return
     setIsProcessing(true)
-    setTimeout(() => {
-      const result = generateMockResult(selectedType, file.name)
+
+    const tenantId = business?.businessName ? slugify(business.businessName) : 'default_tenant'
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('document_type', selectedType)
+    formData.append('tenant_id', tenantId)
+
+    try {
+      const response = await fetch(`${API_URL}/api/parse`, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        // Basic handling for now - Step 6 replaces this with a proper
+        // retry-able error state. This is deliberately minimal, not
+        // the final UX.
+        const errorBody = await response.json().catch(() => ({}))
+        console.error('Parse request failed:', response.status, errorBody)
+        setIsProcessing(false)
+        return
+      }
+
+      const result = await response.json()
       navigate('/results', { state: { result, documentType: selectedType, fileName: file.name } })
-    }, 1400)
+    } catch (err) {
+      // Network failure - backend unreachable, etc. Same note as above:
+      // minimal handling now, Step 6 makes this a real user-facing state.
+      console.error('Could not reach the parser API:', err)
+      setIsProcessing(false)
+    }
   }
 
   return (
