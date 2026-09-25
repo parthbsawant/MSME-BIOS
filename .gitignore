@@ -1,0 +1,12 @@
+# Backend
+backend/msme-bios-parser-shared/venv/
+**/__pycache__/
+*.egg-info/
+.pytest_cache/
+.env
+
+# Frontend
+frontend/msme-bios-frontend/node_modules/
+frontend/msme-bios-frontend/dist/
+
+.DS_Store
