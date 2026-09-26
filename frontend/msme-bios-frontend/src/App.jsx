@@ -11,13 +11,28 @@ import CustomBuilderPage from './pages/CustomBuilderPage'
 import FeatureDashboardPage from './pages/FeatureDashboardPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
+import RedirectIfAuthenticated from './components/RedirectIfAuthenticated'
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/signup" element={<SignupPage />} />
+      <Route
+        path="/login"
+        element={
+          <RedirectIfAuthenticated>
+            <LoginPage />
+          </RedirectIfAuthenticated>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <RedirectIfAuthenticated>
+            <SignupPage />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/business-setup" element={<ProtectedRoute><BusinessSetupPage /></ProtectedRoute>} />
       <Route path="/choose-plan" element={<ProtectedRoute><ChoosePlanPage /></ProtectedRoute>} />
       <Route path="/plan-summary/:tierId" element={<ProtectedRoute><PlanSummaryPage /></ProtectedRoute>} />
