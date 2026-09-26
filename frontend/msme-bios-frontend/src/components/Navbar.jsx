@@ -41,7 +41,9 @@ export default function Navbar({ showNavLinks = false }) {
                 onClick={() => setMenuOpen((o) => !o)}
                 className="flex items-center gap-2 border border-black/20 dark:border-white/20 px-3 py-1.5 text-sm hover:border-black dark:hover:border-white transition-colors"
               >
-                <span className="font-[family-name:var(--font-data)] text-xs">{user.name}</span>
+                <span className="font-[family-name:var(--font-data)] text-xs">
+                  {user.displayName || user.email}
+                </span>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
