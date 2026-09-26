@@ -1,23 +1,86 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { useAuth } from './AuthContext'
 
 const BusinessContext = createContext(null)
 
 export function BusinessProvider({ children }) {
-  const [business, setBusiness] = useState(() => {
-    const stored = localStorage.getItem('msme-business')
-    return stored ? JSON.parse(stored) : null
-  })
-  const [onboarded, setOnboarded] = useState(() => localStorage.getItem('msme-onboarded') === 'true')
+  const { user } = useAuth()
+
+  const [business, setBusiness] = useState(null)
+  const [onboarded, setOnboarded] = useState(false)
+
+  useEffect(() => {
+    // No authenticated user → no business should be loaded.
+    if (!user) {
+      setBusiness(null)
+      setOnboarded(false)
+      return
+    }
+
+    const businessStorageKey = `msme-business-${user.uid}`
+    const onboardedStorageKey = `msme-onboarded-${user.uid}`
+
+    const stored = localStorage.getItem(businessStorageKey)
+    const storedOnboarded =
+      localStorage.getItem(onboardedStorageKey) === 'true'
+
+    if (!stored) {
+      setBusiness(null)
+      setOnboarded(false)
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(stored)
+
+      // Only restore the business belonging to
+      // the currently authenticated Firebase user.
+      if (parsed?.ownerUid === user.uid && storedOnboarded) {
+        setBusiness(parsed)
+        setOnboarded(true)
+      } else {
+        setBusiness(null)
+        setOnboarded(false)
+      }
+    } catch {
+      setBusiness(null)
+      setOnboarded(false)
+    }
+  }, [user])
 
   const saveBusiness = (details) => {
-    localStorage.setItem('msme-business', JSON.stringify(details))
-    localStorage.setItem('msme-onboarded', 'true')
-    setBusiness(details)
+    if (!user) {
+      throw new Error('Cannot save business without an authenticated user')
+    }
+
+    const businessWithOwner = {
+      ...details,
+      ownerUid: user.uid,
+    }
+
+    const businessStorageKey = `msme-business-${user.uid}`
+    const onboardedStorageKey = `msme-onboarded-${user.uid}`
+
+    localStorage.setItem(
+      businessStorageKey,
+      JSON.stringify(businessWithOwner)
+    )
+
+    localStorage.setItem(onboardedStorageKey, 'true')
+
+    setBusiness(businessWithOwner)
     setOnboarded(true)
   }
 
   return (
-    <BusinessContext.Provider value={{ business, hasBusinessProfile: !!business, onboarded, saveBusiness }}>
+    <BusinessContext.Provider
+      value={{
+        business,
+        hasBusinessProfile: !!business,
+        onboarded,
+        saveBusiness,
+      }}
+    >
       {children}
     </BusinessContext.Provider>
   )
@@ -25,6 +88,10 @@ export function BusinessProvider({ children }) {
 
 export function useBusiness() {
   const context = useContext(BusinessContext)
-  if (!context) throw new Error('useBusiness must be used within a BusinessProvider')
+
+  if (!context) {
+    throw new Error('useBusiness must be used within a BusinessProvider')
+  }
+
   return context
 }

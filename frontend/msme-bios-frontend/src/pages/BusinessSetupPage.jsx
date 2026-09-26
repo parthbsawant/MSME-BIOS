@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { useBusiness } from '../context/BusinessContext'
@@ -12,6 +12,12 @@ export default function BusinessSetupPage() {
   const [form, setForm] = useState(
     business || { businessName: '', ownerName: '', type: businessTypes[0], turnover: turnoverBands[0], city: '', gstin: '' }
   )
+
+  useEffect(() => {
+    if (business) {
+      setForm(business)
+    }
+  }, [business])
 
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
 
