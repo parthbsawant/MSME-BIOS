@@ -2,6 +2,7 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { useBusiness } from '../context/BusinessContext'
 import { usePlan } from '../context/PlanContext'
+import AuthLoadingScreen from './AuthLoadingScreen'
 
 export default function RequireOnboarded({ children }) {
   const { isLoggedIn, loading } = useAuth()
@@ -10,7 +11,7 @@ export default function RequireOnboarded({ children }) {
 
   // Wait for Firebase to restore the authentication session
   if (loading) {
-    return null
+    return <AuthLoadingScreen />
   }
 
   if (!isLoggedIn) {

@@ -6,7 +6,7 @@ export default function ProtectedRoute({ children }) {
 
   // Wait for Firebase to restore the authentication session
   if (loading) {
-    return null
+    return <AuthLoadingScreen />
   }
 
   if (!isLoggedIn) {
