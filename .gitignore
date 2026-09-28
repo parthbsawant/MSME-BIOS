@@ -10,3 +10,8 @@ frontend/msme-bios-frontend/node_modules/
 frontend/msme-bios-frontend/dist/
 
 .DS_Store
+
+# Playwright
+playwright-report/
+test-results/
+blob-report/
