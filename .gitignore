@@ -15,3 +15,6 @@ frontend/msme-bios-frontend/dist/
 playwright-report/
 test-results/
 blob-report/
+
+# Playwright test credentials
+.env.test
