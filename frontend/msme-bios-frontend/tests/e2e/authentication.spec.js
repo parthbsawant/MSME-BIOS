@@ -63,3 +63,29 @@ test('authenticated user can log out', async ({ page }) => {
 
   await expect(page).toHaveURL(/\/login$/)
 })
+
+test('logged-out user cannot access protected dashboard', async ({ page }) => {
+  await page.goto('/dashboard')
+
+  await expect(page).toHaveURL(/\/login$/)
+})
+
+test('authenticated user without onboarding cannot access dashboard', async ({ page }) => {
+  await page.goto('/login')
+
+  await page
+    .getByPlaceholder('you@example.com')
+    .fill(process.env.PLAYWRIGHT_TEST_EMAIL)
+
+  await page
+    .getByPlaceholder('Enter your password')
+    .fill(process.env.PLAYWRIGHT_TEST_PASSWORD)
+
+  await page.locator('button[type="submit"]').click()
+
+  await expect(page).toHaveURL(/\/business-setup$/)
+
+  await page.goto('/dashboard')
+
+  await expect(page).toHaveURL(/\/business-setup$/)
+})
