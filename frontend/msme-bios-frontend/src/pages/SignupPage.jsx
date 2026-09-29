@@ -87,8 +87,32 @@ export default function SignupPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const { signup } = useAuth()
+  const { signup, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
+
+  const handleGoogleSignup = async () => {
+    setError('')
+
+    try {
+      setLoading(true)
+      await loginWithGoogle()
+      navigate('/business-setup')
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        console.error('Google signup error:', err)
+      }
+
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Google sign-in was cancelled.')
+      } else if (err.code === 'auth/popup-blocked') {
+        setError('The Google sign-in popup was blocked by your browser.')
+      } else {
+        setError('Unable to sign up with Google. Please try again.')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const update = (field) => (e) => {
     setForm((f) => ({
@@ -285,6 +309,24 @@ export default function SignupPage() {
               {loading ? 'Creating account...' : 'Create account'}
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="my-6 flex items-center gap-3">
+            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+            <span className="text-xs text-black/40 dark:text-white/40">OR</span>
+            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
+          </div>
+
+          {/* Google Signup */}
+          <button
+            type="button"
+            onClick={handleGoogleSignup}
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-3 border border-black/20 dark:border-white/20 px-4 py-2.5 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="text-base font-semibold">G</span>
+            {loading ? 'Please wait...' : 'Continue with Google'}
+          </button>
 
           {/* Login link */}
           <p className="mt-6 text-sm text-black/60 dark:text-white/60">

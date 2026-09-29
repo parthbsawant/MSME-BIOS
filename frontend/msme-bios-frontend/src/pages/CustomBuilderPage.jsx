@@ -39,7 +39,13 @@ export default function CustomBuilderPage() {
     <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
       <Navbar />
       <main className="mx-auto max-w-5xl px-6 py-14 pb-40">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Build your plan</h1>
+        <button
+          onClick={() => navigate('/choose-plan')}
+          className="text-sm font-medium text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition-colors"
+        >
+          &larr; Back
+        </button>
+        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Build your plan</h1>
         <p className="mt-2 text-black/60 dark:text-white/60">
           Document parser is included in every plan. Add whatever else you need. Prices shown are illustrative for this demo.
         </p>
