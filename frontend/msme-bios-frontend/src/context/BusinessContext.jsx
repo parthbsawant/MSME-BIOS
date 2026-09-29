@@ -8,12 +8,16 @@ export function BusinessProvider({ children }) {
 
   const [business, setBusiness] = useState(null)
   const [onboarded, setOnboarded] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
+
     // No authenticated user → no business should be loaded.
     if (!user) {
       setBusiness(null)
       setOnboarded(false)
+      setLoading(false)
       return
     }
 
@@ -27,6 +31,7 @@ export function BusinessProvider({ children }) {
     if (!stored) {
       setBusiness(null)
       setOnboarded(false)
+      setLoading(false)
       return
     }
 
@@ -45,6 +50,8 @@ export function BusinessProvider({ children }) {
     } catch {
       setBusiness(null)
       setOnboarded(false)
+    } finally {
+      setLoading(false)
     }
   }, [user])
 
@@ -79,6 +86,7 @@ export function BusinessProvider({ children }) {
         hasBusinessProfile: !!business,
         onboarded,
         saveBusiness,
+        loading,
       }}
     >
       {children}

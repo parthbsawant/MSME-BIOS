@@ -50,11 +50,15 @@ export function PlanProvider({ children }) {
   const { user } = useAuth()
 
   const [plan, setPlan] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
+
     // No authenticated user → no plan should be loaded.
     if (!user) {
       setPlan(null)
+      setLoading(false)
       return
     }
 
@@ -63,6 +67,7 @@ export function PlanProvider({ children }) {
 
     if (!stored) {
       setPlan(null)
+      setLoading(false)
       return
     }
 
@@ -71,6 +76,8 @@ export function PlanProvider({ children }) {
       setPlan(parsed)
     } catch {
       setPlan(null)
+    } finally {
+      setLoading(false)
     }
   }, [user])
 
@@ -136,6 +143,7 @@ export function PlanProvider({ children }) {
         hasPlan: !!plan,
         selectTier,
         selectCustom,
+        loading,
       }}
     >
       {children}

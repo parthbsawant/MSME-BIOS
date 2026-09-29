@@ -82,7 +82,6 @@ export default function SignupPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    businessName: '',
   })
 
   const [error, setError] = useState('')
@@ -272,27 +271,6 @@ export default function SignupPage() {
                 onChange={update('confirmPassword')}
                 placeholder="Re-enter your password"
                 autoComplete="new-password"
-                disabled={loading}
-                className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            {/* Business name */}
-            <div>
-              <label
-                htmlFor="businessName"
-                className="block text-sm font-medium"
-              >
-                Business name
-              </label>
-
-              <input
-                id="businessName"
-                type="text"
-                value={form.businessName}
-                onChange={update('businessName')}
-                placeholder="e.g. Shree Ganesh Stores"
-                autoComplete="organization"
                 disabled={loading}
                 className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               />
