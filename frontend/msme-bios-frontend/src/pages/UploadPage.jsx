@@ -1,9 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { useBusiness } from '../context/BusinessContext'
-
-const API_URL = import.meta.env.VITE_API_URL
+import { parseDocument } from '../lib/api'
 
 // Kept as a plain array specifically so adding Excel, GST, ITR, and
 // business-rule file types later (parked for the backend phase) is a
@@ -14,15 +12,6 @@ const docTypes = [
   { id: 'photo_bill', label: 'Handwritten bill', hint: 'Photo', accept: 'image/*' },
 ]
 
-// A simple, readable tenant_id derived from the business name, rather
-// than a meaningless hardcoded string - e.g. "Shree Ganesh Stores" ->
-// "shree-ganesh-stores". Not a real user-identity system (that's what
-// real auth will provide later), just a genuine identifier instead of a
-// placeholder one.
-function slugify(name) {
-  return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
-}
-
 export default function UploadPage() {
   const [selectedType, setSelectedType] = useState(null)
   const [file, setFile] = useState(null)
@@ -31,7 +20,6 @@ export default function UploadPage() {
   const [error, setError] = useState(null)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
-  const { business } = useBusiness()
 
   const activeType = docTypes.find((t) => t.id === selectedType)
 
@@ -46,54 +34,38 @@ export default function UploadPage() {
     setIsProcessing(true)
     setError(null)
 
-    const tenantId = business?.businessName ? slugify(business.businessName) : 'default_tenant'
-
-    const formData = new FormData()
-    formData.append('file', file)
-    formData.append('document_type', selectedType)
-    formData.append('tenant_id', tenantId)
-
+    // MILESTONE 2: no tenant_id is built or sent here at all anymore -
+    // parseDocument() attaches the real Firebase ID token, and the
+    // backend resolves tenant_id itself from that verified identity.
     try {
-      const response = await fetch(`${API_URL}/api/parse`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorBody = await response.json().catch(() => ({}))
-        if (response.status === 501) {
-          // The parser reached its AI-vision path, but that parser's flag
-          // isn't enabled yet - a known, expected state, not a bug, so it
-          // gets its own clear message rather than a generic failure.
-          setError({
-            title: 'AI-powered reading isn\u2019t enabled for this document yet',
-            detail: 'This document needs AI vision to read, and that\u2019s not turned on for this parser yet. Try a different document, or check back once it\u2019s enabled.',
-          })
-        } else if (response.status === 400) {
-          setError({
-            title: 'This document couldn\u2019t be read',
-            detail: errorBody.message || 'The file may not match the document type you selected.',
-          })
-        } else {
-          setError({
-            title: 'Something went wrong on our end',
-            detail: errorBody.message || `The server responded with an unexpected error (${response.status}).`,
-          })
-        }
-        setIsProcessing(false)
-        return
-      }
-
-      const result = await response.json()
+      const result = await parseDocument(file, selectedType)
       navigate('/results', { state: { result, documentType: selectedType, fileName: file.name } })
-    } catch {
-      // A genuine network failure - the backend is unreachable, not
-      // running, or CORS is misconfigured. Distinct, actionable message
-      // rather than a silent console-only failure.
-      setError({
-        title: 'Couldn\u2019t reach the server',
-        detail: 'Check that the backend is running, then try again.',
-      })
+    } catch (err) {
+      if (err.status === 501) {
+        setError({
+          title: 'AI-powered reading isn\u2019t enabled for this document yet',
+          detail: 'This document needs AI vision to read, and that\u2019s not turned on for this parser yet. Try a different document, or check back once it\u2019s enabled.',
+        })
+      } else if (err.status === 400) {
+        setError({
+          title: 'This document couldn\u2019t be read',
+          detail: err.message || 'The file may not match the document type you selected.',
+        })
+      } else if (err.status) {
+        setError({
+          title: 'Something went wrong on our end',
+          detail: err.message || `The server responded with an unexpected error (${err.status}).`,
+        })
+      } else {
+        // No status at all means the request never got a response -
+        // the backend is unreachable, not running, or CORS is
+        // misconfigured, not a parsing problem.
+        setError({
+          title: 'Couldn\u2019t reach the server',
+          detail: 'Check that the backend is running, then try again.',
+        })
+      }
+    } finally {
       setIsProcessing(false)
     }
   }

@@ -81,7 +81,26 @@ brew install tesseract   # macOS
 python3 -m pytest tests/ -v
 ```
 
-Currently **59 tests, all passing** - 13 bank, 10 invoice, 17 handwritten, 7 shared, 12 pipeline.
+Currently **67 passing, 1 skipped** - the original 59 parser tests plus 8 new tenant-isolation tests. The one skip needs a real Firebase service account configured (see below) - it's testing Firebase's own cryptographic verification, which can't be faked with a stub.
+
+## Milestone 2 — real accounts, real database, real tenant isolation
+
+Every endpoint that touches tenant-owned data now requires a real, verified Firebase ID token. `tenant_id` is never accepted from a client anywhere - it's always resolved server-side from the verified identity (`tenant_resolution.py`), the one thing this milestone exists to guarantee.
+
+**New pieces:**
+- `firebase_auth.py` - verifies the token, isolated from everything else
+- `db_pool.py` - connection helper for the new application tables (kept separate from `msme_bios_shared/db.py`, which is unrelated - that one's for parser staging writes)
+- `tenant_resolution.py` - Firebase UID → User → Tenant → `tenant_id`, find-or-create
+- `schema/001_initial_schema.sql` - the database schema this all persists to
+- `GET /api/me`, `POST /api/business`, `POST /api/plan` - new authenticated endpoints
+- `POST /api/parse` - unchanged in what it does, changed in where `tenant_id` comes from
+
+**Setup:**
+1. Get a Firebase service account credential - see `firebase_auth.py`'s docstring for exact steps
+2. Save it **outside this repo entirely**, then set `FIREBASE_SERVICE_ACCOUNT_PATH` in `.env` to that real path
+3. Apply the database schema if you haven't: `psql -d msme_bios -f schema/001_initial_schema.sql`
+
+**What's deliberately not built yet:** parsed documents themselves aren't persisted to the database - only business profile and plan selection are. Saving actual parse results to `documents`/`bank_transactions`/etc. is a clean next milestone, not part of this one.
 
 ## A real fix worth knowing about, if you're used to the old repos
 
@@ -90,8 +109,10 @@ The old `msme-bios-invoice-parser` repo reached `gst_utils.py` through a `sys.pa
 ## Status
 
 - [x] All three parsers' code consolidated, with their own tests intact
-- [x] Python 3.9 compatibility bug (found and fixed once in the handwritten parser) found and fixed across bank and invoice too
+- [x] Python 3.9 compatibility bug found and fixed across bank and invoice too
 - [x] Per-parser AI toggle mechanism, tested end-to-end
 - [x] `pipeline.py` built and tested against real sample files
-- [ ] Frontend (planned next, once this is confirmed working via terminal testing)
+- [x] Frontend connected to the real parser API
+- [x] Real Firebase authentication, real database, real tenant isolation (Milestone 2)
 - [ ] Claude vision approved and enabled for the handwritten parser specifically
+- [ ] Parsed documents persisted to the database (next milestone)

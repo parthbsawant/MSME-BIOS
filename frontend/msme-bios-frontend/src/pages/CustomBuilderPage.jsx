@@ -4,6 +4,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from '
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
 import { FEATURES, formatPrice } from '../lib/featuresData'
+import { savePlan as savePlanToBackend } from '../lib/api'
 
 function AnimatedPrice({ value }) {
   const motionValue = useMotionValue(value)
@@ -21,6 +22,8 @@ export default function CustomBuilderPage() {
   const navigate = useNavigate()
   const { selectCustom } = usePlan()
   const [selectedIds, setSelectedIds] = useState(['document_parser'])
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   const toggleFeature = (id) => {
     const feature = FEATURES.find((f) => f.id === id)
@@ -30,9 +33,21 @@ export default function CustomBuilderPage() {
 
   const total = selectedIds.reduce((sum, id) => sum + FEATURES.find((f) => f.id === id).price, 0)
 
-  const handleConfirm = () => {
-    selectCustom(selectedIds)
-    navigate('/dashboard')
+  const handleConfirm = async () => {
+    setError('')
+    setSaving(true)
+    try {
+      // MILESTONE 2: persists to the backend, scoped to the resolved
+      // tenant - same pattern as the tier-plan path.
+      await savePlanToBackend({ type: 'custom', featureIds: selectedIds, price: total })
+      selectCustom(selectedIds)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error('Failed to save plan:', err)
+      setError('Couldn\u2019t save your plan. Check that the backend is running, then try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -129,11 +144,15 @@ export default function CustomBuilderPage() {
             </div>
             <button
               onClick={handleConfirm}
-              className="bg-black px-6 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity"
+              disabled={saving}
+              className="bg-black px-6 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Confirm plan
+              {saving ? 'Saving\u2026' : 'Confirm plan'}
             </button>
           </div>
+          {error && (
+            <p className="mt-3 text-sm text-red-700 dark:text-red-300">{error}</p>
+          )}
         </div>
       </div>
     </div>

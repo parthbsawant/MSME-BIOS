@@ -1,5 +1,6 @@
 # Backend
-backend/msme-bios-parser-shared/venv/
+backend/parser-backend/.venv/
+backend/parser-backend/venv/
 **/__pycache__/
 *.egg-info/
 .pytest_cache/

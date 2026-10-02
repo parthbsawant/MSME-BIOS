@@ -1,19 +1,35 @@
+import { useState } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
 import { TIERS, featureById, formatPrice } from '../lib/featuresData'
+import { savePlan as savePlanToBackend } from '../lib/api'
 
 export default function PlanSummaryPage() {
   const { tierId } = useParams()
   const navigate = useNavigate()
   const { selectTier } = usePlan()
   const tier = TIERS.find((t) => t.id === tierId)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
 
   if (!tier) return <Navigate to="/choose-plan" replace />
 
-  const handleConfirm = () => {
-    selectTier(tier.id)
-    navigate('/dashboard')
+  const handleConfirm = async () => {
+    setError('')
+    setSaving(true)
+    try {
+      // MILESTONE 2: persists to the backend, scoped to the resolved
+      // tenant - same pattern as business setup.
+      await savePlanToBackend({ type: 'tier', tierId: tier.id, featureIds: tier.featureIds, price: tier.price })
+      selectTier(tier.id)
+      navigate('/dashboard')
+    } catch (err) {
+      console.error('Failed to save plan:', err)
+      setError('Couldn\u2019t save your plan. Check that the backend is running, then try again.')
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -45,18 +61,26 @@ export default function PlanSummaryPage() {
           </ul>
         </div>
 
+        {error && (
+          <div className="mt-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+            {error}
+          </div>
+        )}
+
         <div className="mt-8 flex gap-3">
           <button
             onClick={() => navigate('/choose-plan')}
-            className="border border-black/20 dark:border-white/20 px-5 py-2.5 text-sm font-medium hover:border-black dark:hover:border-white transition-colors"
+            disabled={saving}
+            className="border border-black/20 dark:border-white/20 px-5 py-2.5 text-sm font-medium hover:border-black dark:hover:border-white transition-colors disabled:opacity-50"
           >
             Back
           </button>
           <button
             onClick={handleConfirm}
-            className="flex-1 bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity"
+            disabled={saving}
+            className="flex-1 bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Confirm and continue
+            {saving ? 'Saving\u2026' : 'Confirm and continue'}
           </button>
         </div>
       </main>
