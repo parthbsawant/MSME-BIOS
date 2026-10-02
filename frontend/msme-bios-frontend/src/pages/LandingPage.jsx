@@ -2,95 +2,272 @@ import { Link, useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import FeatureFlipCard from '../components/FeatureFlipCard'
 import PricingTierCard from '../components/PricingTierCard'
-import { FEATURES, TIERS } from '../lib/featuresData'
+import { TIERS } from '../lib/featuresData'
 
-const heroFeatureIds = ['document_parser', 'cash_dashboard', 'invoice_generator', 'receivables_payables', 'anomaly_detection', 'business_health_index']
+// 4 core feature cards matching the exact spirit:
+// document digitization, business tracking, invoice generation, localized for India
+const coreFeatures = [
+  {
+    id: 'document_parser',
+    title: 'Document Digitization',
+    tagline: 'Read once, understood forever',
+    description: 'Turns bank statements, invoices, and handwritten bills into structured records automatically using AI vision.',
+    icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    id: 'cash_dashboard',
+    title: 'Business Tracking',
+    tagline: 'Know your position, daily',
+    description: 'Live view of cash flow, daily revenue, bank balances, and P&L statements updated as transactions happen.',
+    icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M3 3v18h18" />
+        <path d="m19 9-5 5-4-4-3 3" />
+      </svg>
+    ),
+  },
+  {
+    id: 'invoice_generator',
+    title: 'Invoice Generation',
+    tagline: 'GST-correct, in seconds',
+    description: 'Create compliant, professional invoices with correct CGST/SGST splits ready to send to customers.',
+    icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <line x1="6" y1="8" x2="10" y2="8" />
+        <line x1="6" y1="12" x2="18" y2="12" />
+      </svg>
+    ),
+  },
+  {
+    id: 'india_localized',
+    title: 'Built for India',
+    tagline: 'Tailored for Indian MSMEs',
+    description: 'Supports handwritten paper bills, local GST regulations, vernacular bill formats, and WhatsApp notifications.',
+    icon: (
+      <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M4.93 19.07l4.24-4.24" />
+      </svg>
+    ),
+  },
+]
 
 export default function LandingPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+      {/* Full Header Navbar */}
       <Navbar showNavLinks />
 
       <main>
-        <section className="mx-auto max-w-5xl px-6 py-24 text-center md:py-32">
-          <h1 className="font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.05] tracking-tight md:text-7xl">
-            Run your business on real numbers, not guesswork.
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-lg text-black/70 dark:text-white/70">
-            MSME-BIOS reads your documents, tracks your cash, and shows you exactly
-            where the business stands — built for small and micro enterprises.
-          </p>
-          <button
-            onClick={() => navigate('/signup')}
-            className="mt-8 bg-black px-7 py-3.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity"
-          >
-            Get started
-          </button>
-        </section>
+        {/* HERO SECTION - NO IMAGE */}
+        <section id="hero" className="mx-auto max-w-5xl px-6 pt-16 pb-20 md:pt-24 md:pb-28 text-center">
+          
+          {/* Top Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full border border-[#E8622C]/30 dark:border-[#F27A4A]/30 bg-[#E8622C]/10 dark:bg-[#F27A4A]/10 px-3.5 py-1 text-xs font-semibold text-[#E8622C] dark:text-[#F27A4A] shadow-xs mb-8">
+            <span className="h-2 w-2 rounded-full bg-[#E8622C] dark:bg-[#F27A4A] animate-pulse" />
+            <span>Built Specifically for Indian Small Business Owners</span>
+          </div>
 
-        <section id="features" className="mx-auto max-w-5xl px-6 py-20 border-t border-black/15 dark:border-white/15">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Everything the business needs, in one place.</h2>
-          <p className="mt-2 text-black/60 dark:text-white/60">Hover a card for details.</p>
-          <div className="mt-10 grid gap-6 sm:grid-cols-2 md:grid-cols-3">
-            {heroFeatureIds.map((id) => {
-              const f = FEATURES.find((feat) => feat.id === id)
-              return <FeatureFlipCard key={id} name={f.name} tagline={f.tagline} description={f.description} />
-            })}
+          {/* Headline */}
+          <h1 className="font-[family-name:var(--font-display)] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+            Turn your paperwork into <br className="hidden sm:block" />
+            <span className="text-[#E8622C] dark:text-[#F27A4A] relative inline-block">
+              real business insight
+              <svg className="absolute -bottom-2 left-0 w-full text-[#E8622C]/30 dark:text-[#F27A4A]/30" viewBox="0 0 100 20" preserveAspectRatio="none">
+                <path d="M0 15 Q 50 0 100 15" fill="none" stroke="currentColor" strokeWidth="4" />
+              </svg>
+            </span>
+          </h1>
+
+          {/* Subheading */}
+          <p className="mx-auto mt-8 max-w-2xl text-base sm:text-lg text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+            MSME-BIOS reads your handwritten bills and bank statements, tracks cash flow daily, 
+            and delivers actionable intelligence so you can run your enterprise on real numbers, not guesswork.
+          </p>
+
+          {/* Primary CTA */}
+          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => navigate('/signup')}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-8 py-4 text-sm font-bold text-white shadow-lg shadow-[#E8622C]/25 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 cursor-pointer"
+            >
+              <span>Get Started for Free</span>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+            <a
+              href="#how-it-works"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] px-6 py-4 text-sm font-semibold text-[#2A2521] dark:text-[#F5EFE8] hover:border-[#E8622C] dark:hover:border-[#F27A4A] transition-colors"
+            >
+              <span>See How It Works</span>
+            </a>
+          </div>
+
+          {/* Trust Indicators Row */}
+          <div className="mt-14 pt-10 border-t border-[#F0E4D8] dark:border-[#3A332A] flex flex-wrap items-center justify-center gap-8 sm:gap-12">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span>Easy to use</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span>Built for Indian businesses</span>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <span>Secure & Private</span>
+            </div>
           </div>
         </section>
 
-        <section id="pricing" className="mx-auto max-w-6xl px-6 py-20 border-t border-black/15 dark:border-white/15">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Pick a plan, or build your own.</h2>
-          <p className="mt-2 text-black/60 dark:text-white/60">Prices shown are illustrative for this demo.</p>
-          <div className="mt-10 grid gap-6 md:grid-cols-5">
+        {/* 4-COLUMN FEATURE GRID SECTION */}
+        <section id="features" className="mx-auto max-w-7xl px-6 py-20 border-t border-[#F0E4D8] dark:border-[#3A332A]">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Everything In One Platform</span>
+            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+              Everything you need to run your business, in one place
+            </h2>
+            <p className="mt-3 text-sm text-[#8A7F74] dark:text-[#A89E92]">
+              Designed specifically to take paperwork off your plate so you can focus on growing sales.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {coreFeatures.map((feat) => (
+              <FeatureFlipCard
+                key={feat.id}
+                name={feat.title}
+                tagline={feat.tagline}
+                description={feat.description}
+                icon={feat.icon}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* HOW IT WORKS SECTION */}
+        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20 border-t border-[#F0E4D8] dark:border-[#3A332A]">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Simple 3-Step Process</span>
+            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+              How MSME-BIOS Works
+            </h2>
+          </div>
+
+          <div className="mt-12 grid gap-8 md:grid-cols-3">
+            <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-6 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8622C] text-white font-bold text-lg">
+                1
+              </div>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] font-bold text-base text-[#2A2521] dark:text-[#F5EFE8]">Upload Papers</h3>
+              <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92]">Snap a picture of handwritten bills or upload PDF bank statements in seconds.</p>
+            </div>
+
+            <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-6 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8622C] text-white font-bold text-lg">
+                2
+              </div>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] font-bold text-base text-[#2A2521] dark:text-[#F5EFE8]">Automated Parsing</h3>
+              <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92]">Our AI extracts line items, GST splits, vendor names, and totals automatically.</p>
+            </div>
+
+            <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-6 text-center shadow-sm">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E8622C] text-white font-bold text-lg">
+                3
+              </div>
+              <h3 className="mt-4 font-[family-name:var(--font-display)] font-bold text-base text-[#2A2521] dark:text-[#F5EFE8]">Get Business Insight</h3>
+              <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92]">See cash balances, P&L statements, and customer dues updated in real-time.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* PRICING SECTION */}
+        <section id="pricing" className="mx-auto max-w-7xl px-6 py-20 border-t border-[#F0E4D8] dark:border-[#3A332A]">
+          <div className="text-center max-w-2xl mx-auto">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Flexible Plans</span>
+            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl sm:text-4xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+              Pick a plan, or build your own
+            </h2>
+            <p className="mt-2 text-sm text-[#8A7F74] dark:text-[#A89E92]">
+              Transparent pricing designed to scale with your business turnover.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {TIERS.map((tier) => (
               <PricingTierCard key={tier.id} tier={tier} onSelect={() => navigate('/signup')} />
             ))}
-            <div className="flex flex-col justify-between border border-dashed border-black/30 dark:border-white/30 p-6">
+            
+            {/* Custom Plan Option Card */}
+            <div className="flex flex-col justify-between rounded-2xl border border-dashed border-[#E8622C]/50 dark:border-[#F27A4A]/50 bg-[#FFFFFF] dark:bg-[#242019] p-6 shadow-sm">
               <div>
-                <p className="font-[family-name:var(--font-display)] text-xl font-semibold">Build your own</p>
-                <p className="mt-1 text-xs text-black/50 dark:text-white/50">Pick exactly what you need</p>
-                <p className="mt-6 text-sm text-black/70 dark:text-white/70">
-                  Choose individual features and see your price update as you go.
+                <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#E8622C] dark:text-[#F27A4A]">Custom</span>
+                <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">Build your own</h3>
+                <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">Pick exactly what you need</p>
+                <p className="mt-6 text-xs text-[#2A2521]/80 dark:text-[#F5EFE8]/80 leading-relaxed">
+                  Select individual modules and watch your price update in real-time.
                 </p>
               </div>
               <button
                 onClick={() => navigate('/signup')}
-                className="mt-6 w-full border border-black dark:border-white py-2.5 text-sm font-medium hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+                className="mt-8 w-full rounded-xl border border-[#E8622C] dark:border-[#F27A4A] py-3 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714] transition-all cursor-pointer"
               >
-                Get a quote
+                Get a Quote
               </button>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-5xl px-6 py-20 border-t border-black/15 dark:border-white/15">
-          <div className="border border-black/15 dark:border-white/15 p-10 text-center sm:p-14">
-            <p className="font-[family-name:var(--font-data)] text-xs text-black/40 dark:text-white/40">Not registered yet?</p>
-            <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight sm:text-3xl">
+        {/* MSME GUIDE BANNER */}
+        <section className="mx-auto max-w-5xl px-6 py-20 border-t border-[#F0E4D8] dark:border-[#3A332A]">
+          <div className="rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-12 text-center shadow-md">
+            <span className="inline-block rounded-full bg-[#1F9254]/10 dark:bg-[#132E21] px-3 py-1 text-xs font-bold text-[#1F9254] dark:text-[#34D399]">
+              Free Guide & Resource
+            </span>
+            <h2 className="mt-4 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
               Is your business officially an MSME?
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-black/60 dark:text-white/60">
-              It&rsquo;s free, takes about 10 minutes, and unlocks collateral-free loans, tax benefits, and protection against late payments. Here&rsquo;s what it is and how to do it.
+            <p className="mx-auto mt-3 max-w-xl text-sm text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+              Registration is completely free, takes about 10 minutes, and unlocks collateral-free bank loans, lower interest rates, and protection against delayed customer payments.
             </p>
             <Link
               to="/msme-guide"
-              className="mt-6 inline-block border border-black dark:border-white px-6 py-2.5 text-sm font-medium hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#2A2521] dark:bg-[#F5EFE8] px-6 py-3 text-xs font-bold text-white dark:text-[#1A1714] hover:bg-[#E8622C] dark:hover:bg-[#F27A4A] dark:hover:text-white transition-all cursor-pointer"
             >
-              Learn about MSME registration
+              <span>Learn about MSME registration</span>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </Link>
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-black/15 dark:border-white/15 py-8">
-        <div className="mx-auto max-w-6xl px-6 flex flex-wrap items-center justify-between gap-4 text-xs text-black/40 dark:text-white/40">
-          <span>MSME-BIOS — a business intelligence system for small and micro enterprises.</span>
+      {/* Footer */}
+      <footer className="border-t border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] py-8">
+        <div className="mx-auto max-w-7xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8A7F74] dark:text-[#A89E92]">
+          <span>© 2026 MSME-BIOS — Business Intelligence System for Indian Enterprises.</span>
           <div className="flex gap-6">
-            <Link to="/login" className="hover:text-black dark:hover:text-white transition-colors">Log in</Link>
-            <Link to="/signup" className="hover:text-black dark:hover:text-white transition-colors">Sign up</Link>
+            <Link to="/login" className="hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">Log in</Link>
+            <Link to="/signup" className="hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">Sign up</Link>
+            <Link to="/msme-guide" className="hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">MSME Guide</Link>
           </div>
         </div>
       </footer>

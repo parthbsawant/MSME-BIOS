@@ -31,12 +31,6 @@ export default function BusinessSetupPage() {
     setSaving(true)
 
     try {
-      // MILESTONE 2: persists to the real backend first, scoped to the
-      // authenticated user's resolved tenant - the backend never sees
-      // or accepts a tenant_id from this call. The existing localStorage
-      // save stays too for now, since it's still what the route guards
-      // (RequireOnboarded) check - a later milestone moves that check
-      // to the backend as well.
       await saveBusinessToBackend(form)
       saveBusiness(form)
       navigate('/choose-plan')
@@ -49,39 +43,49 @@ export default function BusinessSetupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-2xl px-6 py-14">
-        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Tell us about your business</h1>
-        <p className="mt-2 text-black/60 dark:text-white/60">A few basics before you choose a plan — takes under a minute.</p>
+      <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-10 shadow-xl">
+          <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+            Onboarding Step 1 of 2
+          </span>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+            Tell us about your business
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+            A few basics before you choose a plan — takes under a minute.
+          </p>
 
-        {error && (
-          <div className="mt-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 text-xs text-red-700 dark:text-red-300">
+              {error}
+            </div>
+          )}
 
-        <form onSubmit={handleSubmit} className="mt-10 space-y-6">
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Field label="Business name" value={form.businessName} onChange={update('businessName')} placeholder="e.g. Shree Ganesh Stores" required />
-            <Field label="Owner / contact name" value={form.ownerName} onChange={update('ownerName')} placeholder="e.g. Ramesh Patil" required />
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <SelectField label="Business type" value={form.type} onChange={update('type')} options={businessTypes} />
-            <SelectField label="Annual turnover" value={form.turnover} onChange={update('turnover')} options={turnoverBands} />
-          </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <Field label="City" value={form.city} onChange={update('city')} placeholder="e.g. Pune" />
-            <Field label="GSTIN (optional)" value={form.gstin} onChange={update('gstin')} placeholder="e.g. 27ABCDE1234F1Z5" />
-          </div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="mt-4 bg-black px-6 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? 'Saving\u2026' : 'Continue to plans'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Business name" value={form.businessName} onChange={update('businessName')} placeholder="e.g. Shree Ganesh Stores" required />
+              <Field label="Owner / contact name" value={form.ownerName} onChange={update('ownerName')} placeholder="e.g. Ramesh Patil" required />
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <SelectField label="Business type" value={form.type} onChange={update('type')} options={businessTypes} />
+              <SelectField label="Annual turnover" value={form.turnover} onChange={update('turnover')} options={turnoverBands} />
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="City" value={form.city} onChange={update('city')} placeholder="e.g. Pune" />
+              <Field label="GSTIN (optional)" value={form.gstin} onChange={update('gstin')} placeholder="e.g. 27ABCDE1234F1Z5" />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={saving}
+              className="mt-6 w-full rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] py-3.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? 'Saving business profile…' : 'Continue to Plans & Pricing'}
+            </button>
+          </form>
+        </div>
       </main>
     </div>
   )
@@ -90,14 +94,14 @@ export default function BusinessSetupPage() {
 function Field({ label, value, onChange, placeholder, required }) {
   return (
     <div>
-      <label className="block text-sm font-medium">{label}</label>
+      <label className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{label}</label>
       <input
         type="text"
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors"
+        className="mt-1.5 w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors"
       />
     </div>
   )
@@ -106,11 +110,11 @@ function Field({ label, value, onChange, placeholder, required }) {
 function SelectField({ label, value, onChange, options }) {
   return (
     <div>
-      <label className="block text-sm font-medium">{label}</label>
+      <label className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{label}</label>
       <select
         value={value}
         onChange={onChange}
-        className="mt-2 w-full border border-black/20 dark:border-white/20 bg-white dark:bg-black px-3 py-2.5 text-sm focus:border-black dark:focus:border-white focus:outline-none transition-colors"
+        className="mt-1.5 w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 text-xs text-[#2A2521] dark:text-[#F5EFE8] focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors cursor-pointer"
       >
         {options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
       </select>

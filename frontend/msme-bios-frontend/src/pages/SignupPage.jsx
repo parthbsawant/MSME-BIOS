@@ -1,80 +1,7 @@
-// import { useState } from 'react'
-// import { useNavigate, Link } from 'react-router-dom'
-// import { useAuth } from '../context/AuthContext'
-// import Navbar from '../components/Navbar'
-
-// export default function SignupPage() {
-//   const [form, setForm] = useState({ name: '', email: '', businessName: '' })
-//   const { signup } = useAuth()
-//   const navigate = useNavigate()
-
-//   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }))
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault()
-//     if (!form.name.trim() || !form.email.trim()) return
-//     signup(form)
-//     navigate('/business-setup')
-//   }
-
-//   return (
-//     <div className="flex min-h-screen flex-col bg-white text-black dark:bg-black dark:text-white transition-colors">
-//       <Navbar />
-//       <main className="flex flex-1 items-center justify-center px-6">
-//         <div className="w-full max-w-sm">
-//           <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Sign up</h1>
-//           <p className="mt-2 text-sm text-black/60 dark:text-white/60">This is a demo signup — no real account is created yet.</p>
-
-//           <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-//             <div>
-//               <label className="block text-sm font-medium">Your name</label>
-//               <input
-//                 type="text"
-//                 value={form.name}
-//                 onChange={update('name')}
-//                 placeholder="e.g. Parth Sawant"
-//                 className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium">Email</label>
-//               <input
-//                 type="email"
-//                 value={form.email}
-//                 onChange={update('email')}
-//                 placeholder="e.g. parth@example.com"
-//                 className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors"
-//               />
-//             </div>
-//             <div>
-//               <label className="block text-sm font-medium">Business name</label>
-//               <input
-//                 type="text"
-//                 value={form.businessName}
-//                 onChange={update('businessName')}
-//                 placeholder="e.g. Shree Ganesh Stores"
-//                 className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors"
-//               />
-//             </div>
-//             <button type="submit" className="w-full bg-black px-4 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity">
-//               Create account
-//             </button>
-//           </form>
-
-//           <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-//             Already have an account? <Link to="/login" className="font-medium text-black dark:text-white underline">Log in</Link>
-//           </p>
-//         </div>
-//       </main>
-//     </div>
-//   )
-// }
-
-
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import Navbar from '../components/Navbar'
+import ThemeToggle from '../components/ThemeToggle'
 
 export default function SignupPage() {
   const [form, setForm] = useState({
@@ -83,7 +10,7 @@ export default function SignupPage() {
     password: '',
     confirmPassword: '',
   })
-
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -92,7 +19,6 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     setError('')
-
     try {
       setLoading(true)
       await loginWithGoogle()
@@ -101,7 +27,6 @@ export default function SignupPage() {
       if (err.code !== 'auth/popup-closed-by-user') {
         console.error('Google signup error:', err)
       }
-
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Google sign-in was cancelled.')
       } else if (err.code === 'auth/popup-blocked') {
@@ -123,29 +48,24 @@ export default function SignupPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
     setError('')
 
     if (!form.name.trim()) {
       setError('Please enter your name.')
       return
     }
-
     if (!form.email.trim()) {
       setError('Please enter your email address.')
       return
     }
-
     if (!form.password) {
       setError('Please enter a password.')
       return
     }
-
     if (form.password.length < 6) {
       setError('Password must be at least 6 characters long.')
       return
     }
-
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match.')
       return
@@ -153,34 +73,27 @@ export default function SignupPage() {
 
     try {
       setLoading(true)
-
       await signup({
         name: form.name.trim(),
         email: form.email.trim(),
         password: form.password,
       })
-
       navigate('/business-setup')
     } catch (err) {
       console.error('Signup error:', err)
-
       switch (err.code) {
         case 'auth/email-already-in-use':
           setError('An account already exists with this email.')
           break
-
         case 'auth/invalid-email':
           setError('Please enter a valid email address.')
           break
-
         case 'auth/weak-password':
           setError('Password is too weak. Please use a stronger password.')
           break
-
         case 'auth/operation-not-allowed':
           setError('Email/password authentication is not enabled in Firebase.')
           break
-
         default:
           setError('Unable to create your account. Please try again.')
       }
@@ -190,154 +103,263 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white text-black dark:bg-black dark:text-white transition-colors">
-      <Navbar />
+    <div className="flex min-h-screen flex-col bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+      
+      {/* Top Navbar */}
+      <header className="sticky top-0 z-30 bg-[#FBF3EC]/90 dark:bg-[#1A1714]/90 backdrop-blur-md border-b border-[#F0E4D8] dark:border-[#3A332A] px-6 py-4">
+        <div className="mx-auto flex max-w-7xl items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] text-white font-bold">
+              M
+            </div>
+            <span className="font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+              MSME<span className="text-[#E8622C] dark:text-[#F27A4A]">-BIOS</span>
+            </span>
+          </Link>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-10">
-        <div className="w-full max-w-sm">
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
+            <div className="text-xs font-medium text-[#8A7F74] dark:text-[#A89E92]">
+              Already have an account?{' '}
+              <Link to="/login" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+                Login
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
 
-          {/* Heading */}
-          <div>
-            <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">
-              Sign up
-            </h1>
+      {/* Main Two-Column Layout */}
+      <main className="flex flex-1 items-center justify-center px-4 sm:px-6 py-8 md:py-12">
+        <div className="grid w-full max-w-5xl gap-8 lg:grid-cols-2 items-center">
+          
+          {/* LEFT COLUMN: AUTH FORM CARD */}
+          <div className="rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-6 sm:p-10 shadow-xl">
+            
+            {/* Header */}
+            <div>
+              <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+                Get Started
+              </span>
+              <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+                Create an Account
+              </h1>
+              <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+                Start digitizing your paperwork and cash flow today.
+              </p>
+            </div>
 
-            <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-              Create your MSME-BIOS account.
+            {/* Tab Switcher */}
+            <div className="mt-6 flex rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] p-1">
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="flex-1 rounded-lg py-2 text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors cursor-pointer"
+              >
+                Log In
+              </button>
+              <button
+                type="button"
+                className="flex-1 rounded-lg bg-[#FFFFFF] dark:bg-[#242019] py-2 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] shadow-xs"
+              >
+                Create Account
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-5 rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
+                <svg className="h-4 w-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Signup Form */}
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              
+              {/* Full Name */}
+              <div>
+                <label htmlFor="name" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                  Full Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  value={form.name}
+                  onChange={update('name')}
+                  placeholder="e.g. Ramesh Patil"
+                  autoComplete="name"
+                  disabled={loading}
+                  className="mt-1.5 w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors disabled:opacity-50"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={update('email')}
+                  placeholder="ramesh@example.com"
+                  autoComplete="email"
+                  disabled={loading}
+                  className="mt-1.5 w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors disabled:opacity-50"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                  Password
+                </label>
+                <div className="relative mt-1.5">
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={form.password}
+                    onChange={update('password')}
+                    placeholder="Minimum 6 characters"
+                    autoComplete="new-password"
+                    disabled={loading}
+                    className="w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 pr-10 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors disabled:opacity-50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] p-1 cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                    ) : (
+                      <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.confirmPassword}
+                  onChange={update('confirmPassword')}
+                  placeholder="Re-enter your password"
+                  autoComplete="new-password"
+                  disabled={loading}
+                  className="mt-1.5 w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors disabled:opacity-50"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 w-full rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] py-3.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                {loading ? 'Creating account...' : 'Create Account'}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="my-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-[#F0E4D8] dark:bg-[#3A332A]" />
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">OR</span>
+              <div className="h-px flex-1 bg-[#F0E4D8] dark:bg-[#3A332A]" />
+            </div>
+
+            {/* Google Sign-in */}
+            <button
+              type="button"
+              onClick={handleGoogleSignup}
+              disabled={loading}
+              className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] py-3 text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+              </svg>
+              <span>Continue with Google</span>
+            </button>
+
+            {/* Bottom link */}
+            <p className="mt-6 text-center text-xs text-[#8A7F74] dark:text-[#A89E92]">
+              Already have an account?{' '}
+              <Link to="/login" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+                Log in
+              </Link>
             </p>
           </div>
 
-          {/* Error message */}
-          {error && (
-            <div className="mt-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
-
-            {/* Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium"
-              >
-                Your name
-              </label>
-
-              <input
-                id="name"
-                type="text"
-                value={form.name}
-                onChange={update('name')}
-                placeholder="e.g. Parth Sawant"
-                autoComplete="name"
-                disabled={loading}
-                className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              />
+          {/* RIGHT COLUMN: WARM LINE ILLUSTRATION & HIGHLIGHTS */}
+          <div className="hidden lg:flex flex-col justify-between rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF]/60 dark:bg-[#242019]/60 p-10 backdrop-blur-xs">
+            
+            {/* SVG Line Illustration */}
+            <div className="mx-auto w-full max-w-sm">
+              <svg viewBox="0 0 400 280" fill="none" className="w-full h-auto text-[#E8622C] dark:text-[#F27A4A]">
+                {/* Store Roof & Awning */}
+                <path d="M50 120 L200 40 L350 120" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M70 120 C90 140 110 140 130 120 C150 140 170 140 190 120 C210 140 230 140 250 120 C270 140 290 140 310 120 C330 140 350 140 370 120" stroke="currentColor" strokeWidth="3" fill="none" />
+                
+                {/* Store Building Outer */}
+                <rect x="70" y="120" width="260" height="130" rx="8" stroke="currentColor" strokeWidth="4" fill="none" />
+                
+                {/* Store Door */}
+                <rect x="170" y="170" width="60" height="80" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
+                <circle cx="218" cy="210" r="4" fill="currentColor" />
+                
+                {/* Windows */}
+                <rect x="95" y="150" width="55" height="50" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
+                <line x1="95" y1="175" x2="150" y2="175" stroke="currentColor" strokeWidth="2" />
+                
+                <rect x="250" y="150" width="55" height="50" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
+                <line x1="250" y1="175" x2="305" y2="175" stroke="currentColor" strokeWidth="2" />
+              </svg>
             </div>
 
-            {/* Email */}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium"
-              >
-                Email
-              </label>
+            {/* Headline & Bullet Points */}
+            <div className="mt-8">
+              <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                Digital tools for Bigger tomorrows
+              </h2>
+              <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+                Empowering micro, small, and medium enterprises across India with AI-powered document intelligence.
+              </p>
 
-              <input
-                id="email"
-                type="email"
-                value={form.email}
-                onChange={update('email')}
-                placeholder="e.g. parth@example.com"
-                autoComplete="email"
-                disabled={loading}
-                className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              />
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center gap-3 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <span>Instant digitization for handwritten paper bills & PDFs</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <span>Saves up to 15 hours every week on manual bookkeeping</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
+                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
+                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                  <span>Enterprise-grade data encryption & privacy compliance</span>
+                </div>
+              </div>
             </div>
 
-            {/* Password */}
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium"
-              >
-                Password
-              </label>
-
-              <input
-                id="password"
-                type="password"
-                value={form.password}
-                onChange={update('password')}
-                placeholder="Minimum 6 characters"
-                autoComplete="new-password"
-                disabled={loading}
-                className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium"
-              >
-                Confirm password
-              </label>
-
-              <input
-                id="confirmPassword"
-                type="password"
-                value={form.confirmPassword}
-                onChange={update('confirmPassword')}
-                placeholder="Re-enter your password"
-                autoComplete="new-password"
-                disabled={loading}
-                className="mt-2 w-full border border-black/20 dark:border-white/20 bg-transparent px-3 py-2.5 text-sm placeholder:text-black/30 dark:placeholder:text-white/30 focus:border-black dark:focus:border-white focus:outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            {/* Create account */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-black px-4 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? 'Creating account...' : 'Create account'}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
-            <span className="text-xs text-black/40 dark:text-white/40">OR</span>
-            <div className="h-px flex-1 bg-black/10 dark:bg-white/10" />
           </div>
-
-          {/* Google Signup */}
-          <button
-            type="button"
-            onClick={handleGoogleSignup}
-            disabled={loading}
-            className="flex w-full items-center justify-center gap-3 border border-black/20 dark:border-white/20 px-4 py-2.5 text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span className="text-base font-semibold">G</span>
-            {loading ? 'Please wait...' : 'Continue with Google'}
-          </button>
-
-          {/* Login link */}
-          <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-            Already have an account?{' '}
-            <Link
-              to="/login"
-              className="font-medium text-black dark:text-white underline"
-            >
-              Log in
-            </Link>
-          </p>
 
         </div>
       </main>

@@ -7,40 +7,55 @@ export default function ChoosePlanPage() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-6 py-14">
+      <main className="mx-auto max-w-7xl px-6 py-12">
         <button
           onClick={() => navigate('/business-setup')}
-          className="text-sm font-medium text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer"
         >
-          &larr; Back
+          &larr; Back to Business Setup
         </button>
-        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Choose a plan</h1>
-        <p className="mt-2 text-black/60 dark:text-white/60">Pick a bundle, or build exactly what you need. Prices shown are illustrative for this demo.</p>
 
-        <div className="mt-10 grid gap-6 md:grid-cols-5">
+        <div className="mt-4 max-w-2xl">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Onboarding Step 2 of 2</span>
+          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+            Choose a plan for your enterprise
+          </h1>
+          <p className="mt-1.5 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+            Pick a pre-configured feature bundle, or build a custom plan tailored specifically to your workflow.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
           {TIERS.map((tier) => (
             <PricingTierCard
               key={tier.id}
               tier={tier}
-              ctaLabel="Review plan"
+              ctaLabel="Review Plan"
               onSelect={() => navigate(`/plan-summary/${tier.id}`)}
             />
           ))}
-          <div className="flex flex-col justify-between border border-dashed border-black/30 dark:border-white/30 p-6">
+
+          {/* Custom Plan Option Card */}
+          <div className="flex flex-col justify-between rounded-2xl border border-dashed border-[#E8622C]/50 dark:border-[#F27A4A]/50 bg-[#FFFFFF] dark:bg-[#242019] p-6 shadow-sm">
             <div>
-              <p className="font-[family-name:var(--font-display)] text-xl font-semibold">Build your own</p>
-              <p className="mt-1 text-xs text-black/50 dark:text-white/50">Pick exactly what you need</p>
-              <p className="mt-6 text-sm text-black/70 dark:text-white/70">
-                Choose individual features and see your price update as you go.
+              <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#E8622C] dark:text-[#F27A4A]">
+                Custom
+              </span>
+              <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                Build your own
+              </h3>
+              <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">Pick exactly what you need</p>
+              <p className="mt-6 text-xs text-[#2A2521]/80 dark:text-[#F5EFE8]/80 leading-relaxed">
+                Choose individual modules like anomaly detection or demand forecasting and see your price update automatically.
               </p>
             </div>
             <button
               onClick={() => navigate('/custom-plan')}
-              className="mt-6 w-full border border-black dark:border-white py-2.5 text-sm font-medium hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+              className="mt-8 w-full rounded-xl border border-[#E8622C] dark:border-[#F27A4A] py-3 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714] transition-all cursor-pointer"
             >
-              Build your plan
+              Build Your Plan
             </button>
           </div>
         </div>

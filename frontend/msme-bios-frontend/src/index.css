@@ -11,6 +11,27 @@
 
 :root {
   box-sizing: border-box;
+  --bg-page: #FBF3EC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-hover: #FAF4EE;
+  --border-color: #F0E4D8;
+  --text-primary: #2A2521;
+  --text-secondary: #8A7F74;
+  --accent-primary: #E8622C;
+  --accent-hover: #D4531F;
+  --accent-light: rgba(232, 98, 44, 0.08);
+}
+
+.dark {
+  --bg-page: #1A1714;
+  --bg-surface: #242019;
+  --bg-surface-hover: #2D2820;
+  --border-color: #3A332A;
+  --text-primary: #F5EFE8;
+  --text-secondary: #A89E92;
+  --accent-primary: #F27A4A;
+  --accent-hover: #E56938;
+  --accent-light: rgba(242, 122, 74, 0.12);
 }
 
 *, *::before, *::after {
@@ -19,16 +40,20 @@
 
 body {
   font-family: var(--font-body);
+  background-color: var(--bg-page);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background: currentColor;
-  color: white;
+  background-color: #E8622C;
+  color: #FFFFFF;
 }
 
 .dark ::selection {
-  color: black;
+  background-color: #F27A4A;
+  color: #1A1714;
 }
 
 @keyframes flip-in {

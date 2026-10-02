@@ -16,170 +16,151 @@ const whoCanRegister = [
 ]
 
 const steps = [
-  { title: 'Go to the official portal', detail: 'udyamregistration.gov.in \u2014 this is the only site you need. Registration is completely free; be cautious of third parties charging a fee to do this for you.' },
-  { title: 'Verify with Aadhaar', detail: 'Enter the Aadhaar number of the proprietor (or authorised signatory, for a company/LLP) and the name exactly as it appears on the Aadhaar card. An OTP is sent to the linked mobile number.' },
+  { title: 'Go to the official portal', detail: 'udyamregistration.gov.in \u2014 this is the only site you need. Registration is completely free; be cautious of third parties charging a fee.' },
+  { title: 'Verify with Aadhaar', detail: 'Enter the Aadhaar number of the proprietor (or authorised signatory) and OTP sent to the linked mobile number.' },
   { title: 'Verify PAN', detail: 'Enter the business or proprietor\u2019s PAN. The portal validates it automatically.' },
-  { title: 'Fill in business details', detail: 'Business name, address, bank account and IFSC, NIC activity code (what the business actually does), and number of employees.' },
-  { title: 'Declare investment and turnover', detail: 'These figures are what determine which category \u2014 Micro, Small, or Medium \u2014 the business falls into.' },
-  { title: 'Submit and receive your certificate', detail: 'A Udyam Registration Number (URN) is generated immediately, and the official e-certificate is emailed shortly after. No documents are uploaded \u2014 the whole process is based on self-declaration.' },
+  { title: 'Fill in business details', detail: 'Business name, address, bank account & IFSC, NIC activity code, and number of employees.' },
+  { title: 'Declare investment and turnover', detail: 'These figures determine which category \u2014 Micro, Small, or Medium \u2014 the business falls into.' },
+  { title: 'Submit and receive your certificate', detail: 'A Udyam Registration Number (URN) is generated immediately, and the official e-certificate is emailed shortly after.' },
 ]
 
 const benefits = [
   {
-    title: 'Collateral-free loans',
-    detail: 'Through the CGTMSE scheme, government-guaranteed loans are available without needing to pledge property or assets as security \u2014 often the single biggest barrier small businesses face when applying for credit.',
+    title: 'Collateral-free bank loans',
+    detail: 'Through CGTMSE scheme, government-guaranteed loans are available without needing to pledge property as security.',
   },
   {
     title: 'Lower interest rates',
-    detail: 'Registered MSMEs typically qualify for priority-sector lending, meaning banks offer meaningfully lower interest rates than standard commercial loans.',
+    detail: 'Registered MSMEs qualify for priority-sector lending, offering lower interest rates than commercial bank loans.',
   },
   {
     title: 'Protection against late payment',
-    detail: 'Under the MSMED Act, a buyer is legally required to pay a registered MSME within 45 days \u2014 a real, enforceable protection that unregistered businesses don\u2019t have.',
+    detail: 'Under the MSMED Act, buyers are legally required to pay a registered MSME within 45 days.',
   },
   {
     title: 'Preference in government tenders',
-    detail: 'A share of central government procurement is specifically reserved for Micro and Small Enterprises with Udyam registration.',
+    detail: 'Central government procurement reserves dedicated quotes for Micro and Small Enterprises.',
   },
   {
     title: 'Subsidies on growth costs',
-    detail: 'Reduced fees on patent and trademark registration, reimbursement on ISO certification, and subsidy schemes like PMEGP (new ventures) and CLCSS (technology upgrades).',
+    detail: 'Reduced fees on patent/trademark registration, ISO certification reimbursement, and tech subsidies.',
   },
   {
-    title: 'Tax and compliance benefits',
-    detail: 'Including extended MAT credit carry-forward and, in many states, concessions on electricity bills.',
+    title: 'Tax and compliance concessions',
+    detail: 'Extended MAT credit carry-forward and state-level electricity concessions.',
   },
 ]
 
 export default function MSMEGuidePage() {
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
       <Navbar showNavLinks />
 
-      <main className="mx-auto max-w-4xl px-6 py-20">
-        <p className="font-[family-name:var(--font-data)] text-xs text-black/40 dark:text-white/40">A plain guide</p>
-        <h1 className="mt-2 font-[family-name:var(--font-display)] text-4xl font-semibold tracking-tight md:text-5xl">
+      <main className="mx-auto max-w-4xl px-6 py-16">
+        <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+          Complete Guide for Indian Businesses
+        </span>
+        <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
           What is an MSME, and should you register as one?
         </h1>
-        <p className="mt-4 max-w-xl text-lg text-black/70 dark:text-white/70">
+        <p className="mt-4 text-base sm:text-lg text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
           If you run a small or growing business in India, this is probably the single highest-value, lowest-effort thing you can do for it &mdash; and it&rsquo;s free. Here&rsquo;s what it actually means, whether you qualify, and exactly how to do it.
         </p>
 
         {/* What is an MSME */}
-        <section className="mt-16 border-t border-black/15 dark:border-white/15 pt-10">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">What is an MSME?</h2>
-          <p className="mt-4 text-black/70 dark:text-white/70 leading-relaxed">
-            MSME stands for Micro, Small, and Medium Enterprise &mdash; a classification the Government of India uses to identify smaller businesses and extend specific support to them: easier credit, tax relief, and protection that larger businesses don&rsquo;t get. <strong className="text-black dark:text-white">Udyam Registration</strong> is the official, free process for getting that recognition.
+        <section className="mt-12 rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 shadow-sm">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">What is an MSME?</h2>
+          <p className="mt-3 text-sm text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+            MSME stands for Micro, Small, and Medium Enterprise &mdash; a classification the Government of India uses to extend specific support: easier credit, tax relief, and payment protection that larger businesses don&rsquo;t get. <strong className="text-[#2A2521] dark:text-[#F5EFE8]">Udyam Registration</strong> is the official, free process for getting that recognition.
           </p>
         </section>
 
-        {/* Classification table */}
-        <section className="mt-16 border-t border-black/15 dark:border-white/15 pt-10">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">Do you qualify?</h2>
-          <p className="mt-4 text-black/70 dark:text-white/70 leading-relaxed">
-            Classification is based on two things together &mdash; how much you&rsquo;ve invested in plant, machinery, or equipment, and your annual turnover. Whichever of the two is higher determines your category. These limits were revised upward by the government in 2025 (Notification S.O. 1364(E), effective 1 April 2025), specifically so growing businesses don&rsquo;t lose MSME status just for scaling up.
+        {/* Qualification & Table */}
+        <section className="mt-8 rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 shadow-sm">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">Do you qualify?</h2>
+          <p className="mt-3 text-sm text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+            Classification is based on investment in plant/machinery and annual turnover.
           </p>
-          <div className="mt-8 overflow-x-auto">
-            <table className="w-full text-left text-sm">
+
+          <div className="mt-6 overflow-x-auto">
+            <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-black/15 dark:border-white/15 text-black/50 dark:text-white/50">
-                  <th className="pb-3 font-medium">Category</th>
-                  <th className="pb-3 pl-4 font-medium">Investment limit</th>
-                  <th className="pb-3 pl-4 font-medium">Turnover limit</th>
+                <tr className="border-b border-[#F0E4D8] dark:border-[#3A332A] text-[#8A7F74] dark:text-[#A89E92] font-semibold">
+                  <th className="pb-3 pr-4">Category</th>
+                  <th className="pb-3 px-4">Investment Limit</th>
+                  <th className="pb-3 pl-4">Turnover Limit</th>
                 </tr>
               </thead>
-              <tbody className="font-[family-name:var(--font-data)]">
+              <tbody className="divide-y divide-[#F0E4D8] dark:divide-[#3A332A]/50 font-[family-name:var(--font-data)]">
                 {classification.map((row) => (
-                  <tr key={row.tier} className="border-b border-black/10 dark:border-white/10">
-                    <td className="py-4 pr-4 font-[family-name:var(--font-body)] font-medium">{row.tier}</td>
-                    <td className="py-4 pl-4">{row.investment}</td>
-                    <td className="py-4 pl-4">{row.turnover}</td>
+                  <tr key={row.tier}>
+                    <td className="py-3.5 pr-4 font-[family-name:var(--font-body)] font-bold text-[#E8622C] dark:text-[#F27A4A]">{row.tier}</td>
+                    <td className="py-3.5 px-4 text-[#2A2521] dark:text-[#F5EFE8]">{row.investment}</td>
+                    <td className="py-3.5 pl-4 text-[#2A2521] dark:text-[#F5EFE8]">{row.turnover}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-            This applies the same way whether the business manufactures goods, provides a service, or trades &mdash; there&rsquo;s no separate, stricter set of limits for any one type anymore.
-          </p>
 
-          <h3 className="mt-10 text-lg font-medium">Who can register</h3>
-          <ul className="mt-4 space-y-2">
+          <h3 className="mt-8 font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">Who can register</h3>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {whoCanRegister.map((item) => (
-              <li key={item} className="flex gap-3 text-black/70 dark:text-white/70">
-                <span className="text-black/30 dark:text-white/30">&mdash;</span>
-                {item}
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Benefits */}
-        <section className="mt-16 border-t border-black/15 dark:border-white/15 pt-10">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">What you actually get</h2>
-          <p className="mt-4 text-black/70 dark:text-white/70 leading-relaxed">
-            Registration itself takes about 10&ndash;15 minutes. Here&rsquo;s what it unlocks once it&rsquo;s done.
-          </p>
-          <div className="mt-8 grid gap-8 sm:grid-cols-2">
-            {benefits.map((b) => (
-              <div key={b.title}>
-                <p className="font-medium">{b.title}</p>
-                <p className="mt-2 text-sm text-black/60 dark:text-white/60 leading-relaxed">{b.detail}</p>
+              <div key={item} className="flex items-center gap-2 text-xs text-[#2A2521] dark:text-[#F5EFE8]">
+                <svg className="h-4 w-4 text-[#1F9254] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>{item}</span>
               </div>
             ))}
           </div>
         </section>
 
-        {/* How to register */}
-        <section className="mt-16 border-t border-black/15 dark:border-white/15 pt-10">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">How to register, step by step</h2>
-          <div className="mt-8 space-y-8">
+        {/* Benefits Grid */}
+        <section className="mt-8 rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 shadow-sm">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">Key Benefits Unlocked</h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {benefits.map((b) => (
+              <div key={b.title} className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC]/50 dark:bg-[#1A1714]/50 p-4">
+                <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#E8622C] dark:text-[#F27A4A]">{b.title}</h4>
+                <p className="mt-1.5 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">{b.detail}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Steps */}
+        <section className="mt-8 rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 shadow-sm">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">How to Register, Step by Step</h2>
+          <div className="mt-6 space-y-4">
             {steps.map((step, i) => (
-              <div key={step.title} className="flex gap-5">
-                <span className="font-[family-name:var(--font-data)] text-sm text-black/30 dark:text-white/30">
-                  {String(i + 1).padStart(2, '0')}
+              <div key={step.title} className="flex items-start gap-4 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#E8622C] text-white font-bold text-xs">
+                  {i + 1}
                 </span>
                 <div>
-                  <p className="font-medium">{step.title}</p>
-                  <p className="mt-1 text-sm text-black/60 dark:text-white/60 leading-relaxed">{step.detail}</p>
+                  <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#2A2521] dark:text-[#F5EFE8]">{step.title}</h4>
+                  <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">{step.detail}</p>
                 </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* Where to register */}
-        <section className="mt-16 border-t border-black/15 dark:border-white/15 pt-10">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">Where to go</h2>
-          <p className="mt-4 text-black/70 dark:text-white/70 leading-relaxed">
-            The only official portal is{' '}
-            <a
-              href="https://udyamregistration.gov.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-black/70 dark:hover:text-white/70"
-            >
-              udyamregistration.gov.in
-            </a>
-            . Registration there is entirely free &mdash; if any site or consultant asks for a payment to "process" your Udyam registration, that's not the government portal.
-          </p>
-        </section>
-
-        {/* CTA back to the product */}
-        <section className="mt-20 border-t border-black/15 dark:border-white/15 pt-10 text-center">
-          <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight">
-            Already registered &mdash; or not sure yet?
+        {/* CTA Banner */}
+        <div className="mt-12 rounded-3xl border border-[#E8622C]/40 dark:border-[#F27A4A]/40 bg-[#FFFFFF] dark:bg-[#242019] p-8 text-center shadow-lg">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+            Ready to digitize your business intelligence?
           </h2>
-          <p className="mt-3 text-black/60 dark:text-white/60">
-            Either way, MSME-BIOS can help you run the business itself &mdash; starting with turning your bills and statements into real records.
+          <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92]">
+            Start uploading handwritten bills, invoices, and bank statements today with MSME-BIOS.
           </p>
           <Link
             to="/signup"
-            className="mt-6 inline-block bg-black px-7 py-3 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-7 py-3 text-xs font-bold text-white shadow-md hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all cursor-pointer"
           >
-            Get started
+            <span>Get Started for Free</span>
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </Link>
-        </section>
+        </div>
       </main>
     </div>
   )

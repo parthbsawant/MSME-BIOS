@@ -19,8 +19,6 @@ export default function PlanSummaryPage() {
     setError('')
     setSaving(true)
     try {
-      // MILESTONE 2: persists to the backend, scoped to the resolved
-      // tenant - same pattern as business setup.
       await savePlanToBackend({ type: 'tier', tierId: tier.id, featureIds: tier.featureIds, price: tier.price })
       selectTier(tier.id)
       navigate('/dashboard')
@@ -33,55 +31,65 @@ export default function PlanSummaryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-xl px-6 py-14">
-        <p className="font-[family-name:var(--font-data)] text-xs text-black/40 dark:text-white/40">Plan summary</p>
-        <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">{tier.name}</h1>
-        <p className="mt-1 text-sm text-black/50 dark:text-white/50">{tier.band}</p>
+      <main className="mx-auto max-w-2xl px-6 py-12">
+        <div className="rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-10 shadow-xl">
+          <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+            Plan Review & Confirmation
+          </span>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
+            {tier.name} Plan
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">{tier.band}</p>
 
-        <p className="mt-8 font-[family-name:var(--font-data)] text-3xl">
-          {formatPrice(tier.price)}<span className="text-base text-black/40 dark:text-white/40">/mo</span>
-        </p>
-
-        <div className="mt-8 border-t border-black/10 dark:border-white/10 pt-6">
-          <p className="text-sm font-medium">Includes</p>
-          <ul className="mt-4 space-y-3">
-            {tier.featureIds.map((id) => {
-              const f = featureById(id)
-              return (
-                <li key={id} className="flex items-start justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-3">
-                  <div>
-                    <p className="text-sm font-medium">{f.name}</p>
-                    <p className="text-xs text-black/50 dark:text-white/50">{f.tagline}</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-
-        {error && (
-          <div className="mt-6 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
-            {error}
+          <div className="mt-6 flex items-baseline gap-1 bg-[#FBF3EC] dark:bg-[#1A1714] p-4 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A]">
+            <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#E8622C] dark:text-[#F27A4A]">
+              {formatPrice(tier.price)}
+            </span>
+            <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">/month</span>
           </div>
-        )}
 
-        <div className="mt-8 flex gap-3">
-          <button
-            onClick={() => navigate('/choose-plan')}
-            disabled={saving}
-            className="border border-black/20 dark:border-white/20 px-5 py-2.5 text-sm font-medium hover:border-black dark:hover:border-white transition-colors disabled:opacity-50"
-          >
-            Back
-          </button>
-          <button
-            onClick={handleConfirm}
-            disabled={saving}
-            className="flex-1 bg-black px-5 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? 'Saving\u2026' : 'Confirm and continue'}
-          </button>
+          <div className="mt-6 space-y-3 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2A2521] dark:text-[#F5EFE8]">Included Features ({tier.featureIds.length})</h3>
+            <ul className="space-y-2.5">
+              {tier.featureIds.map((id) => {
+                const f = featureById(id)
+                return (
+                  <li key={id} className="flex items-start gap-3 rounded-xl bg-[#FBF3EC]/60 dark:bg-[#1A1714]/60 p-3 border border-[#F0E4D8]/60 dark:border-[#3A332A]/60">
+                    <svg className="h-4 w-4 shrink-0 text-[#1F9254] dark:text-[#34D399] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    <div>
+                      <p className="text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{f?.name}</p>
+                      <p className="text-[11px] text-[#8A7F74] dark:text-[#A89E92]">{f?.tagline}</p>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+
+          {error && (
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 text-xs text-red-700 dark:text-red-300">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-8 flex gap-3">
+            <button
+              onClick={() => navigate('/choose-plan')}
+              disabled={saving}
+              className="rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] px-6 py-3 text-xs font-bold text-[#8A7F74] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              Back
+            </button>
+            <button
+              onClick={handleConfirm}
+              disabled={saving}
+              className="flex-1 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-3 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {saving ? 'Saving Plan…' : 'Confirm & Access Dashboard'}
+            </button>
+          </div>
         </div>
       </main>
     </div>

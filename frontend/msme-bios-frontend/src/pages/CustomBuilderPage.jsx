@@ -37,8 +37,6 @@ export default function CustomBuilderPage() {
     setError('')
     setSaving(true)
     try {
-      // MILESTONE 2: persists to the backend, scoped to the resolved
-      // tenant - same pattern as the tier-plan path.
       await savePlanToBackend({ type: 'custom', featureIds: selectedIds, price: total })
       selectCustom(selectedIds)
       navigate('/dashboard')
@@ -51,58 +49,76 @@ export default function CustomBuilderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-black dark:bg-black dark:text-white transition-colors">
+    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-5xl px-6 py-14 pb-40">
+      <main className="mx-auto max-w-6xl px-6 py-12 pb-44">
         <button
           onClick={() => navigate('/choose-plan')}
-          className="text-sm font-medium text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer"
         >
-          &larr; Back
+          &larr; Back to Choose Plan
         </button>
-        <h1 className="mt-4 font-[family-name:var(--font-display)] text-3xl font-semibold tracking-tight">Build your plan</h1>
-        <p className="mt-2 text-black/60 dark:text-white/60">
-          Document parser is included in every plan. Add whatever else you need. Prices shown are illustrative for this demo.
-        </p>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-4 max-w-2xl">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Custom Builder</span>
+          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+            Build your custom enterprise plan
+          </h1>
+          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+            Document parser is included in every plan by default. Pick whichever additional modules your business needs.
+          </p>
+        </div>
+
+        {/* Features Grid */}
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((f) => {
             const isSelected = selectedIds.includes(f.id)
             return (
               <div
                 key={f.id}
-                className={`flex flex-col justify-between border p-5 transition-colors ${
-                  isSelected ? 'border-black dark:border-white' : 'border-black/15 dark:border-white/15'
+                className={`flex flex-col justify-between rounded-2xl border p-5 transition-all ${
+                  isSelected
+                    ? 'border-[#E8622C] dark:border-[#F27A4A] bg-[#FFFFFF] dark:bg-[#242019] ring-2 ring-[#E8622C]/20 shadow-sm'
+                    : 'border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF]/60 dark:bg-[#242019]/60 hover:border-[#E8622C]/40'
                 }`}
               >
                 <div>
-                  <p className="font-medium">{f.name}</p>
-                  <p className="mt-1 text-xs text-black/50 dark:text-white/50">{f.tagline}</p>
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                      {f.name}
+                    </h3>
+                    <span className="font-[family-name:var(--font-data)] text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+                      {formatPrice(f.price)}/mo
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+                    {f.description}
+                  </p>
                 </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="font-[family-name:var(--font-data)] text-sm">{formatPrice(f.price)}/mo</span>
+
+                <div className="mt-4 pt-3 border-t border-[#F0E4D8] dark:border-[#3A332A]/50 flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92] truncate max-w-[170px]">
+                    {f.tagline}
+                  </span>
+
                   {f.locked ? (
-                    <span className="font-[family-name:var(--font-data)] text-[10px] border border-black/20 dark:border-white/20 px-2 py-1 text-black/50 dark:text-white/50">
+                    <span className="rounded-full bg-[#E8F5EC] dark:bg-[#132E21] px-2.5 py-1 text-[10px] font-bold text-[#1F9254] dark:text-[#34D399]">
                       Included
                     </span>
                   ) : (
                     <button
                       onClick={() => toggleFeature(f.id)}
                       aria-label={isSelected ? `Remove ${f.name}` : `Add ${f.name}`}
-                      className={`flex h-7 w-7 items-center justify-center border transition-colors ${
+                      className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-black bg-black text-white dark:border-white dark:bg-white dark:text-black'
-                          : 'border-black/30 hover:border-black dark:border-white/30 dark:hover:border-white'
+                          ? 'bg-[#E8622C] text-white dark:bg-[#F27A4A] dark:text-white shadow-xs'
+                          : 'border border-[#F0E4D8] dark:border-[#3A332A] text-[#8A7F74] hover:border-[#E8622C] hover:text-[#E8622C]'
                       }`}
                     >
                       {isSelected ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6" />
-                        </svg>
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                       ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 5v14M5 12h14" />
-                        </svg>
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                       )}
                     </button>
                   )}
@@ -113,9 +129,12 @@ export default function CustomBuilderPage() {
         </div>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 border-t border-black/15 bg-white/95 backdrop-blur dark:border-white/15 dark:bg-black/95">
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between gap-6">
-          <div className="flex flex-1 items-center gap-2 overflow-x-auto">
+      {/* Fixed Bottom Checkout Bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF]/95 dark:bg-[#242019]/95 backdrop-blur-md px-6 py-4 shadow-2xl">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          {/* Selected Pills */}
+          <div className="flex flex-1 items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0">
             <AnimatePresence initial={false}>
               {selectedIds.map((id) => {
                 const f = FEATURES.find((feat) => feat.id === id)
@@ -123,37 +142,40 @@ export default function CustomBuilderPage() {
                   <motion.span
                     key={id}
                     layout
-                    initial={{ opacity: 0, scale: 0.8, y: 8 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, y: 8 }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap border border-black/20 dark:border-white/20 px-3 py-1.5 text-xs"
+                    className="whitespace-nowrap rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 border border-[#E8622C]/30 px-3 py-1 text-xs font-semibold text-[#E8622C] dark:text-[#F27A4A]"
                   >
-                    {f.name}
+                    {f?.name}
                   </motion.span>
                 )
               })}
             </AnimatePresence>
           </div>
-          <div className="flex items-center gap-6 shrink-0">
-            <div className="text-right">
-              <p className="text-xs text-black/50 dark:text-white/50">Total</p>
-              <p className="font-[family-name:var(--font-data)] text-xl">
-                <AnimatedPrice value={total} /><span className="text-sm text-black/40 dark:text-white/40">/mo</span>
+
+          {/* Price & Confirmation */}
+          <div className="flex items-center gap-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">Estimated Monthly Total</p>
+              <p className="font-[family-name:var(--font-display)] text-2xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
+                <AnimatedPrice value={total} /><span className="text-xs font-normal text-[#8A7F74]">/mo</span>
               </p>
             </div>
+
             <button
               onClick={handleConfirm}
               disabled={saving}
-              className="bg-black px-6 py-2.5 text-sm font-medium text-white dark:bg-white dark:text-black hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-7 py-3.5 text-xs font-bold text-white shadow-lg shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {saving ? 'Saving\u2026' : 'Confirm plan'}
+              {saving ? 'Confirming Plan…' : 'Confirm Plan & Access Dashboard'}
             </button>
           </div>
-          {error && (
-            <p className="mt-3 text-sm text-red-700 dark:text-red-300">{error}</p>
-          )}
         </div>
+        {error && (
+          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{error}</p>
+        )}
       </div>
     </div>
   )
