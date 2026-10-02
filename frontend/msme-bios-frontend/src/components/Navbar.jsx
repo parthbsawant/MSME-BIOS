@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
+import LanguageSwitcher from './LanguageSwitcher'
 import logo from '../assets/logo.png'
 
 export default function Navbar({ showNavLinks = false }) {
+  const { t } = useTranslation()
   const { user, isLoggedIn, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -45,16 +48,16 @@ export default function Navbar({ showNavLinks = false }) {
         {showNavLinks && (
           <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
             <a href={isLanding ? "#hero" : "/"} className="text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">
-              Home
+              {t('nav.home')}
             </a>
             <a href={isLanding ? "#features" : "/#features"} className="text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">
-              Features
+              {t('nav.features')}
             </a>
             <a href={isLanding ? "#how-it-works" : "/#how-it-works"} className="text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">
-              How it Works
+              {t('nav.howItWorks')}
             </a>
             <a href={isLanding ? "#pricing" : "/choose-plan"} className="text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors">
-              Pricing
+              {t('nav.pricing')}
             </a>
 
             {/* Resources Dropdown */}
@@ -63,7 +66,7 @@ export default function Navbar({ showNavLinks = false }) {
                 onClick={() => setResourcesOpen((o) => !o)}
                 className="flex items-center gap-1 text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors py-1 cursor-pointer"
               >
-                <span>Resources</span>
+                <span>{t('nav.resources')}</span>
                 <svg className={`h-4 w-4 transition-transform ${resourcesOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="m6 9 6 6 6-6" />
                 </svg>
@@ -76,8 +79,8 @@ export default function Navbar({ showNavLinks = false }) {
                     onClick={() => setResourcesOpen(false)}
                     className="flex flex-col rounded-lg px-3 py-2 text-xs hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
                   >
-                    <span className="font-semibold text-[#2A2521] dark:text-[#F5EFE8]">MSME Registration Guide</span>
-                    <span className="text-[#8A7F74] dark:text-[#A89E92]">Benefits & step-by-step process</span>
+                    <span className="font-semibold text-[#2A2521] dark:text-[#F5EFE8]">{t('nav.msmeGuideTitle')}</span>
+                    <span className="text-[#8A7F74] dark:text-[#A89E92]">{t('nav.msmeGuideSubtitle')}</span>
                   </Link>
                 </div>
               )}
@@ -87,6 +90,7 @@ export default function Navbar({ showNavLinks = false }) {
 
         {/* Right Nav Action Area */}
         <div className="flex items-center gap-3">
+          <LanguageSwitcher />
           <ThemeToggle />
 
           {isLoggedIn ? (
@@ -114,7 +118,7 @@ export default function Navbar({ showNavLinks = false }) {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
                   >
                     <svg className="h-4 w-4 text-[#E8622C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                   <Link
                     to="/upload"
@@ -122,7 +126,7 @@ export default function Navbar({ showNavLinks = false }) {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
                   >
                     <svg className="h-4 w-4 text-[#E8622C]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    Upload Document
+                    {t('nav.uploadDocument')}
                   </Link>
                   <div className="my-1 border-t border-[#F0E4D8] dark:border-[#3A332A]" />
                   <button
@@ -130,7 +134,7 @@ export default function Navbar({ showNavLinks = false }) {
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Log out
+                    {t('nav.logOut')}
                   </button>
                 </div>
               )}
@@ -141,13 +145,13 @@ export default function Navbar({ showNavLinks = false }) {
                 to="/login"
                 className="px-3 py-2 text-xs sm:text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors"
               >
-                Login
+                {t('nav.login')}
               </Link>
               <Link
                 to="/signup"
                 className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95"
               >
-                Get Started
+                {t('nav.getStarted')}
               </Link>
             </div>
           )}
@@ -173,11 +177,11 @@ export default function Navbar({ showNavLinks = false }) {
       {/* Mobile Nav Drawer */}
       {showNavLinks && mobileNavOpen && (
         <div className="border-t border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] px-6 py-4 md:hidden space-y-3">
-          <a href={isLanding ? "#hero" : "/"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">Home</a>
-          <a href={isLanding ? "#features" : "/#features"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">Features</a>
-          <a href={isLanding ? "#how-it-works" : "/#how-it-works"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">How it Works</a>
-          <a href={isLanding ? "#pricing" : "/choose-plan"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">Pricing</a>
-          <Link to="/msme-guide" onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#E8622C] dark:text-[#F27A4A]">MSME Guide</Link>
+          <a href={isLanding ? "#hero" : "/"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">{t('nav.home')}</a>
+          <a href={isLanding ? "#features" : "/#features"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">{t('nav.features')}</a>
+          <a href={isLanding ? "#how-it-works" : "/#how-it-works"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">{t('nav.howItWorks')}</a>
+          <a href={isLanding ? "#pricing" : "/choose-plan"} onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#2A2521] dark:text-[#F5EFE8]">{t('nav.pricing')}</a>
+          <Link to="/msme-guide" onClick={() => setMobileNavOpen(false)} className="block text-sm font-medium text-[#E8622C] dark:text-[#F27A4A]">{t('nav.msmeGuideShort')}</Link>
         </div>
       )}
     </header>

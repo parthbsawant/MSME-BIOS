@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "howItWorks": "How it Works",
+    "pricing": "Pricing",
+    "resources": "Resources",
+    "msmeGuideTitle": "MSME Registration Guide",
+    "msmeGuideSubtitle": "Benefits & step-by-step process",
+    "msmeGuideShort": "MSME Guide",
+    "dashboard": "Dashboard",
+    "uploadDocument": "Upload Document",
+    "logOut": "Log out",
+    "login": "Login",
+    "getStarted": "Get Started"
+  },
+  "language": {
+    "label": "Language"
+  }
+}

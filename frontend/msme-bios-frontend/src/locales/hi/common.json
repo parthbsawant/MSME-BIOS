@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "होम",
+    "features": "फीचर्स",
+    "howItWorks": "यह कैसे काम करता है",
+    "pricing": "कीमतें",
+    "resources": "संसाधन",
+    "msmeGuideTitle": "MSME पंजीकरण गाइड",
+    "msmeGuideSubtitle": "लाभ और चरण-दर-चरण प्रक्रिया",
+    "msmeGuideShort": "MSME गाइड",
+    "dashboard": "डैशबोर्ड",
+    "uploadDocument": "दस्तावेज़ अपलोड करें",
+    "logOut": "लॉग आउट",
+    "login": "लॉगिन",
+    "getStarted": "शुरू करें"
+  },
+  "language": {
+    "label": "भाषा"
+  }
+}

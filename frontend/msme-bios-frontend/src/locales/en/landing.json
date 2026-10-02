@@ -1,0 +1,69 @@
+{
+  "hero": {
+    "badge": "Built Specifically for Indian Small Business Owners",
+    "headline1": "Turn your paperwork into",
+    "headlineHighlight": "real business insight",
+    "subheading": "MSME-BIOS reads your handwritten bills and bank statements, tracks cash flow daily, and delivers actionable intelligence so you can run your enterprise on real numbers, not guesswork.",
+    "ctaPrimary": "Get Started for Free",
+    "ctaSecondary": "See How It Works",
+    "trust1": "Easy to use",
+    "trust2": "Built for Indian businesses",
+    "trust3": "Secure & Private"
+  },
+  "features": {
+    "eyebrow": "Everything In One Platform",
+    "heading": "Everything you need to run your business, in one place",
+    "subheading": "Designed specifically to take paperwork off your plate so you can focus on growing sales.",
+    "documentParser": {
+      "title": "Document Digitization",
+      "tagline": "Read once, understood forever",
+      "description": "Turns bank statements, invoices, and handwritten bills into structured records automatically using AI vision."
+    },
+    "cashDashboard": {
+      "title": "Business Tracking",
+      "tagline": "Know your position, daily",
+      "description": "Live view of cash flow, daily revenue, bank balances, and P&L statements updated as transactions happen."
+    },
+    "invoiceGenerator": {
+      "title": "Invoice Generation",
+      "tagline": "GST-correct, in seconds",
+      "description": "Create compliant, professional invoices with correct CGST/SGST splits ready to send to customers."
+    },
+    "indiaLocalized": {
+      "title": "Built for India",
+      "tagline": "Tailored for Indian MSMEs",
+      "description": "Supports handwritten paper bills, local GST regulations, vernacular bill formats, and WhatsApp notifications."
+    }
+  },
+  "howItWorks": {
+    "eyebrow": "Simple 3-Step Process",
+    "heading": "How MSME-BIOS Works",
+    "step1Title": "Upload Papers",
+    "step1Desc": "Snap a picture of handwritten bills or upload PDF bank statements in seconds.",
+    "step2Title": "Automated Parsing",
+    "step2Desc": "Our AI extracts line items, GST splits, vendor names, and totals automatically.",
+    "step3Title": "Get Business Insight",
+    "step3Desc": "See cash balances, P&L statements, and customer dues updated in real-time."
+  },
+  "pricing": {
+    "eyebrow": "Flexible Plans",
+    "heading": "Pick a plan, or build your own",
+    "subheading": "Transparent pricing designed to scale with your business turnover.",
+    "customBadge": "Custom",
+    "customTitle": "Build your own",
+    "customTagline": "Pick exactly what you need",
+    "customDescription": "Select individual modules and watch your price update in real-time.",
+    "customCta": "Get a Quote"
+  },
+  "msmeBanner": {
+    "badge": "Free Guide & Resource",
+    "heading": "Is your business officially an MSME?",
+    "description": "Registration is completely free, takes about 10 minutes, and unlocks collateral-free bank loans, lower interest rates, and protection against delayed customer payments.",
+    "cta": "Learn about MSME registration"
+  },
+  "footer": {
+    "copyright": "\u00a9 2026 MSME-BIOS \u2014 Business Intelligence System for Indian Enterprises.",
+    "logIn": "Log in",
+    "signUp": "Sign up"
+  }
+}

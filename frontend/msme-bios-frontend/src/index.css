@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -6,6 +6,7 @@
 @theme {
   --font-display: 'Bricolage Grotesque', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-devanagari: 'Noto Sans Devanagari', sans-serif;
   --font-data: 'IBM Plex Mono', monospace;
 }
 
@@ -36,6 +37,16 @@
 
 *, *::before, *::after {
   box-sizing: inherit;
+}
+
+/* Hindi and Marathi share the Devanagari script - this is the only
+   extra font needed for both. Applied via the <html lang="..."> attribute,
+   which i18n.js keeps in sync with the active language, and overrides
+   BOTH the display and body font variables so headings and body text
+   both render correctly, not just one or the other. */
+html[lang="hi"], html[lang="mr"] {
+  --font-display: 'Noto Sans Devanagari', sans-serif;
+  --font-body: 'Noto Sans Devanagari', sans-serif;
 }
 
 body {
