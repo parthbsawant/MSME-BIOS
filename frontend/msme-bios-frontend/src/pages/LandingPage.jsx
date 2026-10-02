@@ -65,6 +65,24 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        <section className="mx-auto max-w-5xl px-6 py-20 border-t border-black/15 dark:border-white/15">
+          <div className="border border-black/15 dark:border-white/15 p-10 text-center sm:p-14">
+            <p className="font-[family-name:var(--font-data)] text-xs text-black/40 dark:text-white/40">Not registered yet?</p>
+            <h2 className="mt-3 font-[family-name:var(--font-display)] text-2xl font-semibold tracking-tight sm:text-3xl">
+              Is your business officially an MSME?
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-black/60 dark:text-white/60">
+              It&rsquo;s free, takes about 10 minutes, and unlocks collateral-free loans, tax benefits, and protection against late payments. Here&rsquo;s what it is and how to do it.
+            </p>
+            <Link
+              to="/msme-guide"
+              className="mt-6 inline-block border border-black dark:border-white px-6 py-2.5 text-sm font-medium hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors"
+            >
+              Learn about MSME registration
+            </Link>
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-black/15 dark:border-white/15 py-8">

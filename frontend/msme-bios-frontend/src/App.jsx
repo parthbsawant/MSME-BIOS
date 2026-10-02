@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import RequireOnboarded from './components/RequireOnboarded'
 import LandingPage from './pages/LandingPage'
+import MSMEGuidePage from './pages/MSMEGuidePage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import BusinessSetupPage from './pages/BusinessSetupPage'
@@ -17,6 +18,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/msme-guide" element={<MSMEGuidePage />} />
       <Route
         path="/login"
         element={

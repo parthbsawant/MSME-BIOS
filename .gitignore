@@ -19,3 +19,4 @@ blob-report/
 
 # Playwright test credentials
 .env.test
+backend/parser-backend/.envrc
