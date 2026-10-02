@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
+import logo from '../assets/logo.png'
 
 export default function Navbar({ showNavLinks = false }) {
   const { user, isLoggedIn, logout } = useAuth()
@@ -28,16 +29,16 @@ export default function Navbar({ showNavLinks = false }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
         
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] text-white shadow-md shadow-[#E8622C]/20 transition-transform group-hover:scale-105">
-            <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 3v18h18" />
-              <path d="m19 9-5 5-4-4-3 3" />
-            </svg>
+        <Link to="/" className="flex items-center group">
+          {/* The logo artwork has black wordmark text on a transparent
+              background - on the dark-mode page background (#1A1714,
+              nearly identical to the text's own near-black color), that
+              text would be effectively invisible. This light chip keeps
+              it legible in both themes without needing a separate
+              dark-mode logo asset. */}
+          <div className="rounded-lg bg-white px-2 py-1 transition-transform group-hover:scale-105 dark:shadow-md">
+            <img src={logo} alt="MSME-BIOS" className="h-7 w-auto" />
           </div>
-          <span className="font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
-            MSME<span className="text-[#E8622C] dark:text-[#F27A4A]">-BIOS</span>
-          </span>
         </Link>
 
         {/* Center Nav Links (Desktop) */}

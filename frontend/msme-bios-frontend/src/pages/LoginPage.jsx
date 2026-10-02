@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from '../components/ThemeToggle'
+import logo from '../assets/logo.png'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -81,13 +82,10 @@ export default function LoginPage() {
       {/* Top Navbar */}
       <header className="sticky top-0 z-30 bg-[#FBF3EC]/90 dark:bg-[#1A1714]/90 backdrop-blur-md border-b border-[#F0E4D8] dark:border-[#3A332A] px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] text-white font-bold">
-              M
+          <Link to="/" className="flex items-center group">
+            <div className="rounded-lg bg-white px-2 py-1 transition-transform group-hover:scale-105 dark:shadow-md">
+              <img src={logo} alt="MSME-BIOS" className="h-7 w-auto" />
             </div>
-            <span className="font-[family-name:var(--font-display)] text-xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
-              MSME<span className="text-[#E8622C] dark:text-[#F27A4A]">-BIOS</span>
-            </span>
           </Link>
 
           <div className="flex items-center gap-4">

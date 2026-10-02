@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
+import logo from '../assets/logo.png'
 
 export default function DashboardLayout({ children, activeItem = 'Dashboard' }) {
   const { user, logout } = useAuth()
@@ -127,13 +128,13 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
               </svg>
             </button>
 
-            <Link to="/dashboard" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E8622C] dark:bg-[#F27A4A] text-white font-bold text-sm shadow-sm">
-                M
+            <Link to="/dashboard" className="flex items-center">
+              {/* Same light-chip treatment as the public Navbar - the
+                  logo's black text would be near-invisible directly on
+                  the dark-mode sidebar background otherwise. */}
+              <div className="rounded-lg bg-white px-2 py-1 dark:shadow-md">
+                <img src={logo} alt="MSME-BIOS" className="h-6 w-auto" />
               </div>
-              <span className="font-[family-name:var(--font-display)] text-lg font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
-                MSME<span className="text-[#E8622C] dark:text-[#F27A4A]">-BIOS</span>
-              </span>
             </Link>
           </div>
 
