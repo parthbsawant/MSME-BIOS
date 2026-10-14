@@ -34,11 +34,14 @@ app = FastAPI(title="MSME-BIOS Parser API")
 # though curl - which doesn't enforce CORS at all - has worked fine this
 # whole time. FRONTEND_URL is read from .env so this doesn't need code
 # changes between local dev and a real deployed frontend later.
+# Accepts a comma-separated list, so a deployed frontend and local dev
+# can both be allowed at once.
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+ALLOWED_ORIGINS = [o.strip().rstrip("/") for o in FRONTEND_URL.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
