@@ -16,5 +16,11 @@
   },
   "language": {
     "label": "भाषा"
+  },
+  "plan": {
+    "perMonth": "/महीना",
+    "featuresIncluded": "शामिल फीचर्स",
+    "choosePlan": "प्लान चुनें",
+    "mostPopular": "सबसे लोकप्रिय"
   }
 }

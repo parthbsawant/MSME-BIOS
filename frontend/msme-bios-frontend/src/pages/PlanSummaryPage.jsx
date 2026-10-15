@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
 import { TIERS, featureById, formatPrice } from '../lib/featuresData'
@@ -8,6 +9,7 @@ import { savePlan as savePlanToBackend } from '../lib/api'
 export default function PlanSummaryPage() {
   const { tierId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('onboarding')
   const { selectTier } = usePlan()
   const tier = TIERS.find((t) => t.id === tierId)
   const [saving, setSaving] = useState(false)
@@ -24,7 +26,7 @@ export default function PlanSummaryPage() {
       navigate('/dashboard')
     } catch (err) {
       console.error('Failed to save plan:', err)
-      setError('Couldn\u2019t save your plan. Check that the backend is running, then try again.')
+      setError('planSummary.saveError')
     } finally {
       setSaving(false)
     }
@@ -36,10 +38,10 @@ export default function PlanSummaryPage() {
       <main className="mx-auto max-w-2xl px-6 py-12">
         <div className="rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-10 shadow-xl">
           <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
-            Plan Review & Confirmation
+            {t('planSummary.badge')}
           </span>
           <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-            {tier.name} Plan
+            {t('planSummary.title', { name: tier.name })}
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">{tier.band}</p>
 
@@ -47,11 +49,11 @@ export default function PlanSummaryPage() {
             <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#E8622C] dark:text-[#F27A4A]">
               {formatPrice(tier.price)}
             </span>
-            <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">/month</span>
+            <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('planSummary.perMonth')}</span>
           </div>
 
           <div className="mt-6 space-y-3 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2A2521] dark:text-[#F5EFE8]">Included Features ({tier.featureIds.length})</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2A2521] dark:text-[#F5EFE8]">{t('planSummary.includedFeatures', { count: tier.featureIds.length })}</h3>
             <ul className="space-y-2.5">
               {tier.featureIds.map((id) => {
                 const f = featureById(id)
@@ -70,7 +72,7 @@ export default function PlanSummaryPage() {
 
           {error && (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 text-xs text-red-700 dark:text-red-300">
-              {error}
+              {t(error)}
             </div>
           )}
 
@@ -80,14 +82,14 @@ export default function PlanSummaryPage() {
               disabled={saving}
               className="rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] px-6 py-3 text-xs font-bold text-[#8A7F74] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors disabled:opacity-50 cursor-pointer"
             >
-              Back
+              {t('planSummary.back')}
             </button>
             <button
               onClick={handleConfirm}
               disabled={saving}
               className="flex-1 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-3 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {saving ? 'Saving Plan…' : 'Confirm & Access Dashboard'}
+              {saving ? t('planSummary.saving') : t('planSummary.confirm')}
             </button>
           </div>
         </div>

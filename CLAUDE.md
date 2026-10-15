@@ -52,19 +52,17 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Style rule: translate ordinary UI wording naturally; transliterate financial and technical terms phonetically into Devanagari (Invoice -> इनव्हॉइस, Dashboard -> डैशबोर्ड). Keep GST, GSTIN, PDF, MSME and similar in Latin letters.
 - Dropdowns: the stored value stays English (backend consistency); only the displayed label is translated.
 - Translations are an AI first pass and should get native-speaker review.
-- DONE: infrastructure, Navbar, LandingPage (namespaces common, landing).
-- NOT DONE, in order: Phase 2 = LoginPage, SignupPage, BusinessSetupPage, ChoosePlanPage, PlanSummaryPage, CustomBuilderPage (new namespaces auth and onboarding). Phase 3 = dashboard, upload, results, DashboardLayout, tier and feature names in lib/featuresData.js. Phase 4 = MSMEGuidePage and remaining error messages.
-- Drafts of the Phase 2 files were made in an earlier chat session and never added to this repo. Start Phase 2 from the current code.
+- DONE: infrastructure, Navbar, LandingPage (namespaces common, landing). Phase 2: LoginPage, SignupPage, BusinessSetupPage, ChoosePlanPage, PlanSummaryPage, CustomBuilderPage, PricingTierCard (namespaces auth, onboarding, plus common.plan). Auth pages now carry the LanguageSwitcher. Error state holds a translation key, rendered with t(error), so it re-translates on language switch.
+- NOT DONE, in order: Phase 3 = dashboard, upload, results, DashboardLayout, tier and feature names in lib/featuresData.js. Phase 4 = MSMEGuidePage and remaining error messages.
 
 ## Status and roadmap
-Done: three parsers and pipeline; FastAPI with Firebase-verified, tenant-scoped endpoints; Postgres schema and tenant isolation tests; real signup, login and Google sign-in; business and plan persistence; full UI revamp with logo; MSME registration guide page; Hindi and Marathi infrastructure plus landing page.
+Done: three parsers and pipeline; FastAPI with Firebase-verified, tenant-scoped endpoints; Postgres schema and tenant isolation tests; real signup, login and Google sign-in; business and plan persistence; full UI revamp with logo; MSME registration guide page; Hindi and Marathi infrastructure, landing page, auth and onboarding pages; live deployment (backend on Render via Docker, frontend on Vercel, hosted Postgres, Firebase configured for the live domain).
 
 Next, in this order:
-1. Finish i18n Phases 2 to 4.
-2. Deploy backend and frontend live (24x7) for the team. Not started; needs hosted Postgres and a deployment target.
-3. Persist parsed documents (teammate's database brief defines this).
-4. Add a separate test database; set up direnv (.envrc with `source .venv/bin/activate`) if not already done.
-5. Later: enable Claude Vision for the handwritten parser once approved (local Tesseract read only 4 of 10 items on a real bill); run the skipped Firebase-token test with real credentials; build the dashboard features that are currently "Coming soon" (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index).
+1. Finish i18n Phases 3 and 4.
+2. Persist parsed documents (teammate's database brief defines this).
+3. Add a separate test database; set up direnv (.envrc with `source .venv/bin/activate`) if not already done.
+4. Later: enable Claude Vision for the handwritten parser once approved (local Tesseract read only 4 of 10 items on a real bill); run the skipped Firebase-token test with real credentials; build the dashboard features that are currently "Coming soon" (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index).
 
 ## How to work with Parth
 - Step by step. Say what you will change and why before changing it. Keep changes small.

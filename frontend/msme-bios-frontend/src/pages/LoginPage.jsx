@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 import ThemeToggle from '../components/ThemeToggle'
+import LanguageSwitcher from '../components/LanguageSwitcher'
 import logo from '../assets/logo.png'
 
 export default function LoginPage() {
@@ -14,13 +16,14 @@ export default function LoginPage() {
 
   const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
+  const { t } = useTranslation('auth')
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
 
     if (!email.trim() || !password) {
-      setError('Please enter your email and password.')
+      setError('errors.emailAndPasswordRequired')
       return
     }
 
@@ -32,22 +35,22 @@ export default function LoginPage() {
       console.error('Login error:', err)
       switch (err.code) {
         case 'auth/invalid-credential':
-          setError('Invalid email or password.')
+          setError('errors.invalidCredential')
           break
         case 'auth/user-not-found':
-          setError('No account found with this email.')
+          setError('errors.userNotFound')
           break
         case 'auth/wrong-password':
-          setError('Incorrect password.')
+          setError('errors.wrongPassword')
           break
         case 'auth/invalid-email':
-          setError('Please enter a valid email address.')
+          setError('errors.invalidEmail')
           break
         case 'auth/too-many-requests':
-          setError('Too many failed attempts. Please try again later.')
+          setError('errors.tooManyRequests')
           break
         default:
-          setError('Unable to log in. Please try again.')
+          setError('errors.loginFailed')
       }
     } finally {
       setLoading(false)
@@ -65,11 +68,11 @@ export default function LoginPage() {
         console.error('Google login error:', err)
       }
       if (err.code === 'auth/popup-closed-by-user') {
-        setError('Google sign-in was cancelled.')
+        setError('errors.googleCancelled')
       } else if (err.code === 'auth/popup-blocked') {
-        setError('The Google sign-in popup was blocked by your browser.')
+        setError('errors.googlePopupBlocked')
       } else {
-        setError('Unable to sign in with Google. Please try again.')
+        setError('errors.googleLoginFailed')
       }
     } finally {
       setLoading(false)
@@ -89,11 +92,12 @@ export default function LoginPage() {
           </Link>
 
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <ThemeToggle />
             <div className="text-xs font-medium text-[#8A7F74] dark:text-[#A89E92]">
-              New to MSME-BIOS?{' '}
+              {t('login.headerPrompt')}{' '}
               <Link to="/signup" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
-                Create an account
+                {t('login.createAccountLink')}
               </Link>
             </div>
           </div>
@@ -110,13 +114,13 @@ export default function LoginPage() {
             {/* Header & Tab Switcher */}
             <div>
               <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
-                Welcome Back
+                {t('login.badge')}
               </span>
               <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-bold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
-                Welcome to MSME-BIOS
+                {t('login.title')}
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
-                Log in to access your business intelligence dashboard.
+                {t('login.subtitle')}
               </p>
             </div>
 
@@ -126,14 +130,14 @@ export default function LoginPage() {
                 type="button"
                 className="flex-1 rounded-lg bg-[#FFFFFF] dark:bg-[#242019] py-2 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] shadow-xs"
               >
-                Log In
+                {t('tabs.login')}
               </button>
               <button
                 type="button"
                 onClick={() => navigate('/signup')}
                 className="flex-1 rounded-lg py-2 text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors cursor-pointer"
               >
-                Create Account
+                {t('tabs.signup')}
               </button>
             </div>
 
@@ -141,7 +145,7 @@ export default function LoginPage() {
             {error && (
               <div className="mt-5 rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                 <svg className="h-4 w-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span>{error}</span>
+                <span>{t(error)}</span>
               </div>
             )}
 
@@ -151,7 +155,7 @@ export default function LoginPage() {
               {/* Email */}
               <div>
                 <label htmlFor="email" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                  Email Address
+                  {t('fields.email')}
                 </label>
                 <input
                   id="email"
@@ -168,7 +172,7 @@ export default function LoginPage() {
               {/* Password */}
               <div>
                 <label htmlFor="password" className="block text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                  Password
+                  {t('fields.password')}
                 </label>
                 <div className="relative mt-1.5">
                   <input
@@ -176,7 +180,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={t('fields.passwordPlaceholderLogin')}
                     autoComplete="current-password"
                     disabled={loading}
                     className="w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-3 pr-10 text-xs text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/50 focus:border-[#E8622C] dark:focus:border-[#F27A4A] focus:outline-none transition-colors disabled:opacity-50"
@@ -184,6 +188,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
+                    aria-label={showPassword ? t('fields.hidePassword') : t('fields.showPassword')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] p-1 cursor-pointer"
                   >
                     {showPassword ? (
@@ -204,10 +209,10 @@ export default function LoginPage() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="rounded border-[#F0E4D8] text-[#E8622C] focus:ring-[#E8622C]"
                   />
-                  <span>Remember me</span>
+                  <span>{t('login.rememberMe')}</span>
                 </label>
                 <span className="font-semibold text-[#E8622C] dark:text-[#F27A4A] hover:underline cursor-pointer">
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </span>
               </div>
 
@@ -217,14 +222,14 @@ export default function LoginPage() {
                 disabled={loading}
                 className="mt-2 w-full rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] py-3.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
               >
-                {loading ? 'Logging in...' : 'Log in to Dashboard'}
+                {loading ? t('login.submitting') : t('login.submit')}
               </button>
             </form>
 
             {/* Divider */}
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-[#F0E4D8] dark:bg-[#3A332A]" />
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">OR</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('or')}</span>
               <div className="h-px flex-1 bg-[#F0E4D8] dark:bg-[#3A332A]" />
             </div>
 
@@ -241,14 +246,14 @@ export default function LoginPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
-              <span>Continue with Google</span>
+              <span>{t('continueWithGoogle')}</span>
             </button>
 
             {/* Bottom link */}
             <p className="mt-6 text-center text-xs text-[#8A7F74] dark:text-[#A89E92]">
-              Need an account?{' '}
+              {t('login.bottomPrompt')}{' '}
               <Link to="/signup" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
-                Create an account
+                {t('login.createAccountLink')}
               </Link>
             </p>
           </div>
@@ -287,10 +292,10 @@ export default function LoginPage() {
             {/* Headline & Bullet Points */}
             <div className="mt-8">
               <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                Digital tools for Bigger tomorrows
+                {t('side.headline')}
               </h2>
               <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
-                Empowering micro, small, and medium enterprises across India with AI-powered document intelligence.
+                {t('side.description')}
               </p>
 
               <div className="mt-6 space-y-3">
@@ -298,21 +303,21 @@ export default function LoginPage() {
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                  <span>Instant digitization for handwritten paper bills & PDFs</span>
+                  <span>{t('side.point1')}</span>
                 </div>
 
                 <div className="flex items-center gap-3 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                  <span>Saves up to 15 hours every week on manual bookkeeping</span>
+                  <span>{t('side.point2')}</span>
                 </div>
 
                 <div className="flex items-center gap-3 text-xs font-semibold text-[#2A2521] dark:text-[#F5EFE8]">
                   <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1F9254]/10 text-[#1F9254]">
                     <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
-                  <span>Enterprise-grade data encryption & privacy compliance</span>
+                  <span>{t('side.point3')}</span>
                 </div>
               </div>
             </div>

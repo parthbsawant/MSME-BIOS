@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
@@ -20,6 +21,7 @@ function AnimatedPrice({ value }) {
 
 export default function CustomBuilderPage() {
   const navigate = useNavigate()
+  const { t } = useTranslation('onboarding')
   const { selectCustom } = usePlan()
   const [selectedIds, setSelectedIds] = useState(['document_parser'])
   const [saving, setSaving] = useState(false)
@@ -42,7 +44,7 @@ export default function CustomBuilderPage() {
       navigate('/dashboard')
     } catch (err) {
       console.error('Failed to save plan:', err)
-      setError('Couldn\u2019t save your plan. Check that the backend is running, then try again.')
+      setError('customBuilder.saveError')
     } finally {
       setSaving(false)
     }
@@ -56,16 +58,16 @@ export default function CustomBuilderPage() {
           onClick={() => navigate('/choose-plan')}
           className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer"
         >
-          &larr; Back to Choose Plan
+          &larr; {t('customBuilder.back')}
         </button>
 
         <div className="mt-4 max-w-2xl">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Custom Builder</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">{t('customBuilder.badge')}</span>
           <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
-            Build your custom enterprise plan
+            {t('customBuilder.title')}
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
-            Document parser is included in every plan by default. Pick whichever additional modules your business needs.
+            {t('customBuilder.subtitle')}
           </p>
         </div>
 
@@ -88,7 +90,7 @@ export default function CustomBuilderPage() {
                       {f.name}
                     </h3>
                     <span className="font-[family-name:var(--font-data)] text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
-                      {formatPrice(f.price)}/mo
+                      {formatPrice(f.price)}{t('customBuilder.perMonthShort')}
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
@@ -103,12 +105,12 @@ export default function CustomBuilderPage() {
 
                   {f.locked ? (
                     <span className="rounded-full bg-[#E8F5EC] dark:bg-[#132E21] px-2.5 py-1 text-[10px] font-bold text-[#1F9254] dark:text-[#34D399]">
-                      Included
+                      {t('customBuilder.included')}
                     </span>
                   ) : (
                     <button
                       onClick={() => toggleFeature(f.id)}
-                      aria-label={isSelected ? `Remove ${f.name}` : `Add ${f.name}`}
+                      aria-label={isSelected ? t('customBuilder.remove', { name: f.name }) : t('customBuilder.add', { name: f.name })}
                       className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-[#E8622C] text-white dark:bg-[#F27A4A] dark:text-white shadow-xs'
@@ -158,9 +160,9 @@ export default function CustomBuilderPage() {
           {/* Price & Confirmation */}
           <div className="flex items-center gap-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">Estimated Monthly Total</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('customBuilder.monthlyTotal')}</p>
               <p className="font-[family-name:var(--font-display)] text-2xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-                <AnimatedPrice value={total} /><span className="text-xs font-normal text-[#8A7F74]">/mo</span>
+                <AnimatedPrice value={total} /><span className="text-xs font-normal text-[#8A7F74]">{t('customBuilder.perMonthShort')}</span>
               </p>
             </div>
 
@@ -169,12 +171,12 @@ export default function CustomBuilderPage() {
               disabled={saving}
               className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-7 py-3.5 text-xs font-bold text-white shadow-lg shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {saving ? 'Confirming Plan…' : 'Confirm Plan & Access Dashboard'}
+              {saving ? t('customBuilder.saving') : t('customBuilder.confirm')}
             </button>
           </div>
         </div>
         {error && (
-          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{error}</p>
+          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{t(error)}</p>
         )}
       </div>
     </div>

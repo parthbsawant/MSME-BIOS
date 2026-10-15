@@ -1,0 +1,70 @@
+{
+  "businessSetup": {
+    "badge": "Onboarding Step 1 of 2",
+    "title": "Tell us about your business",
+    "subtitle": "A few basics before you choose a plan — takes under a minute.",
+    "businessName": "Business name",
+    "businessNamePlaceholder": "e.g. Shree Ganesh Stores",
+    "ownerName": "Owner / contact name",
+    "ownerNamePlaceholder": "e.g. Ramesh Patil",
+    "businessType": "Business type",
+    "turnover": "Annual turnover",
+    "city": "City",
+    "cityPlaceholder": "e.g. Pune",
+    "gstin": "GSTIN (optional)",
+    "gstinPlaceholder": "e.g. 27ABCDE1234F1Z5",
+    "submit": "Continue to Plans & Pricing",
+    "submitting": "Saving business profile…",
+    "saveError": "Couldn’t save your business details. Check that the backend is running, then try again.",
+    "types": {
+      "kirana": "Kirana / general store",
+      "retail": "Retail shop",
+      "wholesale": "Wholesale trader",
+      "manufacturer": "Manufacturer",
+      "service": "Service provider",
+      "other": "Other"
+    },
+    "turnoverBands": {
+      "under40L": "Under ₹40 lakh",
+      "40Lto5Cr": "₹40 lakh – ₹5 crore",
+      "5Crto50Cr": "₹5 crore – ₹50 crore",
+      "above50Cr": "Above ₹50 crore"
+    }
+  },
+  "choosePlan": {
+    "back": "Back to Business Setup",
+    "badge": "Onboarding Step 2 of 2",
+    "title": "Choose a plan for your enterprise",
+    "subtitle": "Pick a pre-configured feature bundle, or build a custom plan tailored specifically to your workflow.",
+    "reviewPlan": "Review Plan",
+    "customBadge": "Custom",
+    "customTitle": "Build your own",
+    "customTagline": "Pick exactly what you need",
+    "customDescription": "Choose individual modules like anomaly detection or demand forecasting and see your price update automatically.",
+    "customCta": "Build Your Plan"
+  },
+  "planSummary": {
+    "badge": "Plan Review & Confirmation",
+    "title": "{{name}} Plan",
+    "perMonth": "/month",
+    "includedFeatures": "Included Features ({{count}})",
+    "back": "Back",
+    "confirm": "Confirm & Access Dashboard",
+    "saving": "Saving Plan…",
+    "saveError": "Couldn’t save your plan. Check that the backend is running, then try again."
+  },
+  "customBuilder": {
+    "back": "Back to Choose Plan",
+    "badge": "Custom Builder",
+    "title": "Build your custom enterprise plan",
+    "subtitle": "Document parser is included in every plan by default. Pick whichever additional modules your business needs.",
+    "perMonthShort": "/mo",
+    "included": "Included",
+    "add": "Add {{name}}",
+    "remove": "Remove {{name}}",
+    "monthlyTotal": "Estimated Monthly Total",
+    "confirm": "Confirm Plan & Access Dashboard",
+    "saving": "Confirming Plan…",
+    "saveError": "Couldn’t save your plan. Check that the backend is running, then try again."
+  }
+}

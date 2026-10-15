@@ -16,5 +16,11 @@
   },
   "language": {
     "label": "Language"
+  },
+  "plan": {
+    "perMonth": "/month",
+    "featuresIncluded": "Features Included",
+    "choosePlan": "Choose plan",
+    "mostPopular": "Most Popular"
   }
 }

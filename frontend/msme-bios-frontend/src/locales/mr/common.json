@@ -16,5 +16,11 @@
   },
   "language": {
     "label": "भाषा"
+  },
+  "plan": {
+    "perMonth": "/महिना",
+    "featuresIncluded": "समाविष्ट फीचर्स",
+    "choosePlan": "प्लॅन निवडा",
+    "mostPopular": "सर्वाधिक लोकप्रिय"
   }
 }

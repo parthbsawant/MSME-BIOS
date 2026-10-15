@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next'
 import { formatPrice, featureById } from '../lib/featuresData'
 
-export default function PricingTierCard({ tier, onSelect, ctaLabel = 'Choose plan', isPopular = false }) {
+export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = false }) {
+  const { t } = useTranslation()
   const popular = isPopular || tier.id === 'growth'
 
   return (
@@ -11,7 +13,7 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel = 'Choose pla
     }`}>
       {popular && (
         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#E8622C] dark:bg-[#F27A4A] px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase text-white shadow-sm">
-          Most Popular
+          {t('plan.mostPopular')}
         </div>
       )}
 
@@ -25,11 +27,11 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel = 'Choose pla
           <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
             {formatPrice(tier.price)}
           </span>
-          <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">/month</span>
+          <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('plan.perMonth')}</span>
         </div>
 
         <div className="mt-6 space-y-2.5 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">Features Included</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('plan.featuresIncluded')}</p>
           {tier.featureIds.map((id) => {
             const feat = featureById(id)
             return (
@@ -53,7 +55,7 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel = 'Choose pla
               : 'border border-[#E8622C] dark:border-[#F27A4A] text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714]'
           }`}
         >
-          {ctaLabel}
+          {ctaLabel ?? t('plan.choosePlan')}
         </button>
       )}
     </div>

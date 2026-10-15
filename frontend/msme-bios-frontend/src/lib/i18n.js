@@ -13,10 +13,16 @@ import { initReactI18next } from 'react-i18next'
 
 import enCommon from '../locales/en/common.json'
 import enLanding from '../locales/en/landing.json'
+import enAuth from '../locales/en/auth.json'
+import enOnboarding from '../locales/en/onboarding.json'
 import hiCommon from '../locales/hi/common.json'
 import hiLanding from '../locales/hi/landing.json'
+import hiAuth from '../locales/hi/auth.json'
+import hiOnboarding from '../locales/hi/onboarding.json'
 import mrCommon from '../locales/mr/common.json'
 import mrLanding from '../locales/mr/landing.json'
+import mrAuth from '../locales/mr/auth.json'
+import mrOnboarding from '../locales/mr/onboarding.json'
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
@@ -34,9 +40,9 @@ function getStoredLanguage() {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, landing: enLanding },
-    hi: { common: hiCommon, landing: hiLanding },
-    mr: { common: mrCommon, landing: mrLanding },
+    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding },
+    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding },
+    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding },
   },
   lng: getStoredLanguage(),
   fallbackLng: 'en',
