@@ -82,23 +82,23 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Build our own document database now (not waiting for the teammate's design).
 
 ## Status
-DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in; business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md.
+DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in (fixed on Vercel 2026-10-23); business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md.
 
-KNOWN OPEN ISSUE (fix this first, before Step 2): Google sign-in on both the login and signup pages shows the generic message "Unable to sign in with Google. Please try again." That text is a fallback; the real cause is a Firebase auth/... code the app does not display. Email/password login works. Google worked earlier on the Mac. Not yet known: which URL fails (localhost:5173, Vercel, or both) and the exact code.
-Diagnosis plan (read only first, then propose, do not edit until Parth approves):
-1. Read src/context/AuthContext.jsx, src/lib/firebase.js, LoginPage.jsx, SignupPage.jsx and locales/*/auth.json. Find the Google handler and its catch block. Check: does it map err.code or always show the generic text; is signInWithPopup the first await in the click handler; does the same try/catch also cover the backend /api/me call; are all six VITE_FIREBASE_* values read.
-2. Ask Parth for the console error code (F12, Console, click the button) and the URL it failed on. Do not ask him to paste .env.
-3. Likely fixes by code: auth/unauthorized-domain = add the Vercel domain in Firebase Console, Authentication, Settings, Authorized domains (only Parth can do this); auth/operation-not-allowed = enable Google under Sign-in method; auth/popup-blocked = allow popups; auth/invalid-api-key or configuration-not-found = wrong VITE_FIREBASE_* values (restart npm run dev, and on Vercel set the variables then redeploy because Vite bakes them in at build time); popup succeeds but error remains = failure after login, check /api/me in the Network tab (401 = service account is for a different Firebase project than the frontend; 500 or CORS = Render logs and FRONTEND_URL).
-4. Proposed code change after approval: keep the generic message only as fallback, map common codes (unauthorized-domain, popup-blocked, popup-closed-by-user, operation-not-allowed, network-request-failed) to specific messages in en, hi and mr, and always console.error(err.code). Do not change other AuthContext logic.
-5. Verify: Google login on localhost and on Vercel for a new and an existing account, logout then login again, cancel the popup. Then commit.
+FIXED (2026-10-23, commit 6d19077): Google sign-in failed on Vercel with auth/unauthorized-domain. Fix was adding msme-bios.vercel.app under Firebase Console, Authentication, Settings, Authorized domains. Login and signup pages now show the specific message plus "Error code: auth/..." (mapping in src/lib/googleAuthError.js, en/hi/mr), and firebase.js logs the names of any missing VITE_FIREBASE_* keys. Verified on localhost (new account, existing account, logout/login, cancel popup) and on Vercel. Note: the Authorized domains list shows only msme-bios.vercel.app (no default localhost/firebaseapp.com rows), yet localhost works. Any new frontend domain (custom domain, Vercel preview URL) must be added there too.
+
+OPEN NOTES (not yet scheduled):
+- SPEC.md and SETUP.md are referenced here but are NOT in the repo (not tracked, not in git history). Add them from the Mac or wherever they live.
+- Logo chip in the in-app top bar renders as an empty white pill at narrow widths (seen on Vercel dashboard at ~800px). Check during Step 1 screen checks.
+- UI text still says "AI vision" for the handwritten parser although it is local Tesseract; decide whether to soften the wording.
+- Dashboard stat-card numbers (sales, expenses, profit, documents count) are placeholders.
 
 ## Build order (do one at a time, tick TRACKER.md after each verified step, commit after each)
-1. Language support part 1: finish live verification (F5 stays on dashboard, Incognito login, mr/hi on dashboard, upload, results, errors, dark mode), then tick and commit.
+1. Language support part 1: finish live verification (F5 stays on dashboard; Incognito login goes to dashboard; mr and hi on dashboard, upload, wrong-file error, real results, guide page, plan pages; dark mode; logout and login), then tick and commit.
 2. Own document database: migration 002 (department, uploaded_by); separate dev DB and msme_bios_test DB for pytest; save parser output transactionally; list and get document endpoints; results page reads saved documents.
 3. Mock payments and seats: provider interface, server-side pricing, seat count before checkout, plan active only after verified payment.
 4. Roles and invitations backend: invite links, join owner's tenant (change tenant_resolution.py), role checks centralised, isolation tests for business-to-business and department-to-department.
 5. Team frontend and role-based panels (translated in en, hi, mr).
-6. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts.
+6. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts (the @test.com users plus specific accounts Parth lists; check with him before deleting).
 
 NEXT PHASE (after the six steps): real Razorpay, real invite emails, actual dashboard features (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index and so on), custom roles, Claude Vision for the handwritten parser (local Tesseract read only 4 of 10 items on a real bill), the skipped Firebase-token test.
 
