@@ -1,9 +1,12 @@
 # MSME-BIOS
 
-BE final-year project (owner: Parth Sawant). A multi-tenant business-intelligence platform for Indian MSMEs. Users upload bank statements, invoices and handwritten bills; parsers extract structured data; analytics and decision support come later. All data is synthetic. Repo: github.com/parthbsawant/MSME-BIOS
+BE final-year project (owner: Parth Sawant). A multi-tenant business-intelligence platform for Indian MSMEs. Users upload bank statements, invoices and handwritten bills; parsers extract structured data; analytics and decision support come later. All data is synthetic (demo business: "Mauli Traders"). Repo: github.com/parthbsawant/MSME-BIOS
+
+READ FIRST: SPEC.md (final agreed design) and TRACKER.md (tick-box build order) in the repo root. Work on one TRACKER step at a time.
 
 ## Layout
-MSME_BIOS/
+MSME-BIOS/
+  SPEC.md  TRACKER.md  SETUP.md  CLAUDE.md  .gitattributes
   backend/parser-backend/        Python: FastAPI, parsers, Postgres schema
     api.py                       endpoints (see Architecture)
     pipeline.py                  single parser entry point: process(file_path, tenant_id, document_type)
@@ -17,57 +20,92 @@ MSME_BIOS/
   frontend/msme-bios-frontend/   React 19 + Vite + Tailwind v4 + react-router + framer-motion
     src/pages  src/components  src/context  src/lib  src/locales
 
-## Run
-- Backend: cd backend/parser-backend && source .venv/bin/activate && uvicorn api:app --reload --port 8000
-- Frontend: cd frontend/msme-bios-frontend && npm run dev (port 5173)
-- Tests: python3 -m pytest tests/ -v from backend/parser-backend. Expected: 67 passed, 1 skipped (the skip needs a real Firebase credential).
-- Always activate .venv first. Bare python3 resolves to Homebrew Python, which has none of the packages. This has caused repeated confusion.
-- Postgres 17 (Homebrew), database msme_bios, schema applied from schema/001_initial_schema.sql.
+## Deployment (live)
+- Backend: Render (Docker, Python 3.12, free tier sleeps; first request can take about a minute). Health check /api/health.
+- Frontend: Vercel. Database: Neon Postgres (production).
+- Render env FRONTEND_URL is a comma-separated CORS allowlist (Vercel URL plus http://localhost:5173).
+- DATABASE_URL must start exactly with postgresql:// (no "psql '" prefix, no quotes, no spaces) or psycopg2 fails to parse it.
+- A 500 from the backend carries no CORS headers, so the browser reports it as a CORS error. Check the real status first.
+
+## Run (Windows PowerShell is the current machine; Mac also used)
+- Backend: cd backend\parser-backend; .venv\Scripts\Activate.ps1; uvicorn api:app --reload --port 8000   (Mac: source .venv/bin/activate)
+- Frontend: cd frontend\msme-bios-frontend; npm run dev (port 5173). Never run npm from the repo root.
+- PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
+- Always activate .venv first.
+- Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
+- Safe test command now: python -m pytest tests/test_pipeline.py -q  (expected 12 passed).
+- DANGER: tests/test_tenant_isolation.py and tests/test_me_onboarding_state.py write into whatever DATABASE_URL points to, which on this machine is the production Neon DB. Do NOT run the full suite until the separate test database exists (Step 2). Users created by tests use @test.com emails.
+- Two-machine setup is in SETUP.md. Gitignored files (.env, Firebase service-account JSON, node_modules, .venv) do not travel between machines.
+- .gitattributes forces LF. CRLF conversion corrupts the sample PDFs and breaks the bank-parser tests.
 
 ## Architecture rules (do not break)
 - Auth: Firebase (email/password and Google) on the frontend. The frontend sends the ID token as Authorization: Bearer. The backend verifies it with the Firebase Admin SDK.
-- tenant_id is NEVER accepted from the client. Server-side chain: verified Firebase UID -> users -> user_tenants -> tenants -> tenant_id -> pipeline.process(). Firebase UID and tenant_id are deliberately different concepts.
-- Endpoints: GET /api/health (public), GET /api/me, POST /api/business, POST /api/plan, POST /api/parse (all require a valid token).
-- Every tenant-owned table carries its own tenant_id column, not only a link to its parent.
+- tenant_id is NEVER accepted from the client. Server-side chain: verified Firebase UID -> users -> user_tenants -> tenants -> tenant_id -> pipeline.process().
+- Endpoints: GET /api/health (public), GET /api/me, POST /api/business, POST /api/plan, POST /api/parse (all but health require a valid token).
+- GET /api/me returns firebase_uid, email, tenant_id, business (or null) and plan (or null). Onboarding state (business and plan) is loaded from /api/me; the database is the source of truth. localStorage is only a cache, keyed by UID.
+- Every tenant-owned table carries its own tenant_id column.
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
-- Handwritten parser is local Tesseract only. A Claude Vision path exists but ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
-- Parsed results are returned but not yet saved. The documents, bank_transactions, invoices, invoice_line_items, handwritten_bills, handwritten_line_items tables exist but are unused. A teammate is designing that persistence.
+- Handwritten parser is local Tesseract only. ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
+- Parsed results are returned but NOT yet saved. Tables documents, bank_transactions, invoices, invoice_line_items, handwritten_bills, handwritten_line_items exist but are unused (Step 2 builds persistence ourselves).
+- tenant_resolution.py currently creates a new tenant for any user without one. Step 4 must change this (invited users join the owner's tenant).
 
 ## Conventions and gotchas
-- Python 3.9 compatibility: do not write `str | None` unless the file has `from __future__ import annotations`. Use Optional[str].
+- Python 3.9 compatibility (Mac and some tooling): no bare `str | None` unless the file has `from __future__ import annotations`. Use Optional[str].
 - Money is NUMERIC in Postgres, never float.
-- Secrets: never commit .env, the Firebase service-account JSON (kept outside the repo, path in FIREBASE_SERVICE_ACCOUNT_PATH), or print .env values. .env lines must be KEY=value; a bare path line does nothing.
-- Backend .env keys: DATABASE_URL, FIREBASE_SERVICE_ACCOUNT_PATH, FRONTEND_URL, ANTHROPIC_API_KEY (placeholder), ENABLE_CLAUDE_VISION_BANK|INVOICE|HANDWRITTEN. Frontend .env: VITE_API_URL and six VITE_FIREBASE_* keys.
-- The pytest isolation tests currently write into the real msme_bios database (no separate test database yet). Their users use @test.com emails; clean them up or add msme_bios_test.
-- UI work must not change logic in: AuthContext, lib/api.js, ProtectedRoute, RequireOnboarded, RedirectIfAuthenticated, BusinessContext, PlanContext. Business and plan are saved to the backend and also kept in UID-scoped localStorage, which still drives the route guards.
-- In raw JSX text use HTML entities (&mdash;, &rsquo;), not — escapes (those only work inside JS strings).
-- npm audit warnings come from Firebase's transitive dependencies. Do not run npm audit fix --force; it would downgrade Firebase.
+- Secrets: never commit .env or the Firebase service-account JSON, never print .env values, never ask for keys. .env lines must be KEY=value.
+- Backend .env: DATABASE_URL, FIREBASE_SERVICE_ACCOUNT_PATH, FRONTEND_URL, ANTHROPIC_API_KEY (placeholder), ENABLE_CLAUDE_VISION_BANK|INVOICE|HANDWRITTEN. Frontend .env: VITE_API_URL and six VITE_FIREBASE_* keys.
+- UI logic files to touch only deliberately: AuthContext, lib/api.js, ProtectedRoute, RequireOnboarded, RedirectIfAuthenticated, BusinessContext, PlanContext.
+- In raw JSX text use HTML entities (&mdash;, &rsquo;), not unicode escapes.
+- Do not run npm audit fix --force (would downgrade Firebase).
+- Neon free compute autosuspends; first query can be slow.
 
 ## Design system
-Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, accent #E8622C. Dark: page #1A1714, card #242019, text #F5EFE8, accent #F27A4A. Light and dark mode both required on every screen. Text selection colour is explicitly set (orange background). The logo (src/assets/logo.png) has near-black text on a transparent background, so it always sits on a white chip to stay legible in dark mode.
+Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, accent #E8622C. Dark: page #1A1714, card #242019, text #F5EFE8, accent #F27A4A. Light and dark mode required on every screen. Logo always sits on a white chip.
 
 ## Internationalisation (react-i18next)
-- Languages: English, Hindi, Marathi. Files in src/locales/{en,hi,mr}/, one JSON per namespace; setup in src/lib/i18n.js; switcher in src/components/LanguageSwitcher.jsx.
-- Language persists in localStorage key msme-language. <html lang> drives the Devanagari font (Noto Sans Devanagari) for Hindi and Marathi.
-- Style rule: translate ordinary UI wording naturally; transliterate financial and technical terms phonetically into Devanagari (Invoice -> इनव्हॉइस, Dashboard -> डैशबोर्ड). Keep GST, GSTIN, PDF, MSME and similar in Latin letters.
-- Dropdowns: the stored value stays English (backend consistency); only the displayed label is translated.
-- Translations are an AI first pass and should get native-speaker review.
-- DONE: infrastructure, Navbar, LandingPage (namespaces common, landing). Phase 2: LoginPage, SignupPage, BusinessSetupPage, ChoosePlanPage, PlanSummaryPage, CustomBuilderPage, PricingTierCard (namespaces auth, onboarding, plus common.plan). Auth pages now carry the LanguageSwitcher. Error state holds a translation key, rendered with t(error), so it re-translates on language switch.
-- NOT DONE, in order: Phase 3 = dashboard, upload, results, DashboardLayout, tier and feature names in lib/featuresData.js. Phase 4 = MSMEGuidePage and remaining error messages.
+- Languages: English, Hindi, Marathi. Files in src/locales/{en,hi,mr}/, one JSON per namespace (common, landing, auth, onboarding, catalog, upload, results, guide, dashboard). Setup in src/lib/i18n.js; switcher LanguageSwitcher.jsx; language stored in localStorage key msme-language; <html lang> drives Noto Sans Devanagari.
+- Style: translate ordinary UI wording naturally; transliterate financial/technical terms phonetically (Invoice -> इनव्हॉइस). Keep GST, GSTIN, PDF, MSME, OCR in Latin.
+- Dropdown stored values stay English; only labels translated.
+- useCatalog() (src/lib/useCatalog.js) translates feature and tier names/taglines, falling back to featuresData.js.
+- Every NEW screen from Steps 3 to 5 must be translated in all three languages as it is built.
+- Translations are an AI first pass and need native-speaker review (Step 6).
 
-## Status and roadmap
-Done: three parsers and pipeline; FastAPI with Firebase-verified, tenant-scoped endpoints; Postgres schema and tenant isolation tests; real signup, login and Google sign-in; business and plan persistence; full UI revamp with logo; MSME registration guide page; Hindi and Marathi infrastructure, landing page, auth and onboarding pages; live deployment (backend on Render via Docker, frontend on Vercel, hosted Postgres, Firebase configured for the live domain).
+## Product decisions (locked, details in SPEC.md)
+- Two levels of separation: (1) business to business (done); (2) inside one business, department access. Owner sees everything; department users see only their department, never the reverse.
+- Five fixed roles: owner, finance, sales, hr, marketing. Keep role logic centralised so custom roles can be added later.
+- Department-wide visibility (a Finance user sees all Finance data of that business).
+- Seats per tier: Starter 2, Growth 4, Intelligence 6, Full suite 10, Custom 2. Extra-seat price is a placeholder. Seat count is chosen BEFORE checkout. All numbers are placeholders to confirm.
+- Invite by link only. Owner copies the link until a real email service exists.
+- Feature to role: Finance = document parser, cash dashboard, receivables and payables, P&L, aging, cash flow simulator, anomaly detection. Sales = invoice generator, revenue concentration, demand forecasting. HR = document parser limited to HR documents. Marketing = demand forecasting, revenue concentration, WhatsApp alerts. Owner = everything bought plus business health index, team, billing.
+- Effective access = plan features intersect role features.
+- Payments: mock provider behind create_order / verify_payment / handle_webhook. Price computed server-side. Plan active only after verified payment. Real Razorpay later.
+- Build our own document database now (not waiting for the teammate's design).
 
-Next, in this order:
-1. Finish i18n Phases 3 and 4.
-2. Persist parsed documents (teammate's database brief defines this).
-3. Add a separate test database; set up direnv (.envrc with `source .venv/bin/activate`) if not already done.
-4. Later: enable Claude Vision for the handwritten parser once approved (local Tesseract read only 4 of 10 items on a real bill); run the skipped Firebase-token test with real credentials; build the dashboard features that are currently "Coming soon" (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index).
+## Status
+DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in; business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md.
+
+KNOWN OPEN ISSUE (fix this first, before Step 2): Google sign-in on both the login and signup pages shows the generic message "Unable to sign in with Google. Please try again." That text is a fallback; the real cause is a Firebase auth/... code the app does not display. Email/password login works. Google worked earlier on the Mac. Not yet known: which URL fails (localhost:5173, Vercel, or both) and the exact code.
+Diagnosis plan (read only first, then propose, do not edit until Parth approves):
+1. Read src/context/AuthContext.jsx, src/lib/firebase.js, LoginPage.jsx, SignupPage.jsx and locales/*/auth.json. Find the Google handler and its catch block. Check: does it map err.code or always show the generic text; is signInWithPopup the first await in the click handler; does the same try/catch also cover the backend /api/me call; are all six VITE_FIREBASE_* values read.
+2. Ask Parth for the console error code (F12, Console, click the button) and the URL it failed on. Do not ask him to paste .env.
+3. Likely fixes by code: auth/unauthorized-domain = add the Vercel domain in Firebase Console, Authentication, Settings, Authorized domains (only Parth can do this); auth/operation-not-allowed = enable Google under Sign-in method; auth/popup-blocked = allow popups; auth/invalid-api-key or configuration-not-found = wrong VITE_FIREBASE_* values (restart npm run dev, and on Vercel set the variables then redeploy because Vite bakes them in at build time); popup succeeds but error remains = failure after login, check /api/me in the Network tab (401 = service account is for a different Firebase project than the frontend; 500 or CORS = Render logs and FRONTEND_URL).
+4. Proposed code change after approval: keep the generic message only as fallback, map common codes (unauthorized-domain, popup-blocked, popup-closed-by-user, operation-not-allowed, network-request-failed) to specific messages in en, hi and mr, and always console.error(err.code). Do not change other AuthContext logic.
+5. Verify: Google login on localhost and on Vercel for a new and an existing account, logout then login again, cancel the popup. Then commit.
+
+## Build order (do one at a time, tick TRACKER.md after each verified step, commit after each)
+1. Language support part 1: finish live verification (F5 stays on dashboard, Incognito login, mr/hi on dashboard, upload, results, errors, dark mode), then tick and commit.
+2. Own document database: migration 002 (department, uploaded_by); separate dev DB and msme_bios_test DB for pytest; save parser output transactionally; list and get document endpoints; results page reads saved documents.
+3. Mock payments and seats: provider interface, server-side pricing, seat count before checkout, plan active only after verified payment.
+4. Roles and invitations backend: invite links, join owner's tenant (change tenant_resolution.py), role checks centralised, isolation tests for business-to-business and department-to-department.
+5. Team frontend and role-based panels (translated in en, hi, mr).
+6. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts.
+
+NEXT PHASE (after the six steps): real Razorpay, real invite emails, actual dashboard features (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index and so on), custom roles, Claude Vision for the handwritten parser (local Tesseract read only 4 of 10 items on a real bill), the skipped Firebase-token test.
 
 ## How to work with Parth
-- Step by step. Say what you will change and why before changing it. Keep changes small.
-- Run the tests or the build before saying something works. Do not assume a command succeeded.
+- Step by step. Say what you will change and why before changing it. Keep changes small. Move fast, ship fast.
+- Run tests or the build before saying something works. Do not assume a command succeeded.
 - Give exact commands and say where each file goes. When he pastes output, answer PASS or FAIL, what it means, and the next step.
-- Never ask for passwords or keys. Explain how to configure them without pasting them.
+- Never ask for passwords or keys.
 - Commit after verified milestones with short messages; check git status and git diff first.
 - Documents and slides for his professor: simple, black and white, to the point.
