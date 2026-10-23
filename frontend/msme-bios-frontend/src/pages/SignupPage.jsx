@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { googleErrorKey } from '../lib/googleAuthError'
 import logo from '../assets/logo.png'
 
 export default function SignupPage() {
@@ -15,6 +16,7 @@ export default function SignupPage() {
   })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [errorCode, setErrorCode] = useState('')
   const [loading, setLoading] = useState(false)
 
   const { signup, loginWithGoogle } = useAuth()
@@ -23,21 +25,16 @@ export default function SignupPage() {
 
   const handleGoogleSignup = async () => {
     setError('')
+    setErrorCode('')
     try {
       setLoading(true)
       await loginWithGoogle()
       navigate('/business-setup')
     } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        console.error('Google signup error:', err)
-      }
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError('errors.googleCancelled')
-      } else if (err.code === 'auth/popup-blocked') {
-        setError('errors.googlePopupBlocked')
-      } else {
-        setError('errors.googleSignupFailed')
-      }
+      console.error('Google signup error:', err.code, err.message)
+      const key = googleErrorKey(err.code, 'errors.googleSignupFailed')
+      setError(key)
+      setErrorCode(key === 'errors.googleCancelled' ? '' : err.code || '')
     } finally {
       setLoading(false)
     }
@@ -53,6 +50,7 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
+    setErrorCode('')
 
     if (!form.name.trim()) {
       setError('errors.nameRequired')
@@ -172,7 +170,14 @@ export default function SignupPage() {
             {error && (
               <div className="mt-5 rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-3.5 text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                 <svg className="h-4 w-4 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span>{t(error)}</span>
+                <span>
+                  {t(error)}
+                  {errorCode && (
+                    <span className="mt-1 block font-mono text-[10px] opacity-80">
+                      {t('errors.codeLabel')}: {errorCode}
+                    </span>
+                  )}
+                </span>
               </div>
             )}
 

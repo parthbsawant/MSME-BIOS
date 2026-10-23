@@ -10,6 +10,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
+// Names only, never values: points at a missing VITE_FIREBASE_* variable
+// (local .env not loaded, or not set in Vercel before the build).
+const missingKeys = Object.keys(firebaseConfig).filter((key) => !firebaseConfig[key])
+if (missingKeys.length) {
+  console.error('Firebase config missing:', missingKeys.join(', '))
+}
+
 const app = initializeApp(firebaseConfig)
 
 export const auth = getAuth(app)
