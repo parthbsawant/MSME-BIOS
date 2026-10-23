@@ -33,7 +33,7 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 71 passed, 1 skipped). tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
+- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 86 passed, 1 skipped). tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
 - Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev and test have 001+002; production has 001 only (002 goes there in Step 2f).
 - If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
@@ -43,7 +43,8 @@ MSME-BIOS/
 ## Architecture rules (do not break)
 - Auth: Firebase (email/password and Google) on the frontend. The frontend sends the ID token as Authorization: Bearer. The backend verifies it with the Firebase Admin SDK.
 - tenant_id is NEVER accepted from the client. Server-side chain: verified Firebase UID -> users -> user_tenants -> tenants -> tenant_id -> pipeline.process().
-- Endpoints: GET /api/health (public), GET /api/me, POST /api/business, POST /api/plan, POST /api/parse (all but health require a valid token).
+- Endpoints: GET /api/health (public), GET /api/me, POST /api/business, POST /api/plan, POST /api/parse, GET /api/documents, GET /api/documents/{id} (all but health require a valid token).
+- GET /api/documents = caller's business's documents, newest first, summaries (item_count, total). GET /api/documents/{id} = one document in the same JSON shape /api/parse returns; another business's id (or a malformed id) gives 404, never 403. All document reads go through document_store._scope(tenant_id, department); department=None (owner) today, Step 4 passes a member's department there. Child rows are ordered by line_no.
 - GET /api/me returns firebase_uid, email, tenant_id, business (or null) and plan (or null). Onboarding state (business and plan) is loaded from /api/me; the database is the source of truth. localStorage is only a cache, keyed by UID.
 - Every tenant-owned table carries its own tenant_id column.
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.

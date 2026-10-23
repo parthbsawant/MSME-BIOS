@@ -69,7 +69,7 @@ Service-account JSON: download a new key from Firebase console, Project settings
 
 Run backend: `uvicorn api:app --reload --port 8000`
 Run tests: `python -m pytest tests/ -v`
-Expected on a machine with Tesseract: 71 passed, 1 skipped. Without Tesseract the handwritten tests fail; that is expected, not a bug. Database tests always use `TEST_DATABASE_URL`; without it they are skipped, never run against dev or production.
+Expected on a machine with Tesseract: 86 passed, 1 skipped. Without Tesseract the handwritten tests fail; that is expected, not a bug. Database tests always use `TEST_DATABASE_URL`; without it they are skipped, never run against dev or production.
 
 ## 4. Switching machines: the daily routine
 Start of session: `git pull`

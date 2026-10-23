@@ -47,7 +47,7 @@ Spec: SPEC.md
 - [x] Save parser output to tables in one transaction (bank)
 - [x] Save parser output (invoice)
 - [x] Save parser output (handwritten)
-- [ ] Endpoints: list my documents, get one document
+- [x] Endpoints: list my documents, get one document
 - [x] Tests: saved rows carry correct tenant_id, uploaded_by, department; failed save leaves nothing behind
 - [ ] Apply migration to hosted database, redeploy backend, verify live
 - [ ] Results page reads from saved documents

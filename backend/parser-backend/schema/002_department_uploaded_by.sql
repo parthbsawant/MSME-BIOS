@@ -58,6 +58,19 @@ ALTER TABLE handwritten_line_items
     ADD COLUMN IF NOT EXISTS uploaded_by UUID REFERENCES users(id) ON DELETE SET NULL;
 
 -- ============================================================
+-- ROW ORDER
+--
+-- line_no = position of the row in the parsed document (1, 2, 3...).
+-- created_at cannot order rows (one transaction gives every row the same
+-- now()) and ids are random UUIDs, so without this a saved statement
+-- could come back with its transactions shuffled.
+-- ============================================================
+
+ALTER TABLE bank_transactions ADD COLUMN IF NOT EXISTS line_no INTEGER NOT NULL;
+ALTER TABLE invoice_line_items ADD COLUMN IF NOT EXISTS line_no INTEGER NOT NULL;
+ALTER TABLE handwritten_line_items ADD COLUMN IF NOT EXISTS line_no INTEGER NOT NULL;
+
+-- ============================================================
 -- INDEXES
 --
 -- (tenant_id, department) is the query shape for every member request

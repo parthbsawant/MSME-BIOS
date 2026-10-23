@@ -230,6 +230,83 @@ def test_handwritten_line_items_with_missing_values_are_saved(client):
     assert all(str(i["tenant_id"]) == tenant_id and i["department"] == "finance" for i in items)
 
 
+# ---- reading back: GET /api/documents and /api/documents/{id} ----
+
+def _same_as_parse(saved, parsed):
+    """Every field /api/parse returned comes back identical (rows in the
+    same order), except extracted_at, whose text format differs after a
+    round trip through TIMESTAMPTZ."""
+    for key, value in parsed.items():
+        if key != "extracted_at":
+            assert saved[key] == value, key
+    assert saved["extracted_at"]
+
+
+@pytest.mark.parametrize("path,document_type", [(BANK_PDF, "bank_statement"), (INVOICE_PDF, "invoice_bill")])
+def test_saved_document_reads_back_exactly_as_parsed(client, path, document_type):
+    _fresh_user(client)
+    parsed = _upload(client, path, document_type).json()
+    r = client.get(f"/api/documents/{parsed['document_id']}")
+    assert r.status_code == 200
+    _same_as_parse(r.json(), parsed)
+
+
+def test_handwritten_document_reads_back_with_nulls_and_order(client):
+    _, user_id, tenant_id = _fresh_user(client)
+    result = HandwrittenBillResult(
+        tenant_id=tenant_id, source_file="bill.jpg", source_type="photo_bill",
+        extraction_method="structured", extracted_at=datetime.now(timezone.utc),
+        line_items=[HandwrittenLineItem(description=f"item {n}", amount=n) for n in (3, 1, 2)]
+                   + [HandwrittenLineItem()],
+    )
+    conn = get_connection()
+    try:
+        document_id = ds.save_parser_result(conn, result, tenant_id, user_id, "finance")
+    finally:
+        conn.close()
+
+    _same_as_parse(client.get(f"/api/documents/{document_id}").json(), {**result.model_dump(mode="json"), "document_id": document_id})
+
+
+def test_list_returns_summaries_newest_first_scoped_to_caller(client):
+    _fresh_user(client)
+    bank = _upload(client, BANK_PDF, "bank_statement").json()
+    invoice = _upload(client, INVOICE_PDF, "invoice_bill", department="sales").json()
+    mine = client.get("/api/documents").json()["documents"]
+
+    assert [d["document_id"] for d in mine] == [invoice["document_id"], bank["document_id"]]  # newest first
+    assert mine[0]["source_type"] == "invoice_bill"
+    assert mine[0]["department"] == "sales"
+    assert mine[0]["item_count"] == len(invoice["line_items"])
+    assert mine[0]["total"] == invoice["total"]
+    assert mine[1]["item_count"] == len(bank["transactions"])
+    assert mine[1]["total"] is None
+
+    _fresh_user(client)  # a different business sees none of them
+    assert client.get("/api/documents").json()["documents"] == []
+
+
+def test_other_business_gets_404_for_my_document(client):
+    _fresh_user(client)
+    document_id = _upload(client, BANK_PDF, "bank_statement").json()["document_id"]
+
+    _fresh_user(client)
+    r = client.get(f"/api/documents/{document_id}")
+    assert r.status_code == 404
+    assert r.json()["error"] == "not_found"
+
+
+def test_unknown_or_malformed_document_id_is_404(client):
+    _fresh_user(client)
+    assert client.get(f"/api/documents/{uuid.uuid4()}").status_code == 404
+    assert client.get("/api/documents/not-a-uuid").status_code == 404
+
+
+def test_document_endpoints_require_a_token(client):
+    assert client.get("/api/documents").status_code == 401
+    assert client.get(f"/api/documents/{uuid.uuid4()}").status_code == 401
+
+
 # ---- client cannot choose the tenant of a saved document ----
 
 def test_client_supplied_tenant_id_is_ignored_when_saving(client):

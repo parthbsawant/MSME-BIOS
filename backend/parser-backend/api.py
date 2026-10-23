@@ -16,6 +16,7 @@ only where tenant_id comes from has changed.
 
 import os
 import tempfile
+import uuid
 
 from fastapi import Depends, FastAPI, File, Form, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -326,3 +327,42 @@ async def parse_document(
 
     finally:
         os.unlink(tmp_path)
+
+
+@app.get("/api/documents")
+async def list_my_documents(decoded_token: dict = Depends(verify_firebase_token)):
+    """
+    STEP 2: the caller's business's saved documents, newest first, one
+    summary each. Scoped to the server-resolved tenant only. Every caller
+    is the owner until Step 4, so no department filter is applied yet
+    (department=None means all departments - see document_store._scope).
+    """
+    tenant_id = _resolve_tenant(decoded_token)
+    conn = get_connection()
+    try:
+        return {"documents": ds.list_documents(conn, tenant_id)}
+    finally:
+        conn.close()
+
+
+@app.get("/api/documents/{document_id}")
+async def get_my_document(document_id: str, decoded_token: dict = Depends(verify_firebase_token)):
+    """
+    STEP 2: one saved document with all its rows, in the same shape
+    /api/parse returns. A document that belongs to another business gets
+    the same 404 as one that doesn't exist, so ids of other businesses'
+    documents can't even be confirmed. A malformed id is also a 404.
+    """
+    not_found = JSONResponse(status_code=404, content={"error": "not_found", "message": "Document not found"})
+    try:
+        uuid.UUID(document_id)
+    except ValueError:
+        return not_found
+
+    tenant_id = _resolve_tenant(decoded_token)
+    conn = get_connection()
+    try:
+        document = ds.get_document(conn, tenant_id, document_id)
+    finally:
+        conn.close()
+    return document if document is not None else not_found
