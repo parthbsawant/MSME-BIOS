@@ -21,7 +21,7 @@ user. Multiple tenants per user is a real future case (Section 2 of the
 project brief), but this milestone doesn't need it yet.
 """
 
-from typing import Optional
+from typing import Optional, Tuple
 
 
 def get_or_create_user(conn, firebase_uid: str, email: str, display_name: Optional[str]) -> str:
@@ -80,3 +80,13 @@ def resolve_tenant_id(conn, firebase_uid: str, email: str, display_name: Optiona
     """
     user_id = get_or_create_user(conn, firebase_uid, email, display_name)
     return get_or_create_tenant_for_user(conn, user_id)
+
+
+def resolve_user_and_tenant(conn, firebase_uid: str, email: str, display_name: Optional[str]) -> Tuple[str, str]:
+    """
+    Same resolution as resolve_tenant_id(), but also returns the user's
+    own id - needed where a row records WHO did something (documents.
+    uploaded_by), not only which tenant it belongs to.
+    """
+    user_id = get_or_create_user(conn, firebase_uid, email, display_name)
+    return user_id, get_or_create_tenant_for_user(conn, user_id)

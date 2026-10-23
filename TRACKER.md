@@ -44,11 +44,11 @@ Spec: SPEC.md
 ## STEP 2: Our own document database
 - [x] Migration 002: department and uploaded_by on documents and parser tables, indexes (applied to dev and test)
 - [x] Create separate test database (msme_bios_test) and point pytest at it (plus msme_bios_dev for laptops)
-- [ ] Save parser output to tables in one transaction (bank)
-- [ ] Save parser output (invoice)
-- [ ] Save parser output (handwritten)
+- [x] Save parser output to tables in one transaction (bank)
+- [x] Save parser output (invoice)
+- [x] Save parser output (handwritten)
 - [ ] Endpoints: list my documents, get one document
-- [ ] Tests: saved rows carry correct tenant_id, uploaded_by, department; failed save leaves nothing behind
+- [x] Tests: saved rows carry correct tenant_id, uploaded_by, department; failed save leaves nothing behind
 - [ ] Apply migration to hosted database, redeploy backend, verify live
 - [ ] Results page reads from saved documents
 

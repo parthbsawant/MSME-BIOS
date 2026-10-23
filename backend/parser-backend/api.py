@@ -26,6 +26,7 @@ from msme_bios_shared import config
 from firebase_auth import verify_firebase_token
 from db_pool import get_connection
 import tenant_resolution as tr
+import document_store as ds
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -59,6 +60,21 @@ def _resolve_tenant(decoded_token: dict) -> str:
     conn = get_connection()
     try:
         return tr.resolve_tenant_id(
+            conn,
+            firebase_uid=decoded_token["uid"],
+            email=decoded_token.get("email", ""),
+            display_name=decoded_token.get("name"),
+        )
+    finally:
+        conn.close()
+
+
+def _resolve_user_and_tenant(decoded_token: dict):
+    """Like _resolve_tenant(), but also returns the user's id, for rows
+    that record who did something (documents.uploaded_by)."""
+    conn = get_connection()
+    try:
+        return tr.resolve_user_and_tenant(
             conn,
             firebase_uid=decoded_token["uid"],
             email=decoded_token.get("email", ""),
@@ -231,6 +247,7 @@ async def save_plan(
 async def parse_document(
     file: UploadFile = File(...),
     document_type: str = Form(...),
+    department: str = Form(default=None),
     decoded_token: dict = Depends(verify_firebase_token),
 ):
     """
@@ -239,8 +256,21 @@ async def parse_document(
     supply - it's resolved server-side from the verified token, exactly
     like every other endpoint above. The parser call itself
     (pipeline.process) is completely unchanged.
+
+    STEP 2: a successful parse is also saved (document_store.py, one
+    transaction) and the response gains document_id and department.
+    department is optional and defaults to finance; until roles exist
+    (Step 4) every caller is the owner, who may choose it. If the save
+    fails, the caller gets an error, never a result that wasn't saved.
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    department = department or ds.DEFAULT_DEPARTMENT
+    if department not in ds.DEPARTMENTS:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "bad_request", "message": f"department must be one of {list(ds.DEPARTMENTS)}"},
+        )
+
+    user_id, tenant_id = _resolve_user_and_tenant(decoded_token)
 
     suffix = os.path.splitext(file.filename or "")[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -250,7 +280,25 @@ async def parse_document(
 
     try:
         result = process(tmp_path, tenant_id=tenant_id, document_type=document_type)
-        return result.model_dump(mode="json")
+        # The temp file's random name is meaningless to the user - record
+        # the name they uploaded instead.
+        result.source_file = file.filename or result.source_file
+        response = result.model_dump(mode="json")
+
+        conn = get_connection()
+        try:
+            document_id = ds.save_parser_result(conn, result, tenant_id, user_id, department)
+        except Exception as e:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "save_failed", "message": f"Parsed, but could not save the document ({type(e).__name__}). Nothing was stored."},
+            )
+        finally:
+            conn.close()
+
+        response["document_id"] = document_id
+        response["department"] = department
+        return response
 
     except NotImplementedError as e:
         return JSONResponse(

@@ -48,7 +48,7 @@ MSME-BIOS/
 - Every tenant-owned table carries its own tenant_id column.
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
 - Handwritten parser is local Tesseract only. ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
-- Parsed results are returned but NOT yet saved. Tables documents, bank_transactions, invoices, invoice_line_items, handwritten_bills, handwritten_line_items exist but are unused (Step 2 builds persistence ourselves).
+- Parsed results are saved by document_store.save_parser_result() (one transaction: documents row + bank_transactions / invoices + invoice_line_items / handwritten_bills + handwritten_line_items, each row stamped with tenant_id, department, uploaded_by). /api/parse takes optional department (default finance) and returns document_id and department. Parsers are unchanged. NOT live until migration 002 is applied to production (Step 2f): do not push/deploy this backend before that, or live uploads fail with save_failed.
 - tenant_resolution.py currently creates a new tenant for any user without one. Step 4 must change this (invited users join the owner's tenant).
 
 ## Conventions and gotchas
