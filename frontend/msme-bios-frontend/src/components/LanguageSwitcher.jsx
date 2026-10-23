@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { SUPPORTED_LANGUAGES } from '../lib/i18n'
 
 export default function LanguageSwitcher() {
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
 
   const current = SUPPORTED_LANGUAGES.find((l) => l.code === i18n.language) || SUPPORTED_LANGUAGES[0]
@@ -17,7 +17,7 @@ export default function LanguageSwitcher() {
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        aria-label="Change language"
+        aria-label={t('language.change')}
         className="flex h-9 items-center gap-1.5 rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] px-3 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] shadow-sm hover:border-[#E8622C]/40 dark:hover:border-[#F27A4A]/40 transition-all cursor-pointer shrink-0"
       >
         <svg className="h-3.5 w-3.5 text-[#8A7F74] dark:text-[#A89E92]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

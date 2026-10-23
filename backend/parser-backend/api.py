@@ -92,16 +92,57 @@ async def health_check():
 @app.get("/api/me")
 async def get_me(decoded_token: dict = Depends(verify_firebase_token)):
     """
-    The authenticated identity endpoint (Milestone 2 Phase 4). Valid
-    token -> 200 with the resolved user/tenant context. Missing or
-    invalid token -> 401, raised by verify_firebase_token before this
-    function body ever runs.
+    The authenticated identity endpoint. Valid token -> 200 with the
+    resolved user/tenant context. Missing or invalid token -> 401,
+    raised by verify_firebase_token before this function body ever runs.
+
+    Also returns this tenant's saved business profile and plan (or null
+    for each if not saved yet). This is what lets the frontend know
+    whether onboarding is already finished on ANY browser or device -
+    previously that was only remembered in one browser's localStorage,
+    so a new browser sent fully-registered users back to the form.
+    Both lookups are keyed by the server-resolved tenant_id only.
     """
     tenant_id = _resolve_tenant(decoded_token)
+
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT business_name, owner_name, business_type,
+                       annual_turnover, city, gstin
+                FROM businesses WHERE tenant_id = %s
+                """,
+                (tenant_id,),
+            )
+            business = cur.fetchone()
+
+            cur.execute(
+                """
+                SELECT plan_type, tier_id, feature_ids, price
+                FROM plans WHERE tenant_id = %s
+                """,
+                (tenant_id,),
+            )
+            plan = cur.fetchone()
+    finally:
+        conn.close()
+
+    if plan is not None:
+        plan = {
+            "plan_type": plan["plan_type"],
+            "tier_id": plan["tier_id"],
+            "feature_ids": list(plan["feature_ids"] or []),
+            "price": float(plan["price"]),
+        }
+
     return {
         "firebase_uid": decoded_token["uid"],
         "email": decoded_token.get("email"),
         "tenant_id": tenant_id,
+        "business": dict(business) if business is not None else None,
+        "plan": plan,
     }
 
 

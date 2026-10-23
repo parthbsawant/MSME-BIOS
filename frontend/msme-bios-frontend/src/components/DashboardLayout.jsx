@@ -1,17 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
 import ThemeToggle from './ThemeToggle'
+import LanguageSwitcher from './LanguageSwitcher'
 import logo from '../assets/logo.png'
 
 export default function DashboardLayout({ children, activeItem = 'Dashboard' }) {
   const { user, logout } = useAuth()
+  const { t } = useTranslation('dashboard')
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userDropdownOpen, setUserDropdownOpen] = useState(false)
 
-  const displayName = user?.displayName || user?.name || user?.email || 'User'
+  const displayName = user?.displayName || user?.name || user?.email || t('layout.userFallback')
 
   const handleLogout = async () => {
     try {
@@ -25,7 +28,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
   const sidebarItems = [
     {
       id: 'Dashboard',
-      label: 'Dashboard',
+      label: t('layout.items.dashboard'),
       path: '/dashboard',
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -38,7 +41,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Upload Document',
-      label: 'Upload Document',
+      label: t('layout.items.upload'),
       path: '/upload',
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -50,7 +53,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Documents',
-      label: 'Documents',
+      label: t('layout.items.documents'),
       path: '/results',
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -63,7 +66,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Invoices',
-      label: 'Invoices',
+      label: t('layout.items.invoices'),
       comingSoon: true,
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -76,7 +79,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Cash Flow',
-      label: 'Cash Flow',
+      label: t('layout.items.cashFlow'),
       comingSoon: true,
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -87,7 +90,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Reports',
-      label: 'Reports',
+      label: t('layout.items.reports'),
       comingSoon: true,
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -99,7 +102,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     },
     {
       id: 'Settings',
-      label: 'Settings',
+      label: t('layout.items.settings'),
       path: '/business-setup',
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -121,6 +124,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((o) => !o)}
+              aria-label={t('layout.openMenu')}
               className="lg:hidden p-2 text-[#8A7F74] hover:text-[#E8622C] rounded-lg transition-colors cursor-pointer"
             >
               <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -146,17 +150,18 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
             </svg>
             <input
               type="text"
-              placeholder="Search documents, invoices, reports..."
+              placeholder={t('layout.search')}
               className="w-full pl-10 pr-4 py-1.5 text-xs rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] placeholder-[#8A7F74]/60 dark:placeholder-[#A89E92]/60 focus:outline-none focus:border-[#E8622C] dark:focus:border-[#F27A4A] transition-colors"
             />
           </div>
 
           {/* Right: Theme Toggle, Bell, User Profile */}
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <ThemeToggle />
 
             {/* Notification Bell */}
-            <button className="relative p-2 text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] rounded-xl hover:bg-[#FBF3EC] dark:hover:bg-[#1A1714] transition-colors cursor-pointer">
+            <button aria-label={t('layout.notifications')} className="relative p-2 text-[#8A7F74] dark:text-[#A89E92] hover:text-[#E8622C] dark:hover:text-[#F27A4A] rounded-xl hover:bg-[#FBF3EC] dark:hover:bg-[#1A1714] transition-colors cursor-pointer">
               <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                 <path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -192,13 +197,13 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                     onClick={() => setUserDropdownOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
                   >
-                    Business Profile
+                    {t('layout.businessProfile')}
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"
                   >
-                    Log out
+                    {t('layout.logOut')}
                   </button>
                 </div>
               )}
@@ -226,7 +231,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
         >
           <div className="space-y-1">
             <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">
-              Menu
+              {t('layout.menu')}
             </p>
             {sidebarItems.map((item) => {
               const isActive = activeItem === item.id || (item.path && location.pathname === item.path)
@@ -239,7 +244,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                         <span>{item.label}</span>
                       </div>
                       <span className="rounded-md bg-[#F3ECE5] dark:bg-[#2E2822] px-1.5 py-0.5 text-[9px] font-semibold text-[#8A7F74] dark:text-[#A89E92]">
-                        Soon
+                        {t('layout.soon')}
                       </span>
                     </div>
                   ) : (
@@ -264,7 +269,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
           {/* Footer Badge inside Sidebar */}
           <div className="rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] p-3 text-center">
             <p className="text-[11px] font-bold text-[#2A2521] dark:text-[#F5EFE8]">MSME-BIOS v2.0</p>
-            <p className="text-[10px] text-[#8A7F74] dark:text-[#A89E92] mt-0.5">Built for Indian Enterprises</p>
+            <p className="text-[10px] text-[#8A7F74] dark:text-[#A89E92] mt-0.5">{t('layout.footerTagline')}</p>
           </div>
         </aside>
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useTransform, animate } from '
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
 import { FEATURES, formatPrice } from '../lib/featuresData'
+import { useCatalog } from '../lib/useCatalog'
 import { savePlan as savePlanToBackend } from '../lib/api'
 
 function AnimatedPrice({ value }) {
@@ -23,6 +24,7 @@ export default function CustomBuilderPage() {
   const navigate = useNavigate()
   const { t } = useTranslation('onboarding')
   const { selectCustom } = usePlan()
+  const { featureName, featureTagline } = useCatalog()
   const [selectedIds, setSelectedIds] = useState(['document_parser'])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -87,7 +89,7 @@ export default function CustomBuilderPage() {
                 <div>
                   <div className="flex items-center justify-between">
                     <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                      {f.name}
+                      {featureName(f.id)}
                     </h3>
                     <span className="font-[family-name:var(--font-data)] text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
                       {formatPrice(f.price)}{t('customBuilder.perMonthShort')}
@@ -100,7 +102,7 @@ export default function CustomBuilderPage() {
 
                 <div className="mt-4 pt-3 border-t border-[#F0E4D8] dark:border-[#3A332A]/50 flex items-center justify-between">
                   <span className="text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92] truncate max-w-[170px]">
-                    {f.tagline}
+                    {featureTagline(f.id)}
                   </span>
 
                   {f.locked ? (
@@ -110,7 +112,7 @@ export default function CustomBuilderPage() {
                   ) : (
                     <button
                       onClick={() => toggleFeature(f.id)}
-                      aria-label={isSelected ? t('customBuilder.remove', { name: f.name }) : t('customBuilder.add', { name: f.name })}
+                      aria-label={isSelected ? t('customBuilder.remove', { name: featureName(f.id) }) : t('customBuilder.add', { name: featureName(f.id) })}
                       className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-[#E8622C] text-white dark:bg-[#F27A4A] dark:text-white shadow-xs'
@@ -139,7 +141,6 @@ export default function CustomBuilderPage() {
           <div className="flex flex-1 items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0">
             <AnimatePresence initial={false}>
               {selectedIds.map((id) => {
-                const f = FEATURES.find((feat) => feat.id === id)
                 return (
                   <motion.span
                     key={id}
@@ -150,7 +151,7 @@ export default function CustomBuilderPage() {
                     transition={{ duration: 0.2 }}
                     className="whitespace-nowrap rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 border border-[#E8622C]/30 px-3 py-1 text-xs font-semibold text-[#E8622C] dark:text-[#F27A4A]"
                   >
-                    {f?.name}
+                    {featureName(id)}
                   </motion.span>
                 )
               })}

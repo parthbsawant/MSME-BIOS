@@ -1,0 +1,53 @@
+{
+  "layout": {
+    "menu": "मेन्यू",
+    "search": "दस्तावेज़, इनव्हॉइस, रिपोर्ट खोजें...",
+    "openMenu": "मेन्यू खोलें",
+    "notifications": "सूचनाएँ",
+    "items": {
+      "dashboard": "डैशबोर्ड",
+      "upload": "दस्तावेज़ अपलोड करें",
+      "documents": "दस्तावेज़",
+      "invoices": "इनव्हॉइस",
+      "cashFlow": "कैश फ़्लो",
+      "reports": "रिपोर्ट",
+      "settings": "सेटिंग्स"
+    },
+    "soon": "जल्द",
+    "businessProfile": "व्यवसाय प्रोफ़ाइल",
+    "logOut": "लॉग आउट",
+    "userFallback": "उपयोगकर्ता",
+    "footerTagline": "भारतीय उद्यमों के लिए बनाया गया"
+  },
+  "page": {
+    "greeting": {
+      "morning": "सुप्रभात, {{name}}!",
+      "afternoon": "नमस्कार, {{name}}!",
+      "evening": "शुभ संध्या, {{name}}!"
+    },
+    "partner": "साथी",
+    "overview": "अवलोकन",
+    "subtitle": "यह आपके उद्यम के आँकड़ों और चालू सॉफ़्टवेयर टूल्स का सार है।",
+    "upload": "दस्तावेज़ अपलोड करें",
+    "stats": {
+      "totalSales": "कुल बिक्री",
+      "salesTrend": "+12.4% पिछले महीने की तुलना में",
+      "totalExpenses": "कुल खर्च",
+      "expensesTrend": "-4.1% पिछले महीने की तुलना में",
+      "netProfit": "शुद्ध मुनाफ़ा",
+      "profitTrend": "+18.2% मार्जिन",
+      "documents": "दस्तावेज़ों की संख्या",
+      "documentsNote": "इस महीने प्रोसेस किए गए"
+    },
+    "tools": {
+      "title": "टूल्स और फ़ीचर्स",
+      "subtitle": "आपके प्लान ({{plan}}) में चालू फ़ीचर्स।",
+      "upgrade": "प्लान अपग्रेड करें →",
+      "active": "चालू",
+      "comingSoon": "जल्द आ रहा है",
+      "useNow": "अभी इस्तेमाल करें",
+      "openTool": "टूल खोलें",
+      "locked": "लॉक"
+    }
+  }
+}

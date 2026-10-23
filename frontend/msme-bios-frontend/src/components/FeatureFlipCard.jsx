@@ -1,4 +1,8 @@
+import { useTranslation } from 'react-i18next'
+
 export default function FeatureFlipCard({ name, tagline, description, icon }) {
+  const { t } = useTranslation()
+
   return (
     <div className="card-flip h-52">
       <div className="card-flip-inner relative h-full w-full">
@@ -15,14 +19,14 @@ export default function FeatureFlipCard({ name, tagline, description, icon }) {
                 )}
               </div>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92] bg-[#FBF3EC] dark:bg-[#1A1714] px-2 py-0.5 rounded-full border border-[#F0E4D8] dark:border-[#3A332A]">
-                Hover to flip
+                {t('flipCard.hover')}
               </span>
             </div>
             <h4 className="mt-4 font-[family-name:var(--font-display)] text-lg font-bold text-[#2A2521] dark:text-[#F5EFE8]">{name}</h4>
             <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">{tagline}</p>
           </div>
           <div className="flex items-center gap-1 text-[11px] font-semibold text-[#E8622C] dark:text-[#F27A4A]">
-            <span>View capabilities</span>
+            <span>{t('flipCard.view')}</span>
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </div>
         </div>
@@ -33,7 +37,7 @@ export default function FeatureFlipCard({ name, tagline, description, icon }) {
             <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[#F27A4A]">{name}</h4>
             <p className="mt-3 text-xs leading-relaxed text-[#F5EFE8]/90">{description}</p>
           </div>
-          <p className="text-[10px] font-semibold text-[#A89E92] uppercase tracking-wider">MSME-BIOS Feature</p>
+          <p className="text-[10px] font-semibold text-[#A89E92] uppercase tracking-wider">{t('flipCard.badge')}</p>
         </div>
       </div>
     </div>

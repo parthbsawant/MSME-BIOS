@@ -3,7 +3,8 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
-import { TIERS, featureById, formatPrice } from '../lib/featuresData'
+import { TIERS, formatPrice } from '../lib/featuresData'
+import { useCatalog } from '../lib/useCatalog'
 import { savePlan as savePlanToBackend } from '../lib/api'
 
 export default function PlanSummaryPage() {
@@ -11,6 +12,7 @@ export default function PlanSummaryPage() {
   const navigate = useNavigate()
   const { t } = useTranslation('onboarding')
   const { selectTier } = usePlan()
+  const { featureName, featureTagline, tierName, tierBand } = useCatalog()
   const tier = TIERS.find((t) => t.id === tierId)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -41,9 +43,9 @@ export default function PlanSummaryPage() {
             {t('planSummary.badge')}
           </span>
           <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-            {t('planSummary.title', { name: tier.name })}
+            {t('planSummary.title', { name: tierName(tier.id) })}
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">{tier.band}</p>
+          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">{tierBand(tier.id)}</p>
 
           <div className="mt-6 flex items-baseline gap-1 bg-[#FBF3EC] dark:bg-[#1A1714] p-4 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A]">
             <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#E8622C] dark:text-[#F27A4A]">
@@ -56,13 +58,12 @@ export default function PlanSummaryPage() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#2A2521] dark:text-[#F5EFE8]">{t('planSummary.includedFeatures', { count: tier.featureIds.length })}</h3>
             <ul className="space-y-2.5">
               {tier.featureIds.map((id) => {
-                const f = featureById(id)
                 return (
                   <li key={id} className="flex items-start gap-3 rounded-xl bg-[#FBF3EC]/60 dark:bg-[#1A1714]/60 p-3 border border-[#F0E4D8]/60 dark:border-[#3A332A]/60">
                     <svg className="h-4 w-4 shrink-0 text-[#1F9254] dark:text-[#34D399] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                     <div>
-                      <p className="text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{f?.name}</p>
-                      <p className="text-[11px] text-[#8A7F74] dark:text-[#A89E92]">{f?.tagline}</p>
+                      <p className="text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{featureName(id)}</p>
+                      <p className="text-[11px] text-[#8A7F74] dark:text-[#A89E92]">{featureTagline(id)}</p>
                     </div>
                   </li>
                 )

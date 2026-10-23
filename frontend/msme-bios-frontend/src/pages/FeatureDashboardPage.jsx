@@ -1,16 +1,24 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import DashboardLayout from '../components/DashboardLayout'
 import { useAuth } from '../context/AuthContext'
 import { usePlan } from '../context/PlanContext'
 import { FEATURES } from '../lib/featuresData'
+import { useCatalog } from '../lib/useCatalog'
 
 export default function FeatureDashboardPage() {
   const { user } = useAuth()
   const { plan } = usePlan()
   const navigate = useNavigate()
+  const { t } = useTranslation('dashboard')
+  const { featureName, featureTagline, featureDescription, tierName, customPlanName } = useCatalog()
 
   const rawName = user?.displayName || user?.name || user?.email || ''
-  const firstName = rawName.split(' ')[0] || 'Partner'
+  const firstName = rawName.split(' ')[0] || t('page.partner')
+
+  // Time-of-day greeting (was hard-coded "Good morning" at every hour).
+  const hour = new Date().getHours()
+  const greetingKey = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
 
   // Enabled feature IDs in the current user's plan
   const planFeatureIds = plan?.featureIds || ['document_parser']
@@ -22,12 +30,12 @@ export default function FeatureDashboardPage() {
         {/* Personalized Greeting */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Overview</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">{t('page.overview')}</span>
             <h1 className="mt-1 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-              Good morning, {firstName}!
+              {t(`page.greeting.${greetingKey}`, { name: firstName })}
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
-              Here&rsquo;s an overview of your enterprise metrics and active software tools.
+              {t('page.subtitle')}
             </p>
           </div>
 
@@ -36,7 +44,7 @@ export default function FeatureDashboardPage() {
             className="self-start sm:self-auto flex items-center gap-2 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all cursor-pointer"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
-            <span>Upload Document</span>
+            <span>{t('page.upload')}</span>
           </button>
         </div>
 
@@ -45,7 +53,7 @@ export default function FeatureDashboardPage() {
           {/* Card 1: Total Sales */}
           <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">Total Sales</span>
+              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('page.stats.totalSales')}</span>
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1F9254]/10 text-[#1F9254]">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
               </div>
@@ -54,14 +62,14 @@ export default function FeatureDashboardPage() {
               ₹12,45,000
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#1F9254]">
-              <span>+12.4% vs last month</span>
+              <span>{t('page.stats.salesTrend')}</span>
             </div>
           </div>
 
           {/* Card 2: Total Expenses */}
           <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">Total Expenses</span>
+              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('page.stats.totalExpenses')}</span>
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E8622C]/10 text-[#E8622C]">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h12M6 12h8"/></svg>
               </div>
@@ -70,14 +78,14 @@ export default function FeatureDashboardPage() {
               ₹8,30,000
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#1F9254]">
-              <span>-4.1% vs last month</span>
+              <span>{t('page.stats.expensesTrend')}</span>
             </div>
           </div>
 
           {/* Card 3: Net Profit */}
           <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">Net Profit</span>
+              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('page.stats.netProfit')}</span>
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1F9254]/10 text-[#1F9254]">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
               </div>
@@ -86,14 +94,14 @@ export default function FeatureDashboardPage() {
               ₹4,15,000
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#1F9254]">
-              <span>+18.2% margin</span>
+              <span>{t('page.stats.profitTrend')}</span>
             </div>
           </div>
 
           {/* Card 4: Documents Count */}
           <div className="rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-5 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">Documents Count</span>
+              <span className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('page.stats.documents')}</span>
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E8622C]/10 text-[#E8622C]">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
               </div>
@@ -102,7 +110,7 @@ export default function FeatureDashboardPage() {
               14
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92]">
-              <span>Processed this month</span>
+              <span>{t('page.stats.documentsNote')}</span>
             </div>
           </div>
         </div>
@@ -112,17 +120,17 @@ export default function FeatureDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                Tools & Features
+                {t('page.tools.title')}
               </h2>
               <p className="mt-0.5 text-xs text-[#8A7F74] dark:text-[#A89E92]">
-                Features active in your plan tier ({plan?.name || 'Custom Plan'}).
+                {t('page.tools.subtitle', { plan: plan?.type === 'tier' ? tierName(plan.tierId) : customPlanName() })}
               </p>
             </div>
             <button
               onClick={() => navigate('/choose-plan')}
               className="text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline cursor-pointer"
             >
-              Upgrade Plan &rarr;
+              {t('page.tools.upgrade')}
             </button>
           </div>
 
@@ -143,26 +151,26 @@ export default function FeatureDashboardPage() {
                   <div>
                     <div className="flex items-center justify-between">
                       <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                        {feature.name}
+                        {featureName(feature.id)}
                       </h3>
                       {isEnabled ? (
                         <span className="rounded-full bg-[#E8F5EC] dark:bg-[#132E21] px-2.5 py-0.5 text-[10px] font-bold text-[#1F9254] dark:text-[#34D399]">
-                          Active
+                          {t('page.tools.active')}
                         </span>
                       ) : (
                         <span className="rounded-full bg-[#F3ECE5] dark:bg-[#2E2822] px-2.5 py-0.5 text-[10px] font-bold text-[#9B9389]">
-                          Coming Soon
+                          {t('page.tools.comingSoon')}
                         </span>
                       )}
                     </div>
                     <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
-                      {feature.description}
+                      {featureDescription(feature.id)}
                     </p>
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-[#F0E4D8] dark:border-[#3A332A]/60 flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92]">
-                      {feature.tagline}
+                      {featureTagline(feature.id)}
                     </span>
 
                     {isEnabled ? (
@@ -171,14 +179,14 @@ export default function FeatureDashboardPage() {
                           onClick={() => navigate('/upload')}
                           className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all cursor-pointer"
                         >
-                          Use Now
+                          {t('page.tools.useNow')}
                         </button>
                       ) : (
                         <button
                           onClick={() => navigate('/upload')}
                           className="rounded-xl border border-[#E8622C] dark:border-[#F27A4A] px-4 py-2 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714] transition-all cursor-pointer"
                         >
-                          Open Tool
+                          {t('page.tools.openTool')}
                         </button>
                       )
                     ) : (
@@ -186,7 +194,7 @@ export default function FeatureDashboardPage() {
                         disabled
                         className="rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] px-3.5 py-1.5 text-xs font-semibold text-[#9B9389] cursor-not-allowed"
                       >
-                        Locked
+                        {t('page.tools.locked')}
                       </button>
                     )}
                   </div>

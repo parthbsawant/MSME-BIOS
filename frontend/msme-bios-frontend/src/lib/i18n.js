@@ -24,6 +24,22 @@ import mrLanding from '../locales/mr/landing.json'
 import mrAuth from '../locales/mr/auth.json'
 import mrOnboarding from '../locales/mr/onboarding.json'
 
+import enCatalog from '../locales/en/catalog.json'
+import enUpload from '../locales/en/upload.json'
+import enResults from '../locales/en/results.json'
+import enGuide from '../locales/en/guide.json'
+import enDashboard from '../locales/en/dashboard.json'
+import hiCatalog from '../locales/hi/catalog.json'
+import hiUpload from '../locales/hi/upload.json'
+import hiResults from '../locales/hi/results.json'
+import hiGuide from '../locales/hi/guide.json'
+import hiDashboard from '../locales/hi/dashboard.json'
+import mrCatalog from '../locales/mr/catalog.json'
+import mrUpload from '../locales/mr/upload.json'
+import mrResults from '../locales/mr/results.json'
+import mrGuide from '../locales/mr/guide.json'
+import mrDashboard from '../locales/mr/dashboard.json'
+
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'hi', label: 'हिन्दी' },
@@ -40,9 +56,9 @@ function getStoredLanguage() {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding },
-    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding },
-    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding },
+    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard },
+    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard },
+    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard },
   },
   lng: getStoredLanguage(),
   fallbackLng: 'en',

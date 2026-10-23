@@ -1,0 +1,108 @@
+{
+  "badge": "Complete Guide for Indian Businesses",
+  "title": "What is an MSME, and should you register as one?",
+  "intro": "If you run a small or growing business in India, this is probably the single highest-value, lowest-effort thing you can do for it — and it’s free. Here’s what it actually means, whether you qualify, and exactly how to do it.",
+  "what": {
+    "title": "What is an MSME?",
+    "body1": "MSME stands for Micro, Small, and Medium Enterprise — a classification the Government of India uses to extend specific support: easier credit, tax relief, and payment protection that larger businesses don’t get. ",
+    "strong": "Udyam Registration",
+    "body2": " is the official, free process for getting that recognition."
+  },
+  "qualify": {
+    "title": "Do you qualify?",
+    "intro": "Classification is based on investment in plant/machinery and annual turnover.",
+    "headers": {
+      "category": "Category",
+      "investment": "Investment Limit",
+      "turnover": "Turnover Limit"
+    },
+    "rows": [
+      {
+        "tier": "Micro",
+        "investment": "Up to ₹2.5 crore",
+        "turnover": "Up to ₹10 crore"
+      },
+      {
+        "tier": "Small",
+        "investment": "Up to ₹25 crore",
+        "turnover": "Up to ₹100 crore"
+      },
+      {
+        "tier": "Medium",
+        "investment": "Up to ₹125 crore",
+        "turnover": "Up to ₹500 crore"
+      }
+    ],
+    "whoTitle": "Who can register",
+    "who": [
+      "Proprietorships and HUFs",
+      "Partnership firms and LLPs",
+      "Private and public limited companies",
+      "Co-operative societies, trusts, and self-help groups",
+      "Manufacturing, service, and trading businesses alike"
+    ]
+  },
+  "benefits": {
+    "title": "Key Benefits Unlocked",
+    "items": [
+      {
+        "title": "Collateral-free bank loans",
+        "detail": "Through CGTMSE scheme, government-guaranteed loans are available without needing to pledge property as security."
+      },
+      {
+        "title": "Lower interest rates",
+        "detail": "Registered MSMEs qualify for priority-sector lending, offering lower interest rates than commercial bank loans."
+      },
+      {
+        "title": "Protection against late payment",
+        "detail": "Under the MSMED Act, buyers are legally required to pay a registered MSME within 45 days."
+      },
+      {
+        "title": "Preference in government tenders",
+        "detail": "Central government procurement reserves dedicated quotes for Micro and Small Enterprises."
+      },
+      {
+        "title": "Subsidies on growth costs",
+        "detail": "Reduced fees on patent/trademark registration, ISO certification reimbursement, and tech subsidies."
+      },
+      {
+        "title": "Tax and compliance concessions",
+        "detail": "Extended MAT credit carry-forward and state-level electricity concessions."
+      }
+    ]
+  },
+  "steps": {
+    "title": "How to Register, Step by Step",
+    "items": [
+      {
+        "title": "Go to the official portal",
+        "detail": "udyamregistration.gov.in — this is the only site you need. Registration is completely free; be cautious of third parties charging a fee."
+      },
+      {
+        "title": "Verify with Aadhaar",
+        "detail": "Enter the Aadhaar number of the proprietor (or authorised signatory) and OTP sent to the linked mobile number."
+      },
+      {
+        "title": "Verify PAN",
+        "detail": "Enter the business or proprietor’s PAN. The portal validates it automatically."
+      },
+      {
+        "title": "Fill in business details",
+        "detail": "Business name, address, bank account & IFSC, NIC activity code, and number of employees."
+      },
+      {
+        "title": "Declare investment and turnover",
+        "detail": "These figures determine which category — Micro, Small, or Medium — the business falls into."
+      },
+      {
+        "title": "Submit and receive your certificate",
+        "detail": "A Udyam Registration Number (URN) is generated immediately, and the official e-certificate is emailed shortly after."
+      }
+    ]
+  },
+  "cta": {
+    "title": "Ready to digitize your business intelligence?",
+    "body": "Start uploading handwritten bills, invoices, and bank statements today with MSME-BIOS.",
+    "button": "Get Started for Free"
+  }
+}

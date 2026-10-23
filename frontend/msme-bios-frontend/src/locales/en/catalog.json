@@ -1,0 +1,83 @@
+{
+  "features": {
+    "document_parser": {
+      "name": "Document parser",
+      "tagline": "Read once, understood forever",
+      "description": "Turns bank statements, invoices, and handwritten bills into structured records automatically."
+    },
+    "cash_dashboard": {
+      "name": "Cash dashboard",
+      "tagline": "Know your position, daily",
+      "description": "A live view of cash and bank balances, updated as transactions come in."
+    },
+    "invoice_generator": {
+      "name": "Invoice generator",
+      "tagline": "GST-correct, in seconds",
+      "description": "Create compliant invoices with correct CGST/SGST splits, ready to send."
+    },
+    "receivables_payables": {
+      "name": "Receivables & payables",
+      "tagline": "Know who owes whom",
+      "description": "Track outstanding customer payments and supplier dues in one place."
+    },
+    "pnl_statement": {
+      "name": "P&L statement",
+      "tagline": "Profit, without the spreadsheet",
+      "description": "An automatically generated profit and loss statement from your real transactions."
+    },
+    "aging_reports": {
+      "name": "Aging reports",
+      "tagline": "See what’s overdue, at a glance",
+      "description": "Breaks down outstanding amounts by how long they’ve been unpaid."
+    },
+    "anomaly_detection": {
+      "name": "Anomaly detection",
+      "tagline": "Catch what looks wrong",
+      "description": "Flags unusual transactions automatically, before they become a problem."
+    },
+    "business_health_index": {
+      "name": "Business health index",
+      "tagline": "One score, the full picture",
+      "description": "A single score summarizing how the business is doing, updated continuously."
+    },
+    "revenue_concentration": {
+      "name": "Revenue concentration",
+      "tagline": "Know your real dependencies",
+      "description": "Shows how much of your revenue depends on your top few customers."
+    },
+    "demand_forecasting": {
+      "name": "Demand forecasting",
+      "tagline": "See next month, today",
+      "description": "Predicts upcoming demand based on historical sales patterns."
+    },
+    "cash_flow_simulator": {
+      "name": "Cash flow simulator",
+      "tagline": "Test decisions before you make them",
+      "description": "Model the cash impact of a big purchase, hire, or slow month before it happens."
+    },
+    "whatsapp_alerts": {
+      "name": "WhatsApp alerts",
+      "tagline": "The news finds you",
+      "description": "Get notified on WhatsApp when something needs your attention."
+    }
+  },
+  "tiers": {
+    "starter": {
+      "name": "Starter",
+      "band": "₹5L–50L turnover"
+    },
+    "growth": {
+      "name": "Growth",
+      "band": "₹50L–5Cr turnover"
+    },
+    "intelligence": {
+      "name": "Intelligence",
+      "band": "₹5Cr–20Cr turnover"
+    },
+    "full_suite": {
+      "name": "Full suite",
+      "band": "₹20Cr–50Cr turnover"
+    }
+  },
+  "customPlan": "Custom Plan"
+}

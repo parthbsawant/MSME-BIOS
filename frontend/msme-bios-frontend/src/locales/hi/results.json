@@ -1,0 +1,60 @@
+{
+  "title": "प्रोसेस किए गए दस्तावेज़ के नतीजे",
+  "parsedRecord": "प्रोसेस किया रिकॉर्ड",
+  "types": {
+    "bank_statement": "बैंक स्टेटमेंट",
+    "invoice_bill": "इनव्हॉइस / बिल",
+    "photo_bill": "हाथ से लिखा बिल"
+  },
+  "status": {
+    "needsReview": "जाँच ज़रूरी",
+    "trusted": "भरोसेमंद दस्तावेज़"
+  },
+  "bank": {
+    "title": "बैंक लेजर के लेन-देन",
+    "count": "{{n}} लेन-देन मिले",
+    "cols": {
+      "date": "तारीख़",
+      "description": "विवरण",
+      "debit": "डेबिट",
+      "credit": "क्रेडिट",
+      "balance": "बैलेंस"
+    },
+    "review": "जाँच: {{reason}}",
+    "checkAmount": "राशि जाँचें"
+  },
+  "invoice": {
+    "vendor": "विक्रेता का नाम",
+    "number": "इनव्हॉइस नंबर",
+    "date": "इनव्हॉइस की तारीख़",
+    "gstin": "GSTIN नंबर",
+    "lineItems": "लाइन आइटम का ब्योरा",
+    "cols": {
+      "item": "आइटम का विवरण",
+      "qty": "मात्रा",
+      "rate": "दर",
+      "gst": "GST %"
+    },
+    "subtotal": "उप-योग",
+    "grandTotal": "कुल योग"
+  },
+  "photo": {
+    "vendorOrCustomer": "विक्रेता / ग्राहक",
+    "billDate": "बिल की तारीख़",
+    "extracted": "निकाले गए लाइन आइटम (AI विज़न)",
+    "cols": {
+      "item": "आइटम",
+      "qty": "मात्रा",
+      "amount": "राशि",
+      "confidence": "AI भरोसा"
+    },
+    "confidence": {
+      "low": "कम",
+      "high": "ज़्यादा"
+    },
+    "totalAmount": "कुल राशि"
+  },
+  "na": "उपलब्ध नहीं",
+  "back": "डैशबोर्ड पर वापस जाएँ",
+  "another": "एक और दस्तावेज़ अपलोड करें"
+}

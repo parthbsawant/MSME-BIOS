@@ -1,12 +1,14 @@
+import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext'
 
 export default function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme()
+  const { t } = useTranslation()
 
   return (
     <button
       onClick={toggleTheme}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      aria-label={isDark ? t('theme.toLight') : t('theme.toDark')}
       className="group relative flex h-9 w-16 items-center rounded-full border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-1 shadow-sm transition-all hover:border-[#E8622C]/40 dark:hover:border-[#F27A4A]/40 shrink-0 cursor-pointer"
     >
       <span

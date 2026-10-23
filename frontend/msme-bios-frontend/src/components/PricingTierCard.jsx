@@ -1,8 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { formatPrice, featureById } from '../lib/featuresData'
+import { formatPrice } from '../lib/featuresData'
+import { useCatalog } from '../lib/useCatalog'
 
 export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = false }) {
   const { t } = useTranslation()
+  const { featureName, tierName, tierBand } = useCatalog()
   const popular = isPopular || tier.id === 'growth'
 
   return (
@@ -19,9 +21,9 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = 
 
       <div>
         <div className="flex items-baseline justify-between">
-          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">{tier.name}</h3>
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">{tierName(tier.id)}</h3>
         </div>
-        <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">{tier.band}</p>
+        <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">{tierBand(tier.id)}</p>
 
         <div className="mt-6 flex items-baseline gap-1">
           <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
@@ -33,13 +35,12 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = 
         <div className="mt-6 space-y-2.5 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
           <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('plan.featuresIncluded')}</p>
           {tier.featureIds.map((id) => {
-            const feat = featureById(id)
             return (
               <div key={id} className="flex items-start gap-2 text-xs text-[#2A2521] dark:text-[#F5EFE8]">
                 <svg className="h-4 w-4 shrink-0 text-[#1F9254] dark:text-[#34D399] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                <span>{feat?.name}</span>
+                <span>{featureName(id)}</span>
               </div>
             )
           })}

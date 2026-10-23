@@ -15,12 +15,25 @@
     "getStarted": "Get Started"
   },
   "language": {
-    "label": "Language"
+    "label": "Language",
+    "change": "Change language"
   },
   "plan": {
     "perMonth": "/month",
     "featuresIncluded": "Features Included",
     "choosePlan": "Choose plan",
     "mostPopular": "Most Popular"
+  },
+  "loading": {
+    "session": "Checking your session..."
+  },
+  "theme": {
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "flipCard": {
+    "hover": "Hover to flip",
+    "view": "View capabilities",
+    "badge": "MSME-BIOS Feature"
   }
 }

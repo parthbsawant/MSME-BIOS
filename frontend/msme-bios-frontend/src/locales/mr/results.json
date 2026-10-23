@@ -1,0 +1,60 @@
+{
+  "title": "प्रोसेस केलेल्या दस्तऐवजाचे निकाल",
+  "parsedRecord": "प्रोसेस केलेला रेकॉर्ड",
+  "types": {
+    "bank_statement": "बँक स्टेटमेंट",
+    "invoice_bill": "इनव्हॉइस / बिल",
+    "photo_bill": "हाताने लिहिलेले बिल"
+  },
+  "status": {
+    "needsReview": "तपासणी आवश्यक",
+    "trusted": "विश्वासार्ह दस्तऐवज"
+  },
+  "bank": {
+    "title": "बँक लेजर व्यवहार",
+    "count": "{{n}} व्यवहार आढळले",
+    "cols": {
+      "date": "तारीख",
+      "description": "तपशील",
+      "debit": "डेबिट",
+      "credit": "क्रेडिट",
+      "balance": "बॅलन्स"
+    },
+    "review": "तपासा: {{reason}}",
+    "checkAmount": "रक्कम तपासा"
+  },
+  "invoice": {
+    "vendor": "विक्रेत्याचे नाव",
+    "number": "इनव्हॉइस क्रमांक",
+    "date": "इनव्हॉइस तारीख",
+    "gstin": "GSTIN क्रमांक",
+    "lineItems": "लाइन आयटमचा तपशील",
+    "cols": {
+      "item": "आयटमचे वर्णन",
+      "qty": "प्रमाण",
+      "rate": "दर",
+      "gst": "GST %"
+    },
+    "subtotal": "उप-बेरीज",
+    "grandTotal": "एकूण बेरीज"
+  },
+  "photo": {
+    "vendorOrCustomer": "विक्रेता / ग्राहक",
+    "billDate": "बिलाची तारीख",
+    "extracted": "काढलेले लाइन आयटम (AI व्हिजन)",
+    "cols": {
+      "item": "आयटम",
+      "qty": "प्रमाण",
+      "amount": "रक्कम",
+      "confidence": "AI विश्वास"
+    },
+    "confidence": {
+      "low": "कमी",
+      "high": "जास्त"
+    },
+    "totalAmount": "एकूण रक्कम"
+  },
+  "na": "उपलब्ध नाही",
+  "back": "डॅशबोर्डवर परत जा",
+  "another": "आणखी एक दस्तऐवज अपलोड करा"
+}

@@ -1,14 +1,12 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import DashboardLayout from '../components/DashboardLayout'
 import { parseDocument } from '../lib/api'
 
 const docTypes = [
   {
     id: 'bank_statement',
-    label: 'Bank Statement',
-    hint: 'PDF file format',
-    description: 'Automated extraction of debit/credit ledgers and running balances.',
     accept: '.pdf',
     icon: (
       <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -19,9 +17,6 @@ const docTypes = [
   },
   {
     id: 'invoice_bill',
-    label: 'Invoice / Bill',
-    hint: 'PDF file format',
-    description: 'GSTIN validation, line items, CGST/SGST splits, and totals.',
     accept: '.pdf',
     icon: (
       <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -34,9 +29,6 @@ const docTypes = [
   },
   {
     id: 'photo_bill',
-    label: 'Handwritten Bill',
-    hint: 'JPG / PNG photo',
-    description: 'AI vision OCR for paper invoices, vernacular receipts, & handwritten chits.',
     accept: 'image/*',
     icon: (
       <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -48,6 +40,7 @@ const docTypes = [
 ]
 
 export default function UploadPage() {
+  const { t } = useTranslation('upload')
   const [selectedType, setSelectedType] = useState(null)
   const [file, setFile] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -56,7 +49,7 @@ export default function UploadPage() {
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
 
-  const activeType = docTypes.find((t) => t.id === selectedType)
+  const activeType = docTypes.find((d) => d.id === selectedType)
 
   const handleDrop = (e) => {
     e.preventDefault()
@@ -73,27 +66,15 @@ export default function UploadPage() {
       const result = await parseDocument(file, selectedType)
       navigate('/results', { state: { result, documentType: selectedType, fileName: file.name } })
     } catch (err) {
-      if (err.status === 501) {
-        setError({
-          title: 'AI-powered reading isn’t enabled for this document yet',
-          detail: 'This document needs AI vision to read, and that’s not turned on for this parser yet. Try a different document, or check back once it’s enabled.',
-        })
-      } else if (err.status === 400) {
-        setError({
-          title: 'This document couldn’t be read',
-          detail: err.message || 'The file may not match the document type you selected.',
-        })
-      } else if (err.status) {
-        setError({
-          title: 'Something went wrong on our end',
-          detail: err.message || `The server responded with an unexpected error (${err.status}).`,
-        })
-      } else {
-        setError({
-          title: 'Couldn’t reach the server',
-          detail: 'Check that the backend is running, then try again.',
-        })
-      }
+      // The error is stored as a key (not translated text) so it
+      // re-translates if the language is switched while it's showing.
+      // err.message is the server's own English text; kept separately
+      // so the technical detail isn't lost.
+      const serverMessage = err.message || ''
+      if (err.status === 501) setError({ key: 'notEnabled', serverMessage: '' })
+      else if (err.status === 400) setError({ key: 'unreadable', serverMessage })
+      else if (err.status) setError({ key: 'server', status: err.status, serverMessage })
+      else setError({ key: 'network', serverMessage: '' })
     } finally {
       setIsProcessing(false)
     }
@@ -105,12 +86,12 @@ export default function UploadPage() {
         
         {/* Page Header */}
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">Document Processing</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">{t('header.eyebrow')}</span>
           <h1 className="mt-1 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-            Upload Document
+            {t('header.title')}
           </h1>
           <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
-            Select your document format and upload the file to trigger automated AI parsing.
+            {t('header.subtitle')}
           </p>
         </div>
 
@@ -119,7 +100,7 @@ export default function UploadPage() {
           <div className="flex items-center gap-2">
             <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E8622C] text-white font-bold text-xs">1</span>
             <h2 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-              Select Document Type
+              {t('step1')}
             </h2>
           </div>
 
@@ -151,15 +132,15 @@ export default function UploadPage() {
                       <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                         isSelected ? 'bg-[#E8622C] text-white' : 'bg-[#FBF3EC] dark:bg-[#1A1714] text-[#8A7F74] dark:text-[#A89E92]'
                       }`}>
-                        {type.hint}
+                        {t(`types.${type.id}.hint`)}
                       </span>
                     </div>
 
                     <h3 className="mt-4 font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                      {type.label}
+                      {t(`types.${type.id}.label`)}
                     </h3>
                     <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
-                      {type.description}
+                      {t(`types.${type.id}.description`)}
                     </p>
                   </div>
 
@@ -182,7 +163,7 @@ export default function UploadPage() {
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#E8622C] text-white font-bold text-xs">2</span>
               <h2 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                Upload File ({activeType.label})
+                {t('step2', { type: t(`types.${activeType.id}.label`) })}
               </h2>
             </div>
 
@@ -225,16 +206,16 @@ export default function UploadPage() {
                     {file.name}
                   </p>
                   <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">
-                    {(file.size / 1024).toFixed(1)} KB &bull; Click or drag to replace
+                    {t('dropzone.replace', { size: (file.size / 1024).toFixed(1) })}
                   </p>
                 </div>
               ) : (
                 <div>
                   <p className="text-sm font-bold text-[#2A2521] dark:text-[#F5EFE8]">
-                    Drag and drop your file here, or <span className="text-[#E8622C] dark:text-[#F27A4A] underline">browse files</span>
+                    {t('dropzone.drag')}<span className="text-[#E8622C] dark:text-[#F27A4A] underline">{t('dropzone.browse')}</span>
                   </p>
                   <p className="mt-1.5 text-xs text-[#8A7F74] dark:text-[#A89E92]">
-                    Supports {activeType.hint} (max 10MB)
+                    {t('dropzone.supports', { hint: t(`types.${activeType.id}.hint`) })}
                   </p>
                 </div>
               )}
@@ -243,7 +224,7 @@ export default function UploadPage() {
                 type="button"
                 className="mt-5 rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-4 py-2 text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8] hover:border-[#E8622C] transition-colors"
               >
-                Browse Files
+                {t('dropzone.browseButton')}
               </button>
             </div>
 
@@ -257,11 +238,11 @@ export default function UploadPage() {
                 {isProcessing ? (
                   <>
                     <svg className="h-4 w-4 animate-spin text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" strokeDasharray="32" strokeDashoffset="12"/></svg>
-                    <span>Reading Document with AI…</span>
+                    <span>{t('processing')}</span>
                   </>
                 ) : (
                   <>
-                    <span>Process Document</span>
+                    <span>{t('process')}</span>
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                   </>
                 )}
@@ -274,8 +255,13 @@ export default function UploadPage() {
                 <div className="flex items-start gap-3">
                   <svg className="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                   <div>
-                    <h4 className="text-xs font-bold text-red-800 dark:text-red-200">{error.title}</h4>
-                    <p className="mt-1 text-xs text-red-700 dark:text-red-300 leading-relaxed">{error.detail}</p>
+                    <h4 className="text-xs font-bold text-red-800 dark:text-red-200">{t(`errors.${error.key}.title`)}</h4>
+                    <p className="mt-1 text-xs text-red-700 dark:text-red-300 leading-relaxed">{t(`errors.${error.key}.detail`, { status: error.status })}</p>
+                    {error.serverMessage && (
+                      <p className="mt-2 text-[11px] text-red-700/80 dark:text-red-300/80 font-[family-name:var(--font-data)] break-words">
+                        {t('serverMessage')} {error.serverMessage}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="pl-8">
@@ -283,7 +269,7 @@ export default function UploadPage() {
                     onClick={handleSubmit}
                     className="rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-red-950 px-3.5 py-1.5 text-xs font-bold text-red-800 dark:text-red-200 hover:bg-red-100 transition-colors"
                   >
-                    Try Again
+                    {t('tryAgain')}
                   </button>
                 </div>
               </div>
@@ -291,7 +277,7 @@ export default function UploadPage() {
           </div>
         ) : (
           <div className="rounded-2xl border border-dashed border-[#F0E4D8] dark:border-[#3A332A] p-8 text-center text-xs text-[#8A7F74] dark:text-[#A89E92]">
-            Please select a document type above to continue to file selection.
+            {t('selectPrompt')}
           </div>
         )}
 
@@ -301,7 +287,7 @@ export default function UploadPage() {
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           </div>
           <p>
-            <strong className="text-[#2A2521] dark:text-[#F5EFE8]">Pro Tip:</strong> For handwritten bills or photos, ensure good lighting and flat alignment so our vision model can extract accurate item line rates and GST totals.
+            <strong className="text-[#2A2521] dark:text-[#F5EFE8]">{t('tip.label')}</strong> {t('tip.body')}
           </p>
         </div>
 

@@ -1,0 +1,60 @@
+{
+  "title": "Parsed Document Results",
+  "parsedRecord": "Parsed Record",
+  "types": {
+    "bank_statement": "Bank Statement",
+    "invoice_bill": "Invoice / Bill",
+    "photo_bill": "Handwritten Bill"
+  },
+  "status": {
+    "needsReview": "Needs Review",
+    "trusted": "Trusted Document"
+  },
+  "bank": {
+    "title": "Bank Ledger Transactions",
+    "count": "{{n}} Transactions Found",
+    "cols": {
+      "date": "Date",
+      "description": "Description",
+      "debit": "Debit",
+      "credit": "Credit",
+      "balance": "Balance"
+    },
+    "review": "Review: {{reason}}",
+    "checkAmount": "Check amount"
+  },
+  "invoice": {
+    "vendor": "Vendor Name",
+    "number": "Invoice Number",
+    "date": "Invoice Date",
+    "gstin": "GSTIN Number",
+    "lineItems": "Line Items Breakdown",
+    "cols": {
+      "item": "Item Description",
+      "qty": "Qty",
+      "rate": "Rate",
+      "gst": "GST %"
+    },
+    "subtotal": "Subtotal",
+    "grandTotal": "Grand Total"
+  },
+  "photo": {
+    "vendorOrCustomer": "Vendor / Customer",
+    "billDate": "Bill Date",
+    "extracted": "Extracted Line Items (AI Vision)",
+    "cols": {
+      "item": "Item",
+      "qty": "Qty",
+      "amount": "Amount",
+      "confidence": "AI Confidence"
+    },
+    "confidence": {
+      "low": "low",
+      "high": "high"
+    },
+    "totalAmount": "Total Amount"
+  },
+  "na": "N/A",
+  "back": "Back to Dashboard",
+  "another": "Upload Another Document"
+}

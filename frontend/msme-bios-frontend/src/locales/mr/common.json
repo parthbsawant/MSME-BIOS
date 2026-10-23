@@ -15,12 +15,25 @@
     "getStarted": "सुरुवात करा"
   },
   "language": {
-    "label": "भाषा"
+    "label": "भाषा",
+    "change": "भाषा बदला"
   },
   "plan": {
     "perMonth": "/महिना",
     "featuresIncluded": "समाविष्ट फीचर्स",
     "choosePlan": "प्लॅन निवडा",
     "mostPopular": "सर्वाधिक लोकप्रिय"
+  },
+  "loading": {
+    "session": "तुमचे सत्र तपासले जात आहे..."
+  },
+  "theme": {
+    "toLight": "लाइट मोडवर जा",
+    "toDark": "डार्क मोडवर जा"
+  },
+  "flipCard": {
+    "hover": "पलटण्यासाठी वर आणा",
+    "view": "क्षमता पहा",
+    "badge": "MSME-BIOS फीचर"
   }
 }

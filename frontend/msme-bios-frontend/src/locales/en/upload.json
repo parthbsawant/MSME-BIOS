@@ -1,0 +1,60 @@
+{
+  "header": {
+    "eyebrow": "Document Processing",
+    "title": "Upload Document",
+    "subtitle": "Select your document format and upload the file to trigger automated AI parsing."
+  },
+  "step1": "Select Document Type",
+  "step2": "Upload File ({{type}})",
+  "types": {
+    "bank_statement": {
+      "label": "Bank Statement",
+      "hint": "PDF file format",
+      "description": "Automated extraction of debit/credit ledgers and running balances."
+    },
+    "invoice_bill": {
+      "label": "Invoice / Bill",
+      "hint": "PDF file format",
+      "description": "GSTIN validation, line items, CGST/SGST splits, and totals."
+    },
+    "photo_bill": {
+      "label": "Handwritten Bill",
+      "hint": "JPG / PNG photo",
+      "description": "AI vision OCR for paper invoices, vernacular receipts, & handwritten chits."
+    }
+  },
+  "dropzone": {
+    "drag": "Drag and drop your file here, or ",
+    "browse": "browse files",
+    "supports": "Supports {{hint}} (max 10MB)",
+    "replace": "{{size}} KB • Click or drag to replace",
+    "browseButton": "Browse Files"
+  },
+  "process": "Process Document",
+  "processing": "Reading Document with AI…",
+  "tryAgain": "Try Again",
+  "selectPrompt": "Please select a document type above to continue to file selection.",
+  "tip": {
+    "label": "Pro Tip:",
+    "body": "For handwritten bills or photos, ensure good lighting and flat alignment so our vision model can extract accurate item line rates and GST totals."
+  },
+  "serverMessage": "Server message:",
+  "errors": {
+    "notEnabled": {
+      "title": "AI-powered reading isn’t enabled for this document yet",
+      "detail": "This document needs AI vision to read, and that’s not turned on for this parser yet. Try a different document, or check back once it’s enabled."
+    },
+    "unreadable": {
+      "title": "This document couldn’t be read",
+      "detail": "The file may not match the document type you selected."
+    },
+    "server": {
+      "title": "Something went wrong on our end",
+      "detail": "The server responded with an unexpected error ({{status}})."
+    },
+    "network": {
+      "title": "Couldn’t reach the server",
+      "detail": "Check your internet connection, then try again."
+    }
+  }
+}

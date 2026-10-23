@@ -42,44 +42,75 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useAuth } from './AuthContext'
+import { getMe } from '../lib/api'
 import { TIERS, FEATURES } from '../lib/featuresData'
 
 const PlanContext = createContext(null)
 
 export function PlanProvider({ children }) {
   const { user } = useAuth()
+  const uid = user?.uid
 
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  // Same approach as BusinessContext: the database (via /api/me) is the
+  // source of truth for the saved plan; localStorage is a fast cache that
+  // is used immediately if present, and as a fallback if the backend
+  // can't be reached.
   useEffect(() => {
-    setLoading(true)
-
     // No authenticated user → no plan should be loaded.
-    if (!user) {
+    if (!uid) {
       setPlan(null)
       setLoading(false)
       return
     }
 
-    const planStorageKey = `msme-plan-${user.uid}`
-    const stored = localStorage.getItem(planStorageKey)
+    let cancelled = false
+    const planStorageKey = `msme-plan-${uid}`
 
-    if (!stored) {
-      setPlan(null)
-      setLoading(false)
-      return
-    }
-
+    let cached = null
     try {
-      const parsed = JSON.parse(stored)
-      setPlan(parsed)
+      cached = JSON.parse(localStorage.getItem(planStorageKey))
     } catch {
-      setPlan(null)
-    } finally {
-      setLoading(false)
+      cached = null
     }
-  }, [user])
+
+    if (cached) {
+      setPlan(cached)
+      setLoading(false)
+    } else {
+      setLoading(true)
+    }
+
+    getMe()
+      .then((me) => {
+        if (cancelled) return
+        if (me.plan) {
+          const fromServer = {
+            type: me.plan.plan_type,
+            featureIds: me.plan.feature_ids,
+            price: me.plan.price,
+            ...(me.plan.plan_type === 'tier' ? { tierId: me.plan.tier_id } : {}),
+          }
+          localStorage.setItem(planStorageKey, JSON.stringify(fromServer))
+          setPlan(fromServer)
+        } else {
+          localStorage.removeItem(planStorageKey)
+          setPlan(null)
+        }
+      })
+      .catch((err) => {
+        console.error('Could not load plan from the backend:', err)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [uid])
 
   const selectTier = (tierId) => {
     if (!user) {

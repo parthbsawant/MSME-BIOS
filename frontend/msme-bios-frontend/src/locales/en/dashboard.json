@@ -1,0 +1,53 @@
+{
+  "layout": {
+    "menu": "Menu",
+    "search": "Search documents, invoices, reports...",
+    "openMenu": "Open menu",
+    "notifications": "Notifications",
+    "items": {
+      "dashboard": "Dashboard",
+      "upload": "Upload Document",
+      "documents": "Documents",
+      "invoices": "Invoices",
+      "cashFlow": "Cash Flow",
+      "reports": "Reports",
+      "settings": "Settings"
+    },
+    "soon": "Soon",
+    "businessProfile": "Business Profile",
+    "logOut": "Log out",
+    "userFallback": "User",
+    "footerTagline": "Built for Indian Enterprises"
+  },
+  "page": {
+    "greeting": {
+      "morning": "Good morning, {{name}}!",
+      "afternoon": "Good afternoon, {{name}}!",
+      "evening": "Good evening, {{name}}!"
+    },
+    "partner": "Partner",
+    "overview": "Overview",
+    "subtitle": "Here’s an overview of your enterprise metrics and active software tools.",
+    "upload": "Upload Document",
+    "stats": {
+      "totalSales": "Total Sales",
+      "salesTrend": "+12.4% vs last month",
+      "totalExpenses": "Total Expenses",
+      "expensesTrend": "-4.1% vs last month",
+      "netProfit": "Net Profit",
+      "profitTrend": "+18.2% margin",
+      "documents": "Documents Count",
+      "documentsNote": "Processed this month"
+    },
+    "tools": {
+      "title": "Tools & Features",
+      "subtitle": "Features active in your plan tier ({{plan}}).",
+      "upgrade": "Upgrade Plan →",
+      "active": "Active",
+      "comingSoon": "Coming Soon",
+      "useNow": "Use Now",
+      "openTool": "Open Tool",
+      "locked": "Locked"
+    }
+  }
+}

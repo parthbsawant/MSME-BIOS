@@ -17,12 +17,43 @@ async function authHeader() {
   return { Authorization: `Bearer ${token}` }
 }
 
-/** GET /api/me - the authenticated identity + resolved tenant context. */
-export async function getMe() {
-  const headers = await authHeader()
-  const res = await fetch(`${API_URL}/api/me`, { headers })
-  if (!res.ok) throw new Error(`Failed to load identity (${res.status})`)
-  return res.json()
+// GET /api/me is called by both BusinessContext and PlanContext when the
+// app loads. Sharing one in-flight/recent request means that's one call
+// to the backend (which can be slow right after Render wakes up), not
+// two. Saving a business or plan clears it so the next read is fresh.
+const ME_REUSE_MS = 5000
+let meCache = { uid: null, promise: null, at: 0 }
+
+function clearMeCache() {
+  meCache = { uid: null, promise: null, at: 0 }
+}
+
+/**
+ * GET /api/me - the authenticated identity, the resolved tenant context,
+ * and this tenant's saved `business` and `plan` (each null if not saved
+ * yet). This is the source of truth for "has onboarding been finished",
+ * so it works on any browser or device, not just the one that did it.
+ */
+export function getMe({ force = false } = {}) {
+  const uid = auth.currentUser?.uid ?? null
+  const fresh = Date.now() - meCache.at < ME_REUSE_MS
+  if (!force && meCache.promise && meCache.uid === uid && fresh) {
+    return meCache.promise
+  }
+
+  const promise = (async () => {
+    const headers = await authHeader()
+    const res = await fetch(`${API_URL}/api/me`, { headers })
+    if (!res.ok) throw new Error(`Failed to load identity (${res.status})`)
+    return res.json()
+  })()
+
+  meCache = { uid, promise, at: Date.now() }
+  // A failed request must not be reused - the next caller should retry.
+  promise.catch(() => {
+    if (meCache.promise === promise) clearMeCache()
+  })
+  return promise
 }
 
 /** POST /api/business - persists the business profile server-side. */
@@ -38,6 +69,7 @@ export async function saveBusiness(details) {
 
   const res = await fetch(`${API_URL}/api/business`, { method: 'POST', headers, body: formData })
   if (!res.ok) throw new Error(`Failed to save business (${res.status})`)
+  clearMeCache()
   return res.json()
 }
 
@@ -52,6 +84,7 @@ export async function savePlan({ type, tierId, featureIds, price }) {
 
   const res = await fetch(`${API_URL}/api/plan`, { method: 'POST', headers, body: formData })
   if (!res.ok) throw new Error(`Failed to save plan (${res.status})`)
+  clearMeCache()
   return res.json()
 }
 

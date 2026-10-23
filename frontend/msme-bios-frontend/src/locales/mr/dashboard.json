@@ -1,0 +1,53 @@
+{
+  "layout": {
+    "menu": "मेन्यू",
+    "search": "दस्तऐवज, इनव्हॉइस, रिपोर्ट शोधा...",
+    "openMenu": "मेन्यू उघडा",
+    "notifications": "सूचना",
+    "items": {
+      "dashboard": "डॅशबोर्ड",
+      "upload": "दस्तऐवज अपलोड करा",
+      "documents": "दस्तऐवज",
+      "invoices": "इनव्हॉइस",
+      "cashFlow": "कॅश फ्लो",
+      "reports": "रिपोर्ट",
+      "settings": "सेटिंग्ज"
+    },
+    "soon": "लवकरच",
+    "businessProfile": "व्यवसाय प्रोफाइल",
+    "logOut": "लॉग आउट",
+    "userFallback": "वापरकर्ता",
+    "footerTagline": "भारतीय उद्योगांसाठी तयार केलेले"
+  },
+  "page": {
+    "greeting": {
+      "morning": "सुप्रभात, {{name}}!",
+      "afternoon": "नमस्कार, {{name}}!",
+      "evening": "शुभ संध्या, {{name}}!"
+    },
+    "partner": "मित्र",
+    "overview": "आढावा",
+    "subtitle": "तुमच्या उद्योगाची आकडेवारी आणि सुरू असलेल्या सॉफ्टवेअर टूल्सचा हा आढावा.",
+    "upload": "दस्तऐवज अपलोड करा",
+    "stats": {
+      "totalSales": "एकूण विक्री",
+      "salesTrend": "+12.4% मागील महिन्याच्या तुलनेत",
+      "totalExpenses": "एकूण खर्च",
+      "expensesTrend": "-4.1% मागील महिन्याच्या तुलनेत",
+      "netProfit": "निव्वळ नफा",
+      "profitTrend": "+18.2% मार्जिन",
+      "documents": "दस्तऐवजांची संख्या",
+      "documentsNote": "या महिन्यात प्रोसेस केलेले"
+    },
+    "tools": {
+      "title": "टूल्स आणि फीचर्स",
+      "subtitle": "तुमच्या प्लॅनमध्ये ({{plan}}) सुरू असलेली फीचर्स.",
+      "upgrade": "प्लॅन अपग्रेड करा →",
+      "active": "सुरू",
+      "comingSoon": "लवकरच येत आहे",
+      "useNow": "आता वापरा",
+      "openTool": "टूल उघडा",
+      "locked": "लॉक"
+    }
+  }
+}
