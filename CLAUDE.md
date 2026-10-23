@@ -87,7 +87,7 @@ DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped e
 FIXED (2026-10-23, commit 6d19077): Google sign-in failed on Vercel with auth/unauthorized-domain. Fix was adding msme-bios.vercel.app under Firebase Console, Authentication, Settings, Authorized domains. Login and signup pages now show the specific message plus "Error code: auth/..." (mapping in src/lib/googleAuthError.js, en/hi/mr), and firebase.js logs the names of any missing VITE_FIREBASE_* keys. Verified on localhost (new account, existing account, logout/login, cancel popup) and on Vercel. Note: the Authorized domains list shows only msme-bios.vercel.app (no default localhost/firebaseapp.com rows), yet localhost works. Any new frontend domain (custom domain, Vercel preview URL) must be added there too.
 
 OPEN NOTES (not yet scheduled):
-- SPEC.md and SETUP.md are referenced here but are NOT in the repo (not tracked, not in git history). Add them from the Mac or wherever they live.
+- SETUP.md section 3d still says to run the full test suite; do not, until pytest points at msme_bios_test (Step 2).
 - Logo chip in the in-app top bar renders as an empty white pill at narrow widths (seen on Vercel dashboard at ~800px). Check during Step 1 screen checks.
 - UI text still says "AI vision" for the handwritten parser although it is local Tesseract; decide whether to soften the wording.
 - Dashboard stat-card numbers (sales, expenses, profit, documents count) are placeholders.
