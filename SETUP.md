@@ -60,7 +60,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 Create `backend/parser-backend/.env` from `.env.example`:
-- `DATABASE_URL` = the DEV database URL (never the production one).
+- `DATABASE_URL` = the DEV database URL, `msme_bios_dev` (never the production one).
+- `TEST_DATABASE_URL` = the TEST database URL, `msme_bios_test` (used only by pytest).
 - `FIREBASE_SERVICE_ACCOUNT_PATH` = full path to the service-account JSON kept OUTSIDE the repo. Use forward slashes on Windows, for example `E:/Parth/secrets/firebase-adminsdk.json`. The line must be `KEY=value`.
 - `FRONTEND_URL=http://localhost:5173`
 
@@ -68,7 +69,7 @@ Service-account JSON: download a new key from Firebase console, Project settings
 
 Run backend: `uvicorn api:app --reload --port 8000`
 Run tests: `python -m pytest tests/ -v`
-Expected on a machine with Tesseract: 67 passed, 1 skipped. Without Tesseract the handwritten tests fail; that is expected, not a bug.
+Expected on a machine with Tesseract: 71 passed, 1 skipped. Without Tesseract the handwritten tests fail; that is expected, not a bug. Database tests always use `TEST_DATABASE_URL`; without it they are skipped, never run against dev or production.
 
 ## 4. Switching machines: the daily routine
 Start of session: `git pull`

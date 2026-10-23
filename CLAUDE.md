@@ -33,8 +33,10 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Safe test command now: python -m pytest tests/test_pipeline.py -q  (expected 12 passed).
-- DANGER: tests/test_tenant_isolation.py and tests/test_me_onboarding_state.py write into whatever DATABASE_URL points to, which on this machine is the production Neon DB. Do NOT run the full suite until the separate test database exists (Step 2). Users created by tests use @test.com emails.
+- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 71 passed, 1 skipped). tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
+- Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
+- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev and test have 001+002; production has 001 only (002 goes there in Step 2f).
+- If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
 - Two-machine setup is in SETUP.md. Gitignored files (.env, Firebase service-account JSON, node_modules, .venv) do not travel between machines.
 - .gitattributes forces LF. CRLF conversion corrupts the sample PDFs and breaks the bank-parser tests.
 
@@ -53,7 +55,7 @@ MSME-BIOS/
 - Python 3.9 compatibility (Mac and some tooling): no bare `str | None` unless the file has `from __future__ import annotations`. Use Optional[str].
 - Money is NUMERIC in Postgres, never float.
 - Secrets: never commit .env or the Firebase service-account JSON, never print .env values, never ask for keys. .env lines must be KEY=value.
-- Backend .env: DATABASE_URL, FIREBASE_SERVICE_ACCOUNT_PATH, FRONTEND_URL, ANTHROPIC_API_KEY (placeholder), ENABLE_CLAUDE_VISION_BANK|INVOICE|HANDWRITTEN. Frontend .env: VITE_API_URL and six VITE_FIREBASE_* keys.
+- Backend .env: DATABASE_URL, TEST_DATABASE_URL, FIREBASE_SERVICE_ACCOUNT_PATH, FRONTEND_URL, ANTHROPIC_API_KEY (placeholder), ENABLE_CLAUDE_VISION_BANK|INVOICE|HANDWRITTEN. Frontend .env: VITE_API_URL and six VITE_FIREBASE_* keys.
 - UI logic files to touch only deliberately: AuthContext, lib/api.js, ProtectedRoute, RequireOnboarded, RedirectIfAuthenticated, BusinessContext, PlanContext.
 - In raw JSX text use HTML entities (&mdash;, &rsquo;), not unicode escapes.
 - Do not run npm audit fix --force (would downgrade Firebase).
@@ -80,6 +82,7 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Effective access = plan features intersect role features.
 - Payments: mock provider behind create_order / verify_payment / handle_webhook. Price computed server-side. Plan active only after verified payment. Real Razorpay later.
 - Build our own document database now (not waiting for the teammate's design).
+- Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Until roles exist, the backend accepts an optional department from the owner and defaults to finance. This stays as the fallback for single-owner businesses; members (Step 4) always get their own department, never a client-supplied one.
 
 ## Status
 DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in (fixed on Vercel 2026-10-23); business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md.
@@ -87,7 +90,6 @@ DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped e
 FIXED (2026-10-23, commit 6d19077): Google sign-in failed on Vercel with auth/unauthorized-domain. Fix was adding msme-bios.vercel.app under Firebase Console, Authentication, Settings, Authorized domains. Login and signup pages now show the specific message plus "Error code: auth/..." (mapping in src/lib/googleAuthError.js, en/hi/mr), and firebase.js logs the names of any missing VITE_FIREBASE_* keys. Verified on localhost (new account, existing account, logout/login, cancel popup) and on Vercel. Note: the Authorized domains list shows only msme-bios.vercel.app (no default localhost/firebaseapp.com rows), yet localhost works. Any new frontend domain (custom domain, Vercel preview URL) must be added there too.
 
 OPEN NOTES (not yet scheduled):
-- SETUP.md section 3d still says to run the full test suite; do not, until pytest points at msme_bios_test (Step 2).
 - Logo chip in the in-app top bar renders as an empty white pill at narrow widths (seen on Vercel dashboard at ~800px). Check during Step 1 screen checks.
 - UI text still says "AI vision" for the handwritten parser although it is local Tesseract; decide whether to soften the wording.
 - Dashboard stat-card numbers (sales, expenses, profit, documents count) are placeholders.

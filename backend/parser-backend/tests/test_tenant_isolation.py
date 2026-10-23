@@ -27,6 +27,8 @@ from api import app
 from firebase_auth import verify_firebase_token
 from db_pool import get_connection
 
+pytestmark = pytest.mark.db  # uses the test database - see conftest.py
+
 
 @pytest.fixture(autouse=True)
 def clean_dependency_overrides():

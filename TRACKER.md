@@ -42,8 +42,8 @@ Spec: SPEC.md
 - [ ] Test all three languages in light and dark mode on the live/local site, then commit
 
 ## STEP 2: Our own document database
-- [ ] Migration 002: department and uploaded_by on documents and parser tables, indexes
-- [ ] Create separate test database (msme_bios_test) and point pytest at it
+- [x] Migration 002: department and uploaded_by on documents and parser tables, indexes (applied to dev and test)
+- [x] Create separate test database (msme_bios_test) and point pytest at it (plus msme_bios_dev for laptops)
 - [ ] Save parser output to tables in one transaction (bank)
 - [ ] Save parser output (invoice)
 - [ ] Save parser output (handwritten)

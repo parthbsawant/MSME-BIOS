@@ -14,6 +14,8 @@ from fastapi.testclient import TestClient
 from api import app
 from firebase_auth import verify_firebase_token
 
+pytestmark = pytest.mark.db  # uses the test database - see conftest.py
+
 
 @pytest.fixture(autouse=True)
 def clean_overrides():
