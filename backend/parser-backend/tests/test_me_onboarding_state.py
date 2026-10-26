@@ -13,6 +13,7 @@ from fastapi.testclient import TestClient
 
 from api import app
 from firebase_auth import verify_firebase_token
+import pricing
 
 pytestmark = pytest.mark.db  # uses the test database - see conftest.py
 
@@ -61,8 +62,11 @@ def test_me_returns_saved_business_and_tier_plan(client):
     body = client.get("/api/me").json()
     assert body["business"]["business_name"] == "Mauli Traders"
     assert body["business"]["city"] == "Sangli"
+    # Since Step 3 the server decides a tier's features and price
+    # (pricing.py); the client's feature list and price are ignored.
     assert body["plan"] == {"plan_type": "tier", "tier_id": "growth",
-                            "feature_ids": ["document_parser", "cash_dashboard"], "price": 6999.0}
+                            "feature_ids": pricing.TIERS["growth"]["feature_ids"], "price": 6999.0,
+                            "seats_included": 4, "extra_seats": 0}
 
 
 def test_me_returns_custom_plan_without_tier(client):

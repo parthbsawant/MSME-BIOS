@@ -23,6 +23,7 @@ from firebase_auth import verify_firebase_token
 from db_pool import get_connection
 from handwritten_parser.models import HandwrittenBillResult, HandwrittenLineItem
 import document_store as ds
+from checkout_helpers import buy_plan
 
 pytestmark = pytest.mark.db  # uses the test database - see conftest.py
 
@@ -42,11 +43,13 @@ def client():
 
 
 def _fresh_user(client):
-    """Signs in as a brand-new user; returns (firebase_uid, user_id, tenant_id)."""
+    """Signs in as a brand-new user with a paid plan (Step 3 paywall);
+    returns (firebase_uid, user_id, tenant_id)."""
     n = uuid.uuid4().hex[:10]
     uid = f"uid_doc_{n}"
     app.dependency_overrides[verify_firebase_token] = lambda: {"uid": uid, "email": f"doc_{n}@test.com", "name": "Doc"}
     tenant_id = client.get("/api/me").json()["tenant_id"]
+    assert buy_plan(client)[1].json()["status"] == "active"
     conn = get_connection()
     try:
         with conn.cursor() as cur:
