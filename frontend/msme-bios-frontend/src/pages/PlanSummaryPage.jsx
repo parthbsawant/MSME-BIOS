@@ -3,32 +3,41 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
-import { TIERS, formatPrice } from '../lib/featuresData'
+import { TIERS, EXTRA_SEAT_PRICE, formatPrice } from '../lib/featuresData'
 import { useCatalog } from '../lib/useCatalog'
-import { savePlan as savePlanToBackend } from '../lib/api'
+import { createCheckoutOrder } from '../lib/api'
+import SeatStepper from '../components/SeatStepper'
 
 export default function PlanSummaryPage() {
   const { tierId } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation('onboarding')
-  const { selectTier } = usePlan()
+  const { t: tb } = useTranslation('billing')
+  const { refreshPlan, isPaid } = usePlan()
   const { featureName, featureTagline, tierName, tierBand } = useCatalog()
   const tier = TIERS.find((t) => t.id === tierId)
+  const [extraSeats, setExtraSeats] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   if (!tier) return <Navigate to="/choose-plan" replace />
+  // Plan changes for a paid business are a later step (backend says 409).
+  if (isPaid) return <Navigate to="/billing" replace />
 
+  const total = tier.price + extraSeats * EXTRA_SEAT_PRICE
+
+  // STEP 3: confirming no longer activates the plan - it starts checkout.
+  // The backend computes the amount; the total shown here is display only.
   const handleConfirm = async () => {
     setError('')
     setSaving(true)
     try {
-      await savePlanToBackend({ type: 'tier', tierId: tier.id, featureIds: tier.featureIds, price: tier.price })
-      selectTier(tier.id)
-      navigate('/dashboard')
+      await createCheckoutOrder({ type: 'tier', tierId: tier.id, extraSeats })
+      await refreshPlan()
+      navigate('/checkout')
     } catch (err) {
-      console.error('Failed to save plan:', err)
-      setError('planSummary.saveError')
+      console.error('Failed to start checkout:', err)
+      setError('orderError')
     } finally {
       setSaving(false)
     }
@@ -49,9 +58,18 @@ export default function PlanSummaryPage() {
 
           <div className="mt-6 flex items-baseline gap-1 bg-[#FBF3EC] dark:bg-[#1A1714] p-4 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A]">
             <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#E8622C] dark:text-[#F27A4A]">
-              {formatPrice(tier.price)}
+              {formatPrice(total)}
             </span>
             <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('planSummary.perMonth')}</span>
+            {extraSeats > 0 && (
+              <span className="ml-auto text-[11px] text-[#8A7F74] dark:text-[#A89E92]">
+                {formatPrice(tier.price)} + {tb('checkout.extraSeats', { count: extraSeats, price: formatPrice(EXTRA_SEAT_PRICE) })}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-4">
+            <SeatStepper included={tier.seatsIncluded} extra={extraSeats} onChange={setExtraSeats} disabled={saving} />
           </div>
 
           <div className="mt-6 space-y-3 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
@@ -73,7 +91,7 @@ export default function PlanSummaryPage() {
 
           {error && (
             <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 text-xs text-red-700 dark:text-red-300">
-              {t(error)}
+              {tb(error)}
             </div>
           )}
 
@@ -90,7 +108,7 @@ export default function PlanSummaryPage() {
               disabled={saving}
               className="flex-1 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-3 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {saving ? t('planSummary.saving') : t('planSummary.confirm')}
+              {saving ? tb('preparing') : tb('continueToPayment')}
             </button>
           </div>
         </div>

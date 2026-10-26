@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
-import { FEATURES, formatPrice } from '../lib/featuresData'
+import { FEATURES, CUSTOM_SEATS_INCLUDED, EXTRA_SEAT_PRICE, formatPrice } from '../lib/featuresData'
 import { useCatalog } from '../lib/useCatalog'
-import { savePlan as savePlanToBackend } from '../lib/api'
+import { createCheckoutOrder } from '../lib/api'
+import SeatStepper from '../components/SeatStepper'
 
 function AnimatedPrice({ value }) {
   const motionValue = useMotionValue(value)
@@ -23,9 +24,11 @@ function AnimatedPrice({ value }) {
 export default function CustomBuilderPage() {
   const navigate = useNavigate()
   const { t } = useTranslation('onboarding')
-  const { selectCustom } = usePlan()
+  const { t: tb } = useTranslation('billing')
+  const { refreshPlan, isPaid } = usePlan()
   const { featureName, featureTagline } = useCatalog()
   const [selectedIds, setSelectedIds] = useState(['document_parser'])
+  const [extraSeats, setExtraSeats] = useState(0)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
@@ -35,22 +38,28 @@ export default function CustomBuilderPage() {
     setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
+  // Display only - the backend computes the real amount at checkout.
   const total = selectedIds.reduce((sum, id) => sum + FEATURES.find((f) => f.id === id).price, 0)
+    + extraSeats * EXTRA_SEAT_PRICE
 
+  // STEP 3: confirming starts checkout instead of activating the plan.
   const handleConfirm = async () => {
     setError('')
     setSaving(true)
     try {
-      await savePlanToBackend({ type: 'custom', featureIds: selectedIds, price: total })
-      selectCustom(selectedIds)
-      navigate('/dashboard')
+      await createCheckoutOrder({ type: 'custom', featureIds: selectedIds, extraSeats })
+      await refreshPlan()
+      navigate('/checkout')
     } catch (err) {
-      console.error('Failed to save plan:', err)
-      setError('customBuilder.saveError')
+      console.error('Failed to start checkout:', err)
+      setError('orderError')
     } finally {
       setSaving(false)
     }
   }
+
+  // Plan changes for a paid business are a later step (backend says 409).
+  if (isPaid) return <Navigate to="/billing" replace />
 
   return (
     <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
@@ -158,6 +167,11 @@ export default function CustomBuilderPage() {
             </AnimatePresence>
           </div>
 
+          {/* Seats */}
+          <div className="shrink-0 w-full sm:w-auto">
+            <SeatStepper included={CUSTOM_SEATS_INCLUDED} extra={extraSeats} onChange={setExtraSeats} disabled={saving} compact />
+          </div>
+
           {/* Price & Confirmation */}
           <div className="flex items-center gap-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <div>
@@ -172,12 +186,12 @@ export default function CustomBuilderPage() {
               disabled={saving}
               className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-7 py-3.5 text-xs font-bold text-white shadow-lg shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
             >
-              {saving ? t('customBuilder.saving') : t('customBuilder.confirm')}
+              {saving ? tb('preparing') : tb('continueToPayment')}
             </button>
           </div>
         </div>
         {error && (
-          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{t(error)}</p>
+          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{tb(error)}</p>
         )}
       </div>
     </div>

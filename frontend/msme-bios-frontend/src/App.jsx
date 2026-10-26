@@ -12,6 +12,8 @@ import CustomBuilderPage from './pages/CustomBuilderPage'
 import FeatureDashboardPage from './pages/FeatureDashboardPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
+import CheckoutPage from './pages/CheckoutPage'
+import BillingPage from './pages/BillingPage'
 import RedirectIfAuthenticated from './components/RedirectIfAuthenticated'
 
 export default function App() {
@@ -41,6 +43,8 @@ export default function App() {
       <Route path="/custom-plan" element={<ProtectedRoute><CustomBuilderPage /></ProtectedRoute>} />
       <Route path="/dashboard" element={<RequireOnboarded><FeatureDashboardPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
+      <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
+      <Route path="/billing" element={<RequireOnboarded><BillingPage /></RequireOnboarded>} />
       <Route path="/results" element={<RequireOnboarded><ResultsPage /></RequireOnboarded>} />
       <Route path="/results/:documentId" element={<RequireOnboarded><ResultsPage /></RequireOnboarded>} />
     </Routes>

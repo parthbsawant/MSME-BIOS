@@ -40,6 +40,10 @@ import mrResults from '../locales/mr/results.json'
 import mrGuide from '../locales/mr/guide.json'
 import mrDashboard from '../locales/mr/dashboard.json'
 
+import enBilling from '../locales/en/billing.json'
+import hiBilling from '../locales/hi/billing.json'
+import mrBilling from '../locales/mr/billing.json'
+
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'hi', label: 'हिन्दी' },
@@ -56,9 +60,9 @@ function getStoredLanguage() {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard },
-    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard },
-    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard },
+    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard, billing: enBilling },
+    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard, billing: hiBilling },
+    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard, billing: mrBilling },
   },
   lng: getStoredLanguage(),
   fallbackLng: 'en',

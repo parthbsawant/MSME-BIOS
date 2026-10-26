@@ -7,7 +7,7 @@ import AuthLoadingScreen from './AuthLoadingScreen'
 export default function RequireOnboarded({ children }) {
   const { isLoggedIn, loading: authLoading } = useAuth()
   const { onboarded, loading: businessLoading } = useBusiness()
-  const { hasPlan, loading: planLoading } = usePlan()
+  const { hasPlan, isPaid, loading: planLoading } = usePlan()
 
   // Wait for Firebase's session check AND both contexts' own localStorage
   // reads to finish - all three run as separate effects, so checking only
@@ -21,5 +21,8 @@ export default function RequireOnboarded({ children }) {
   if (!isLoggedIn) return <Navigate to="/login" replace />
   if (!onboarded) return <Navigate to="/business-setup" replace />
   if (!hasPlan) return <Navigate to="/choose-plan" replace />
+  // STEP 3: a chosen but unpaid plan goes to checkout. The backend
+  // enforces the same rule (402) - this only spares the user dead ends.
+  if (!isPaid) return <Navigate to="/checkout" replace />
   return children
 }

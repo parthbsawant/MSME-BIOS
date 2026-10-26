@@ -88,6 +88,54 @@ export async function savePlan({ type, tierId, featureIds, price }) {
   return res.json()
 }
 
+async function postForm(path, fields) {
+  const headers = await authHeader()
+  const formData = new FormData()
+  Object.entries(fields).forEach(([key, value]) => formData.append(key, value))
+  const res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const error = new Error(body.message || `Request failed (${res.status})`)
+    error.status = res.status
+    error.code = body.error
+    throw error
+  }
+  return body
+}
+
+/**
+ * POST /api/checkout/order - starts checkout. Sends only WHAT was chosen;
+ * the backend computes the amount (any price here would be ignored) and
+ * saves the plan with a pending subscription.
+ */
+export async function createCheckoutOrder({ type, tierId, featureIds, extraSeats }) {
+  const order = await postForm('/api/checkout/order', {
+    plan_type: type,
+    tier_id: tierId || '',
+    feature_ids: (featureIds || []).join(','),
+    extra_seats: String(extraSeats || 0),
+  })
+  clearMeCache()
+  return order
+}
+
+/**
+ * Pays an order with the MOCK provider: mock-pay plays the payment window
+ * (returns payment_id + signature), then verify asks the backend to check
+ * it - the only step that can activate the plan. outcome: 'success' | 'fail'.
+ * Resolves to { status: 'active' | 'failed', paid }.
+ */
+export async function payWithMockProvider(orderId, outcome) {
+  const payment = await postForm('/api/checkout/mock-pay', { order_id: orderId, outcome })
+  const result = await postForm('/api/checkout/verify', {
+    order_id: orderId,
+    payment_id: payment.payment_id,
+    signature: payment.signature || '',
+  })
+  clearMeCache()
+  return result
+}
+
 /**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).

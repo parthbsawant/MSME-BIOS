@@ -4,6 +4,7 @@ import { useCatalog } from '../lib/useCatalog'
 
 export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = false }) {
   const { t } = useTranslation()
+  const { t: tb } = useTranslation('billing')
   const { featureName, tierName, tierBand } = useCatalog()
   const popular = isPopular || tier.id === 'growth'
 
@@ -31,6 +32,11 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = 
           </span>
           <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('plan.perMonth')}</span>
         </div>
+        {tier.seatsIncluded && (
+          <p className="mt-1 text-[11px] font-semibold text-[#E8622C] dark:text-[#F27A4A]">
+            {tb('seats.included', { count: tier.seatsIncluded })}
+          </p>
+        )}
 
         <div className="mt-6 space-y-2.5 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
           <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('plan.featuresIncluded')}</p>

@@ -52,6 +52,10 @@ export function PlanProvider({ children }) {
   const uid = user?.uid
 
   const [plan, setPlan] = useState(null)
+  // STEP 3: the plan only counts once its subscription is 'active' (a
+  // verified payment, or a pre-Step-3 'legacy' account). Shape is
+  // /api/me's `subscription`, or null if checkout was never started.
+  const [subscription, setSubscription] = useState(null)
   const [loading, setLoading] = useState(true)
   // Which uid `plan` belongs to (null = signed out) - same refresh race
   // as in BusinessContext; without it a refresh could redirect a user
@@ -66,6 +70,7 @@ export function PlanProvider({ children }) {
     // No authenticated user → no plan should be loaded.
     if (!uid) {
       setPlan(null)
+      setSubscription(null)
       setLoading(false)
       setLoadedFor(null)
       return
@@ -73,16 +78,24 @@ export function PlanProvider({ children }) {
 
     let cancelled = false
     const planStorageKey = `msme-plan-${uid}`
+    const subscriptionStorageKey = `msme-subscription-${uid}`
 
     let cached = null
+    let cachedSubscription
     try {
       cached = JSON.parse(localStorage.getItem(planStorageKey))
+      const rawSubscription = localStorage.getItem(subscriptionStorageKey)
+      cachedSubscription = rawSubscription === null ? undefined : JSON.parse(rawSubscription)
     } catch {
       cached = null
     }
 
-    if (cached) {
+    // Use the cache only if it knows BOTH the plan and its payment status
+    // (caches written before Step 3 have no subscription entry, so those
+    // users wait for the backend's answer once).
+    if (cached && cachedSubscription !== undefined) {
       setPlan(cached)
+      setSubscription(cachedSubscription)
       setLoading(false)
       setLoadedFor(uid)
     } else {
@@ -92,19 +105,7 @@ export function PlanProvider({ children }) {
     getMe()
       .then((me) => {
         if (cancelled) return
-        if (me.plan) {
-          const fromServer = {
-            type: me.plan.plan_type,
-            featureIds: me.plan.feature_ids,
-            price: me.plan.price,
-            ...(me.plan.plan_type === 'tier' ? { tierId: me.plan.tier_id } : {}),
-          }
-          localStorage.setItem(planStorageKey, JSON.stringify(fromServer))
-          setPlan(fromServer)
-        } else {
-          localStorage.removeItem(planStorageKey)
-          setPlan(null)
-        }
+        applyMe(me, uid)
       })
       .catch((err) => {
         console.error('Could not load plan from the backend:', err)
@@ -120,6 +121,38 @@ export function PlanProvider({ children }) {
       cancelled = true
     }
   }, [uid])
+
+  // Stores /api/me's plan and subscription in state and in the cache.
+  function applyMe(me, forUid) {
+    const planStorageKey = `msme-plan-${forUid}`
+    const subscriptionStorageKey = `msme-subscription-${forUid}`
+    if (me.plan) {
+      const fromServer = {
+        type: me.plan.plan_type,
+        featureIds: me.plan.feature_ids,
+        price: me.plan.price,
+        seatsIncluded: me.plan.seats_included,
+        extraSeats: me.plan.extra_seats,
+        ...(me.plan.plan_type === 'tier' ? { tierId: me.plan.tier_id } : {}),
+      }
+      localStorage.setItem(planStorageKey, JSON.stringify(fromServer))
+      setPlan(fromServer)
+    } else {
+      localStorage.removeItem(planStorageKey)
+      setPlan(null)
+    }
+    localStorage.setItem(subscriptionStorageKey, JSON.stringify(me.subscription ?? null))
+    setSubscription(me.subscription ?? null)
+  }
+
+  // Re-reads plan and subscription from the backend - after starting
+  // checkout or paying, so the route guards see the new status at once.
+  const refreshPlan = async () => {
+    if (!uid) return
+    const me = await getMe({ force: true })
+    applyMe(me, uid)
+    return me
+  }
 
   const selectTier = (tierId) => {
     if (!user) {
@@ -181,6 +214,9 @@ export function PlanProvider({ children }) {
       value={{
         plan,
         hasPlan: !!plan,
+        subscription,
+        isPaid: subscription?.status === 'active',
+        refreshPlan,
         selectTier,
         selectCustom,
         loading: loading || loadedFor !== (uid ?? null),
