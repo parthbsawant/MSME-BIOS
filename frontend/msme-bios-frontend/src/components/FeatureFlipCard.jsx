@@ -37,16 +37,21 @@ export default function FeatureFlipCard({ name, tagline, description, icon }) {
         </div>
 
         {/* Back Face */}
-        <div className="card-flip-face card-flip-back absolute inset-0 flex flex-col justify-between rounded-2xl border border-[var(--color-accent)] bg-[var(--color-ink)] p-6 text-white shadow-[var(--shadow-warm-lg)]">
+        <div className="card-flip-face card-flip-back absolute inset-0 flex flex-col justify-between rounded-2xl border-2 border-[var(--color-accent)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-warm-lg)]">
           <div>
-            <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-accent)]">
-              {name}
-            </h4>
-            <p className="mt-3 text-xs leading-relaxed text-[#EDEAE4]/90">
+            <div className="flex items-center justify-between">
+              <h4 className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-accent)]">
+                {name}
+              </h4>
+              <span className="text-[10px] font-semibold text-[var(--color-muted)] uppercase tracking-wider bg-[var(--color-surface-2)] px-2.5 py-0.5 rounded-full border border-[var(--color-line)]">
+                {t('flipCard.badge')}
+              </span>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-[var(--color-ink)]">
               {description}
             </p>
           </div>
-          <p className="text-[10px] font-semibold text-[#9A948A] uppercase tracking-wider">
+          <p className="text-[10px] font-semibold text-[var(--color-muted)] uppercase tracking-wider">
             {t('flipCard.badge')}
           </p>
         </div>
