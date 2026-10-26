@@ -58,13 +58,13 @@ Spec: SPEC.md
 - [x] Server-side price calculation (features + tier + extra seats); ignore client price
 - [x] Payment provider interface (create_order, verify_payment, handle_webhook)
 - [x] Mock provider with success and failure paths
-- [ ] Plan becomes active only after verified payment; unpaid businesses blocked from dashboard and upload
-- [ ] Frontend: seat selector on plan pages, total price
-- [ ] Frontend: mock checkout page (success and failure), payment status screen
-- [ ] Billing read-only page for owner
+- [x] Plan becomes active only after verified payment; unpaid businesses blocked from dashboard and upload
+- [x] Frontend: seat selector on plan pages, total price
+- [x] Frontend: mock checkout page (success and failure), payment status screen
+- [x] Billing read-only page for owner
 - [x] Tests for pricing, payment states, blocked unpaid access
-- [ ] i18n for new pages (billing namespace)
-- [ ] Deploy and verify live
+- [x] i18n for new pages (billing namespace)
+- [x] Deploy and verify live
 
 ## STEP 4: Roles and invitations (backend)
 - [ ] Migration 004: roles constrained to five values, status on user_tenants, invitations table
