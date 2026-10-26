@@ -35,7 +35,7 @@ MSME-BIOS/
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
 - Tests: python -m pytest tests/ -q from backend/parser-backend (expected 86 passed, 1 skipped). tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
-- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev and test have 001+002; production has 001 only (002 goes there in Step 2f).
+- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb, 2026-10-26) all have 001+002. Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
 - If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
 - Two-machine setup is in SETUP.md. Gitignored files (.env, Firebase service-account JSON, node_modules, .venv) do not travel between machines.
 - .gitattributes forces LF. CRLF conversion corrupts the sample PDFs and breaks the bank-parser tests.
@@ -49,7 +49,7 @@ MSME-BIOS/
 - Every tenant-owned table carries its own tenant_id column.
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
 - Handwritten parser is local Tesseract only. ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
-- Parsed results are saved by document_store.save_parser_result() (one transaction: documents row + bank_transactions / invoices + invoice_line_items / handwritten_bills + handwritten_line_items, each row stamped with tenant_id, department, uploaded_by). /api/parse takes optional department (default finance) and returns document_id and department. Parsers are unchanged. NOT live until migration 002 is applied to production (Step 2f): do not push/deploy this backend before that, or live uploads fail with save_failed.
+- Parsed results are saved by document_store.save_parser_result() (one transaction: documents row + bank_transactions / invoices + invoice_line_items / handwritten_bills + handwritten_line_items, each row stamped with tenant_id, department, uploaded_by). /api/parse takes optional department (default finance) and returns document_id and department. Parsers are unchanged. Rule for future migrations: apply to production BEFORE pushing backend code that needs them (Render autoDeploy is on), or live requests fail.
 - tenant_resolution.py currently creates a new tenant for any user without one. Step 4 must change this (invited users join the owner's tenant).
 
 ## Conventions and gotchas
