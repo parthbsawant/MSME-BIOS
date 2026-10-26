@@ -93,6 +93,12 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Until roles exist, the backend accepts an optional department from the owner and defaults to finance. This stays as the fallback for single-owner businesses; members (Step 4) always get their own department, never a client-supplied one.
 
 ## Status
+
+CURRENT POSITION (2026-10-26):
+- Step 5 (team frontend and role-based panels): localhost tests DONE and PASSED (owner + Finance + HR accounts against the live backend: invite, join, department separation, member blocked from owner pages, role change, deactivate/reactivate, wrong-account invite, activity log, hi/mr, light/dark). Complete code is pushed to GitHub (commit c7c5b75) and live on Vercel.
+- Step 5 live-site tests (3-account demo on msme-bios.vercel.app, the last TRACKER box of Step 5) are NOT done yet: ON HOLD for now, at Parth's request. Do not tick that box until he runs them.
+- Step 6 (wrap-up) is NOT started.
+- Step 1 final live language check is also still parked (TRACKER Step 1 boxes unticked).
 DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in (fixed on Vercel 2026-10-23); business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md; Step 2 own document database (2026-10-26: migration 002 on dev/test/production, parsed documents saved in one transaction, GET /api/documents and /api/documents/{id}, results page at /results/:documentId reloads the saved document on refresh, dashboard documents count is real); Step 3 mock payments and seats (2026-10-26: pricing.py, migration 003 with legacy backfill, payments/ provider interface + MockProvider, checkout endpoints and paywall, seat stepper, /checkout with success/failure/retry, read-only /billing, billing namespace in en/hi/mr; verified live); Step 4 roles and invitations backend (2026-10-26: migration 004, roles.py, access.py guards, department separation, team.py invites/seats/members/audit, 185 tests; verified live).
 
 FIXED (2026-10-23, commit 6d19077): Google sign-in failed on Vercel with auth/unauthorized-domain. Fix was adding msme-bios.vercel.app under Firebase Console, Authentication, Settings, Authorized domains. Login and signup pages now show the specific message plus "Error code: auth/..." (mapping in src/lib/googleAuthError.js, en/hi/mr), and firebase.js logs the names of any missing VITE_FIREBASE_* keys. Verified on localhost (new account, existing account, logout/login, cancel popup) and on Vercel. Firebase Authorized domains must contain BOTH msme-bios.vercel.app and localhost (localhost stopped working by default on 2026-10-26 and was added explicitly). Any new frontend domain (custom domain, Vercel preview URL) must be added there too.
@@ -104,13 +110,13 @@ OPEN NOTES (not yet scheduled):
 - UI text still says "AI vision" for the handwritten parser although it is local Tesseract; decide whether to soften the wording.
 - Dashboard stat-card numbers for sales, expenses and profit are placeholders. Documents count is real (this month's saved documents, from GET /api/documents).
 
-## Build order (do one at a time, tick TRACKER.md after each verified step, commit after each)
+## Build order (do one at a time, tick TRACKER.md after each verified step; Parth commits and pushes after each)
 1. Language support part 1: finish live verification (F5 stays on dashboard; Incognito login goes to dashboard; mr and hi on dashboard, upload, wrong-file error, real results, guide page, plan pages; dark mode; logout and login), then tick and commit.
 2. DONE. Own document database: migration 002 (department, uploaded_by, line_no); separate dev DB and msme_bios_test DB for pytest; save parser output transactionally; list and get document endpoints; results page reads saved documents.
 3. DONE. Mock payments and seats: provider interface, server-side pricing, seat count before checkout, plan active only after verified payment.
 4. DONE. Roles and invitations backend: invite links, join owner's tenant (change tenant_resolution.py), role checks centralised, isolation tests for business-to-business and department-to-department.
-5. Team frontend and role-based panels (translated in en, hi, mr).
-6. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts (the @test.com users plus specific accounts Parth lists; check with him before deleting).
+5. CODE DONE, LIVE-SITE TEST ON HOLD. Team frontend and role-based panels (translated in en, hi, mr). Localhost tests passed, pushed and live; only the live 3-account demo remains.
+6. NOT STARTED. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts (the @test.com users plus specific accounts Parth lists; check with him before deleting).
 
 NEXT PHASE (after the six steps): real Razorpay, real invite emails, actual dashboard features (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index and so on), custom roles, Claude Vision for the handwritten parser (local Tesseract read only 4 of 10 items on a real bill), the skipped Firebase-token test.
 
