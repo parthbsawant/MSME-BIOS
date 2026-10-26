@@ -42,6 +42,7 @@ export default function App() {
       <Route path="/dashboard" element={<RequireOnboarded><FeatureDashboardPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
       <Route path="/results" element={<RequireOnboarded><ResultsPage /></RequireOnboarded>} />
+      <Route path="/results/:documentId" element={<RequireOnboarded><ResultsPage /></RequireOnboarded>} />
     </Routes>
   )
 }

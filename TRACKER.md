@@ -50,7 +50,7 @@ Spec: SPEC.md
 - [x] Endpoints: list my documents, get one document
 - [x] Tests: saved rows carry correct tenant_id, uploaded_by, department; failed save leaves nothing behind
 - [x] Apply migration to hosted database, redeploy backend, verify live
-- [ ] Results page reads from saved documents
+- [x] Results page reads from saved documents
 
 ## STEP 3: Mock payments and seats
 - [ ] Migration 003: subscriptions, payments, seats on plans

@@ -1,6 +1,8 @@
-import { useLocation, useNavigate, Navigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import DashboardLayout from '../components/DashboardLayout'
+import { getDocument } from '../lib/api'
 
 function money(n) {
   if (n === null || n === undefined) return '—'
@@ -10,11 +12,63 @@ function money(n) {
 export default function ResultsPage() {
   const { t } = useTranslation('results')
   const { state } = useLocation()
+  const { documentId } = useParams()
   const navigate = useNavigate()
 
-  if (!state?.result) return <Navigate to="/upload" replace />
+  // Straight after an upload the result arrives in router state, so it
+  // shows instantly. On a refresh, bookmark or new tab that state is gone,
+  // so the saved document is loaded from the backend by its id instead.
+  const fromUpload = state?.result && (!documentId || state.result.document_id === documentId) ? state.result : null
+  const [loaded, setLoaded] = useState(null)
+  const [loadError, setLoadError] = useState(null) // 'notFound' | 'loadFailed'
 
-  const { result, documentType, fileName } = state
+  useEffect(() => {
+    if (fromUpload || !documentId) return
+    let cancelled = false
+    setLoaded(null)
+    setLoadError(null)
+    getDocument(documentId)
+      .then((doc) => {
+        if (!cancelled) setLoaded(doc)
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err.status === 404 ? 'notFound' : 'loadFailed')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [documentId, Boolean(fromUpload)])
+
+  if (!documentId && !fromUpload) return <Navigate to="/upload" replace />
+
+  const result = fromUpload || loaded
+  if (!result) {
+    return (
+      <DashboardLayout activeItem="Documents">
+        <div className="max-w-4xl mx-auto rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-10 shadow-sm text-center">
+          {loadError ? (
+            <>
+              <p className="text-sm font-semibold text-[#2A2521] dark:text-[#F5EFE8]">{t(loadError)}</p>
+              <button
+                onClick={() => navigate('/upload')}
+                className="mt-6 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-colors cursor-pointer"
+              >
+                {t('another')}
+              </button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center gap-3">
+              <div className="h-8 w-8 rounded-full border-4 border-[#E8622C]/20 border-t-[#E8622C] dark:border-[#F27A4A]/20 dark:border-t-[#F27A4A] animate-spin" />
+              <p className="text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('loading')}</p>
+            </div>
+          )}
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  const documentType = result.source_type || state?.documentType
+  const fileName = result.source_file || state?.fileName
   const isReviewNeeded = Boolean(result.needs_review)
 
   return (

@@ -64,7 +64,10 @@ export default function UploadPage() {
 
     try {
       const result = await parseDocument(file, selectedType)
-      navigate('/results', { state: { result, documentType: selectedType, fileName: file.name } })
+      // /results/<id> survives a refresh (ResultsPage reloads the saved
+      // document); the state just lets it show instantly without a fetch.
+      const target = result.document_id ? `/results/${result.document_id}` : '/results'
+      navigate(target, { state: { result, documentType: selectedType, fileName: file.name } })
     } catch (err) {
       // The error is stored as a key (not translated text) so it
       // re-translates if the language is switched while it's showing.

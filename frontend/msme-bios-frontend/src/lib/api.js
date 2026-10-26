@@ -101,6 +101,22 @@ export async function listDocuments() {
 }
 
 /**
+ * GET /api/documents/{id} - one saved document, in the same shape
+ * parseDocument() returns. Another business's document (or an unknown
+ * id) is a 404, thrown with error.status = 404.
+ */
+export async function getDocument(documentId) {
+  const headers = await authHeader()
+  const res = await fetch(`${API_URL}/api/documents/${encodeURIComponent(documentId)}`, { headers })
+  if (!res.ok) {
+    const error = new Error(`Failed to load document (${res.status})`)
+    error.status = res.status
+    throw error
+  }
+  return res.json()
+}
+
+/**
  * POST /api/parse - parses a document. Note there is no tenant_id
  * field here at all, unlike the pre-Milestone-2 version of this call -
  * the backend resolves it from the auth token instead.

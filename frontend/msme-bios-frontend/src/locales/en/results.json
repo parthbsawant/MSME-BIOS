@@ -56,5 +56,8 @@
   },
   "na": "N/A",
   "back": "Back to Dashboard",
-  "another": "Upload Another Document"
+  "another": "Upload Another Document",
+  "loading": "Loading document...",
+  "notFound": "This document was not found. The link may be wrong, or it may belong to another business.",
+  "loadFailed": "Could not load this document. Check your connection and try again."
 }
