@@ -67,8 +67,8 @@ Spec: SPEC.md
 - [x] Deploy and verify live
 
 ## STEP 4: Roles and invitations (backend)
-- [ ] Migration 004: roles constrained to five values, status on user_tenants, invitations table
-- [ ] Central role-to-feature mapping module (single source of truth)
+- [x] Migration 004: roles constrained to five values, status on user_tenants, invitations table (plus audit_log; applied to dev and test)
+- [x] Central role-to-feature mapping module (single source of truth: roles.py)
 - [ ] Request dependency resolving user, tenant, role, status
 - [ ] require_role and require_feature guards
 - [ ] Fix tenant resolution: invitees join inviter's business, no new tenant created
