@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import DashboardLayout from '../components/DashboardLayout'
 import { parseDocument } from '../lib/api'
+import { useBusiness } from '../context/BusinessContext'
 
 const docTypes = [
   {
@@ -48,6 +49,11 @@ export default function UploadPage() {
   const [error, setError] = useState(null)
   const fileInputRef = useRef(null)
   const navigate = useNavigate()
+  // STEP 5: the owner files each upload under a department; a member's
+  // uploads always go to their own department (the backend enforces it).
+  const { t: tTeam } = useTranslation('team')
+  const { isOwner, department: myDepartment } = useBusiness()
+  const [department, setDepartment] = useState('finance')
 
   const activeType = docTypes.find((d) => d.id === selectedType)
 
@@ -63,7 +69,7 @@ export default function UploadPage() {
     setError(null)
 
     try {
-      const result = await parseDocument(file, selectedType)
+      const result = await parseDocument(file, selectedType, isOwner ? department : undefined)
       // /results/<id> survives a refresh (ResultsPage reloads the saved
       // document); the state just lets it show instantly without a fetch.
       const target = result.document_id ? `/results/${result.document_id}` : '/results'
@@ -74,7 +80,8 @@ export default function UploadPage() {
       // err.message is the server's own English text; kept separately
       // so the technical detail isn't lost.
       const serverMessage = err.message || ''
-      if (err.status === 501) setError({ key: 'notEnabled', serverMessage: '' })
+      if (err.code === 'feature_not_available') setError({ key: 'notAllowed', serverMessage: '' })
+      else if (err.status === 501) setError({ key: 'notEnabled', serverMessage: '' })
       else if (err.status === 400) setError({ key: 'unreadable', serverMessage })
       else if (err.status) setError({ key: 'server', status: err.status, serverMessage })
       else setError({ key: 'network', serverMessage: '' })
@@ -96,6 +103,29 @@ export default function UploadPage() {
           <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
             {t('header.subtitle')}
           </p>
+        </div>
+
+        {/* Department (STEP 5) */}
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] px-5 py-4">
+          {isOwner ? (
+            <>
+              <label htmlFor="upload-department" className="text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{tTeam('department.label')}</label>
+              <select
+                id="upload-department"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                disabled={isProcessing}
+                className="rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] px-3 py-2 text-xs text-[#2A2521] dark:text-[#F5EFE8] focus:border-[#E8622C] focus:outline-none"
+              >
+                {['finance', 'sales', 'hr', 'marketing'].map((d) => <option key={d} value={d}>{tTeam(`roles.${d}`)}</option>)}
+              </select>
+              <span className="text-[11px] text-[#8A7F74] dark:text-[#A89E92]">{tTeam('department.ownerHint')}</span>
+            </>
+          ) : (
+            <p className="text-xs text-[#2A2521] dark:text-[#F5EFE8]">
+              {tTeam('department.memberFixed', { department: tTeam(`roles.${myDepartment}`) })}
+            </p>
+          )}
         </div>
 
         {/* STEP 1: SELECT DOCUMENT TYPE */}

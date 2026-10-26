@@ -11,6 +11,7 @@
       "invoices": "Invoices",
       "cashFlow": "Cash Flow",
       "reports": "Reports",
+      "team": "Team",
       "billing": "Billing",
       "settings": "Settings"
     },
@@ -43,6 +44,7 @@
     "tools": {
       "title": "Tools & Features",
       "subtitle": "Features active in your plan tier ({{plan}}).",
+      "subtitleMember": "Features available to your role ({{role}}).",
       "upgrade": "Upgrade Plan →",
       "active": "Active",
       "comingSoon": "Coming Soon",

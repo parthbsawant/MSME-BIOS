@@ -77,18 +77,18 @@ Spec: SPEC.md
 - [x] Seat limit enforced on invites
 - [x] Department filter applied to document endpoints for non-owner roles
 - [x] All isolation tests from SPEC section 9 passing (185 passed, 1 skipped)
-- [ ] Deploy and verify live
+- [x] Deploy and verify live
 
 ## STEP 5: Team frontend and role-based panels
-- [ ] Team setup page (after payment) with skip option
-- [ ] Owner Team page (invite, copy link, revoke, deactivate, change role)
-- [ ] Invite acceptance page (signup or login, then join)
-- [ ] Route guards for member vs owner
-- [ ] Role-aware DashboardLayout and menu
-- [ ] Role-aware FeatureDashboardPage (cards from role mapping)
-- [ ] Upload page: department chosen by owner, fixed for members
-- [ ] Translate the new team, billing and panel screens (en, hi, mr); dashboard and layout were already translated in Step 1
-- [ ] End-to-end test: owner creates finance and HR members; each sees only own data; owner sees all
+- [x] Team setup page (after payment) with skip option
+- [x] Owner Team page (invite, copy link, revoke, deactivate, change role)
+- [x] Invite acceptance page (signup or login, then join)
+- [x] Route guards for member vs owner
+- [x] Role-aware DashboardLayout and menu
+- [x] Role-aware FeatureDashboardPage (cards from role mapping)
+- [x] Upload page: department chosen by owner, fixed for members
+- [x] Translate the new team, billing and panel screens (en, hi, mr); dashboard and layout were already translated in Step 1
+- [x] End-to-end test: owner creates finance and HR members; each sees only own data; owner sees all (manual, 3 accounts on localhost against the live backend, 2026-10-26; automated equivalents in backend tests/test_team.py and test_access.py)
 - [ ] Demo walkthrough on live site with 3 accounts (owner, finance, HR)
 
 ## STEP 6: Wrap up this phase

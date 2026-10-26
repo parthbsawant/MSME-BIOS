@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { safeNext, nextQuery } from '../lib/nextPath'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '../components/ThemeToggle'
@@ -19,6 +20,8 @@ export default function LoginPage() {
   const { login, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation('auth')
+  // STEP 5: coming from an invite link, return there after logging in.
+  const next = safeNext(useSearchParams()[0])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -33,7 +36,7 @@ export default function LoginPage() {
     try {
       setLoading(true)
       await login(email.trim(), password)
-      navigate('/dashboard')
+      navigate(next ?? '/dashboard')
     } catch (err) {
       console.error('Login error:', err)
       switch (err.code) {
@@ -66,7 +69,7 @@ export default function LoginPage() {
     try {
       setLoading(true)
       await loginWithGoogle()
-      navigate('/dashboard')
+      navigate(next ?? '/dashboard')
     } catch (err) {
       console.error('Google login error:', err.code, err.message)
       const key = googleErrorKey(err.code, 'errors.googleLoginFailed')
@@ -94,7 +97,7 @@ export default function LoginPage() {
             <ThemeToggle />
             <div className="text-xs font-medium text-[#8A7F74] dark:text-[#A89E92]">
               {t('login.headerPrompt')}{' '}
-              <Link to="/signup" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+              <Link to={`/signup${nextQuery(next)}`} className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
                 {t('login.createAccountLink')}
               </Link>
             </div>
@@ -132,7 +135,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/signup')}
+                onClick={() => navigate(`/signup${nextQuery(next)}`)}
                 className="flex-1 rounded-lg py-2 text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors cursor-pointer"
               >
                 {t('tabs.signup')}
@@ -257,7 +260,7 @@ export default function LoginPage() {
             {/* Bottom link */}
             <p className="mt-6 text-center text-xs text-[#8A7F74] dark:text-[#A89E92]">
               {t('login.bottomPrompt')}{' '}
-              <Link to="/signup" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+              <Link to={`/signup${nextQuery(next)}`} className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
                 {t('login.createAccountLink')}
               </Link>
             </p>

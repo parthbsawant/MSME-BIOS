@@ -28,6 +28,8 @@
     "successTitle": "Payment successful",
     "successText": "Your {{plan}} plan is now active.",
     "goDashboard": "Go to Dashboard",
+    "setUpTeam": "Set up your team",
+    "skipToDashboard": "Skip for now, go to Dashboard",
     "failedTitle": "Payment failed",
     "failedText": "The payment did not go through, so your plan is not active yet. No money was charged.",
     "error": "Something went wrong. Please try again."

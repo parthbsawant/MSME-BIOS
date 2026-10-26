@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
+import { safeNext, nextQuery } from '../lib/nextPath'
 import { useAuth } from '../context/AuthContext'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from '../components/ThemeToggle'
@@ -22,6 +23,8 @@ export default function SignupPage() {
   const { signup, loginWithGoogle } = useAuth()
   const navigate = useNavigate()
   const { t } = useTranslation('auth')
+  // STEP 5: coming from an invite link, return there after signing up.
+  const next = safeNext(useSearchParams()[0])
 
   const handleGoogleSignup = async () => {
     setError('')
@@ -29,7 +32,7 @@ export default function SignupPage() {
     try {
       setLoading(true)
       await loginWithGoogle()
-      navigate('/business-setup')
+      navigate(next ?? '/business-setup')
     } catch (err) {
       console.error('Google signup error:', err.code, err.message)
       const key = googleErrorKey(err.code, 'errors.googleSignupFailed')
@@ -80,7 +83,7 @@ export default function SignupPage() {
         email: form.email.trim(),
         password: form.password,
       })
-      navigate('/business-setup')
+      navigate(next ?? '/business-setup')
     } catch (err) {
       console.error('Signup error:', err)
       switch (err.code) {
@@ -121,7 +124,7 @@ export default function SignupPage() {
             <ThemeToggle />
             <div className="text-xs font-medium text-[#8A7F74] dark:text-[#A89E92]">
               {t('signup.headerPrompt')}{' '}
-              <Link to="/login" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+              <Link to={`/login${nextQuery(next)}`} className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
                 {t('signup.headerLoginLink')}
               </Link>
             </div>
@@ -153,7 +156,7 @@ export default function SignupPage() {
             <div className="mt-6 flex rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] p-1">
               <button
                 type="button"
-                onClick={() => navigate('/login')}
+                onClick={() => navigate(`/login${nextQuery(next)}`)}
                 className="flex-1 rounded-lg py-2 text-xs font-semibold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] transition-colors cursor-pointer"
               >
                 {t('tabs.login')}
@@ -302,7 +305,7 @@ export default function SignupPage() {
             {/* Bottom link */}
             <p className="mt-6 text-center text-xs text-[#8A7F74] dark:text-[#A89E92]">
               {t('signup.headerPrompt')}{' '}
-              <Link to="/login" className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
+              <Link to={`/login${nextQuery(next)}`} className="font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline">
                 {t('signup.bottomLoginLink')}
               </Link>
             </p>

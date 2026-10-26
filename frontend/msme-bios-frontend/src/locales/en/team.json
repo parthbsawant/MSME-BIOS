@@ -1,0 +1,125 @@
+{
+  "roles": {
+    "owner": "Owner",
+    "finance": "Finance",
+    "sales": "Sales",
+    "hr": "HR",
+    "marketing": "Marketing",
+    "hint": {
+      "finance": "Finance sees all Finance documents and can upload; cash and accounting tools.",
+      "sales": "Sales sees Sales documents; invoice generator, revenue and forecasting tools.",
+      "hr": "HR sees HR documents only (for example payroll) and can upload them.",
+      "marketing": "Marketing sees Marketing documents; forecasting, revenue and WhatsApp alerts."
+    }
+  },
+  "page": {
+    "title": "Team",
+    "subtitle": "Invite people and choose what each person can see.",
+    "setupTitle": "Set up your team",
+    "setupSubtitle": "Invite the people who will use MSME-BIOS with you. You can also do this later from Team in the menu.",
+    "skip": "Skip for now",
+    "done": "Done, go to Dashboard"
+  },
+  "seats": {
+    "title": "Seats",
+    "used": "{{used}} of {{total}} seats used ({{members}} members, {{pending}} pending invites)",
+    "full": "All seats are in use. Revoke an invite or deactivate a member to free a seat."
+  },
+  "invite": {
+    "emailLabel": "Email address to invite",
+    "emailPlaceholder": "name@example.com",
+    "roleLabel": "Role",
+    "send": "Create invite link",
+    "sending": "Creating...",
+    "created": "Invite link for {{email}} ({{role}}) is ready.",
+    "linkLabel": "Invite link",
+    "copy": "Copy link",
+    "copied": "Copied",
+    "copyNote": "Send this link yourself (WhatsApp or email). It works once, for this email only, for 7 days. It is shown only now.",
+    "badge": "Invitation",
+    "title": "Join a business on MSME-BIOS",
+    "intro": "You have been invited to join {{business}} as {{role}}.",
+    "aBusiness": "a business",
+    "sentTo": "This invite is for {{email}}. Use that email to sign up or log in.",
+    "signUp": "Create an account",
+    "logIn": "I already have an account",
+    "wrongAccount": "You are logged in as {{current}}, but this invite is for {{invited}}.",
+    "switchAccount": "Log out and use the invited email",
+    "join": "Join {{business}}",
+    "joining": "Joining...",
+    "status_expired": "This invite link has expired. Ask the business owner for a new one.",
+    "status_revoked": "This invite was cancelled by the business owner.",
+    "status_accepted": "This invite link has already been used.",
+    "errors": {
+      "invite_invalid": "This invite link is not valid. Check that you copied the whole link.",
+      "invite_wrong_email": "This invite was sent to a different email address. Log in with the invited email.",
+      "invite_expired": "This invite link has expired. Ask the business owner for a new one.",
+      "invite_revoked": "This invite was cancelled by the business owner.",
+      "invite_used": "This invite link has already been used.",
+      "has_business": "Your account already belongs to a business. One account can belong to one business, so use a different email for this invite.",
+      "generic": "Something went wrong. Please try again."
+    }
+  },
+  "members": {
+    "title": "Members ({{count}})",
+    "joined": "joined {{date}}",
+    "changeRole": "Change role",
+    "status_active": "Active",
+    "status_deactivated": "Deactivated",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate"
+  },
+  "invites": {
+    "title": "Invites",
+    "none": "No invites yet.",
+    "expires": "expires {{date}}",
+    "sent": "sent {{date}}",
+    "status_pending": "Pending",
+    "status_accepted": "Accepted",
+    "status_revoked": "Revoked",
+    "status_expired": "Expired",
+    "revoke": "Revoke"
+  },
+  "activity": {
+    "title": "Recent activity",
+    "none": "Nothing yet.",
+    "someone": "Someone",
+    "invite": {
+      "created": "{{actor}} invited {{target}} as {{role}}",
+      "revoked": "{{actor}} revoked the invite for {{target}}"
+    },
+    "member": {
+      "joined": "{{actor}} joined as {{role}}",
+      "role_changed": "{{actor}} changed {{target}} from {{from}} to {{to}}",
+      "deactivated": "{{actor}} deactivated {{target}}",
+      "reactivated": "{{actor}} reactivated {{target}}"
+    }
+  },
+  "department": {
+    "label": "Department",
+    "ownerHint": "Only people in this department (and you) will see this document.",
+    "memberFixed": "Documents you upload are saved to your department: {{department}}."
+  },
+  "status": {
+    "deactivated": {
+      "title": "Your access is turned off",
+      "text": "The business owner has deactivated your account ({{email}}). Contact them if you think this is a mistake."
+    },
+    "invitePending": {
+      "title": "You have a pending invitation",
+      "text": "A business has invited {{email}}. Open the invite link the owner sent you to join."
+    },
+    "logout": "Log out"
+  },
+  "errors": {
+    "seat_limit": "All seats are in use. Revoke an invite, deactivate a member or buy more seats.",
+    "already_member": "This person is already in your team.",
+    "invite_exists": "This email already has a pending invite. Revoke it first to create a new link.",
+    "owner_protected": "The owner's role and access cannot be changed.",
+    "owner_only": "Only the business owner can do this.",
+    "payment_required": "Your plan is not active. Complete payment first.",
+    "bad_request": "Please check the email address and role.",
+    "not_found": "That member or invite no longer exists. The list has been refreshed.",
+    "generic": "Something went wrong. Please try again."
+  }
+}

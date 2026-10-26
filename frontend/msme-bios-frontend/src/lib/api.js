@@ -44,7 +44,14 @@ export function getMe({ force = false } = {}) {
   const promise = (async () => {
     const headers = await authHeader()
     const res = await fetch(`${API_URL}/api/me`, { headers })
-    if (!res.ok) throw new Error(`Failed to load identity (${res.status})`)
+    if (!res.ok) {
+      // STEP 4: a 403 carries a reason (e.g. "deactivated") the app shows.
+      const body = await res.json().catch(() => ({}))
+      const error = new Error(body.message || `Failed to load identity (${res.status})`)
+      error.status = res.status
+      error.code = body.error
+      throw error
+    }
     return res.json()
   })()
 
@@ -136,6 +143,45 @@ export async function payWithMockProvider(orderId, outcome) {
   return result
 }
 
+async function getJson(path, { auth = true } = {}) {
+  const headers = auth ? await authHeader() : {}
+  const res = await fetch(`${API_URL}${path}`, { headers })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const error = new Error(body.message || `Request failed (${res.status})`)
+    error.status = res.status
+    error.code = body.error
+    throw error
+  }
+  return body
+}
+
+// ---- STEP 4/5: team (owner only) ----
+
+/** Members (owner first) and seats: { members, seats: { purchased, active_members, pending_invites, in_use } }. */
+export const getTeam = () => getJson('/api/team/members')
+export const listInvites = () => getJson('/api/team/invites').then((b) => b.invites)
+export const getTeamActivity = () => getJson('/api/team/audit').then((b) => b.entries)
+
+/** Returns the invite including its one-time `invite_path` (/invite/<token>). */
+export const createInvite = (email, role) => postForm('/api/team/invites', { email, role })
+export const revokeInvite = (inviteId) => postForm(`/api/team/invites/${inviteId}/revoke`, {})
+export const changeMemberRole = (userId, role) => postForm(`/api/team/members/${userId}/role`, { role })
+export const deactivateMember = (userId) => postForm(`/api/team/members/${userId}/deactivate`, {})
+export const reactivateMember = (userId) => postForm(`/api/team/members/${userId}/reactivate`, {})
+
+// ---- STEP 4/5: invites (invitee side) ----
+
+/** Public: { business_name, role, email, status } for an invite link. */
+export const previewInvite = (token) => getJson(`/api/invites/${encodeURIComponent(token)}`, { auth: false })
+
+/** Joins the signed-in user to the inviting business. */
+export async function acceptInvite(token) {
+  const result = await postForm('/api/invites/accept', { token })
+  clearMeCache()
+  return result
+}
+
 /**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
@@ -169,11 +215,14 @@ export async function getDocument(documentId) {
  * field here at all, unlike the pre-Milestone-2 version of this call -
  * the backend resolves it from the auth token instead.
  */
-export async function parseDocument(file, documentType) {
+export async function parseDocument(file, documentType, department) {
   const headers = await authHeader()
   const formData = new FormData()
   formData.append('file', file)
   formData.append('document_type', documentType)
+  // Only the owner's choice counts; for members the backend always uses
+  // their own department and ignores this.
+  if (department) formData.append('department', department)
 
   const res = await fetch(`${API_URL}/api/parse`, { method: 'POST', headers, body: formData })
   const body = await res.json()

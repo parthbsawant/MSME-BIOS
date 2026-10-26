@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useBusiness } from '../context/BusinessContext'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from './ThemeToggle'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -9,6 +10,8 @@ import logo from '../assets/logo.png'
 export default function DashboardLayout({ children, activeItem = 'Dashboard' }) {
   const { user, logout } = useAuth()
   const { t } = useTranslation('dashboard')
+  const { t: tTeam } = useTranslation('team')
+  const { role, isOwner, effectiveFeatures } = useBusiness()
   const navigate = useNavigate()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -43,6 +46,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       id: 'Upload Document',
       label: t('layout.items.upload'),
       path: '/upload',
+      feature: 'document_parser',
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -101,9 +105,23 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       ),
     },
     {
+      id: 'Team',
+      label: t('layout.items.team'),
+      path: '/team',
+      ownerOnly: true,
+      icon: (
+        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+    },
+    {
       id: 'Billing',
       label: t('layout.items.billing'),
       path: '/billing',
+      ownerOnly: true,
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -115,6 +133,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       id: 'Settings',
       label: t('layout.items.settings'),
       path: '/business-setup',
+      ownerOnly: true,
       icon: (
         <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="3" />
@@ -123,6 +142,11 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       ),
     },
   ]
+    // STEP 5: menus follow the role (hiding only - the backend enforces).
+    // Owner-only items for the owner; Upload only if plan ∩ role has the
+    // document parser.
+    .filter((item) => !item.ownerOnly || isOwner)
+    .filter((item) => !item.feature || !role || effectiveFeatures.includes(item.feature))
 
   return (
     <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] flex flex-col transition-colors">
@@ -202,14 +226,21 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                   <div className="px-3 py-2 border-b border-[#F0E4D8] dark:border-[#3A332A]">
                     <p className="text-xs font-bold truncate text-[#2A2521] dark:text-[#F5EFE8]">{displayName}</p>
                     <p className="text-[10px] text-[#8A7F74] dark:text-[#A89E92] truncate">{user?.email}</p>
+                    {role && (
+                      <span className="mt-1.5 inline-block rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-2 py-0.5 text-[10px] font-bold text-[#E8622C] dark:text-[#F27A4A]">
+                        {tTeam(`roles.${role}`)}
+                      </span>
+                    )}
                   </div>
-                  <Link
-                    to="/business-setup"
-                    onClick={() => setUserDropdownOpen(false)}
-                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
-                  >
-                    {t('layout.businessProfile')}
-                  </Link>
+                  {isOwner && (
+                    <Link
+                      to="/business-setup"
+                      onClick={() => setUserDropdownOpen(false)}
+                      className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-[#2A2521] dark:text-[#F5EFE8] hover:bg-[#FBF3EC] dark:hover:bg-[#2D2820] transition-colors"
+                    >
+                      {t('layout.businessProfile')}
+                    </Link>
+                  )}
                   <button
                     onClick={handleLogout}
                     className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors cursor-pointer"

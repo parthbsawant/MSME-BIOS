@@ -19,6 +19,13 @@ export function BusinessProvider({ children }) {
   // /business-setup. Reporting loading until loadedFor matches the
   // current uid closes that gap.
   const [loadedFor, setLoadedFor] = useState(undefined)
+  // STEP 5: who the user is in their business, from /api/me: role,
+  // department, status, effectiveFeatures (plan ∩ role), invitePending.
+  // null until known. `deactivated` is set when /api/me answers 403
+  // deactivated. The backend enforces all of it; this only drives menus,
+  // guards and screens.
+  const [access, setAccess] = useState(null)
+  const [deactivated, setDeactivated] = useState(false)
 
   // The database (via /api/me) is the source of truth for "has this
   // user finished onboarding" - so it works on a new browser or device.
@@ -32,6 +39,8 @@ export function BusinessProvider({ children }) {
     if (!uid) {
       setBusiness(null)
       setOnboarded(false)
+      setAccess(null)
+      setDeactivated(false)
       setLoading(false)
       setLoadedFor(null)
       return
@@ -40,20 +49,26 @@ export function BusinessProvider({ children }) {
     let cancelled = false
     const businessStorageKey = `msme-business-${uid}`
     const onboardedStorageKey = `msme-onboarded-${uid}`
+    const accessStorageKey = `msme-access-${uid}`
 
     const readCache = () => {
       try {
         const parsed = JSON.parse(localStorage.getItem(businessStorageKey))
-        const ok = parsed?.ownerUid === uid && localStorage.getItem(onboardedStorageKey) === 'true'
-        return ok ? parsed : null
+        const cachedAccess = JSON.parse(localStorage.getItem(accessStorageKey))
+        // Caches written before Step 5 have no access entry: wait for the
+        // backend once, so a member never briefly sees the owner's menu.
+        const ok = parsed?.ownerUid === uid && localStorage.getItem(onboardedStorageKey) === 'true' && cachedAccess
+        return ok ? { business: parsed, access: cachedAccess } : null
       } catch {
         return null
       }
     }
 
     const cached = readCache()
+    setDeactivated(false)
     if (cached) {
-      setBusiness(cached)
+      setBusiness(cached.business)
+      setAccess(cached.access)
       setOnboarded(true)
       setLoading(false)
       setLoadedFor(uid)
@@ -64,30 +79,18 @@ export function BusinessProvider({ children }) {
     getMe()
       .then((me) => {
         if (cancelled) return
-        if (me.business) {
-          const fromServer = {
-            businessName: me.business.business_name ?? '',
-            ownerName: me.business.owner_name ?? '',
-            type: me.business.business_type ?? '',
-            turnover: me.business.annual_turnover ?? '',
-            city: me.business.city ?? '',
-            gstin: me.business.gstin ?? '',
-            ownerUid: uid,
-          }
-          localStorage.setItem(businessStorageKey, JSON.stringify(fromServer))
-          localStorage.setItem(onboardedStorageKey, 'true')
-          setBusiness(fromServer)
-          setOnboarded(true)
-        } else {
-          // The backend has no business for this user, so they are not
-          // onboarded, whatever an old local cache says.
-          localStorage.removeItem(businessStorageKey)
-          localStorage.removeItem(onboardedStorageKey)
-          setBusiness(null)
-          setOnboarded(false)
-        }
+        applyMe(me, uid)
       })
       .catch((err) => {
+        if (cancelled) return
+        if (err.code === 'deactivated') {
+          clearCache(uid)
+          setBusiness(null)
+          setOnboarded(false)
+          setAccess(null)
+          setDeactivated(true)
+          return
+        }
         // Backend unreachable: keep whatever the cache gave us.
         console.error('Could not load business from the backend:', err)
       })
@@ -102,6 +105,58 @@ export function BusinessProvider({ children }) {
       cancelled = true
     }
   }, [uid])
+
+  function clearCache(forUid) {
+    localStorage.removeItem(`msme-business-${forUid}`)
+    localStorage.removeItem(`msme-onboarded-${forUid}`)
+    localStorage.removeItem(`msme-access-${forUid}`)
+  }
+
+  // Stores /api/me's business and access info in state and in the cache.
+  function applyMe(me, forUid) {
+    const nextAccess = {
+      role: me.role ?? null,
+      department: me.department ?? null,
+      status: me.status ?? null,
+      effectiveFeatures: me.effective_features ?? [],
+      invitePending: Boolean(me.invite_pending),
+    }
+    setAccess(nextAccess)
+    setDeactivated(false)
+    localStorage.setItem(`msme-access-${forUid}`, JSON.stringify(nextAccess))
+
+    if (me.business) {
+      const fromServer = {
+        businessName: me.business.business_name ?? '',
+        ownerName: me.business.owner_name ?? '',
+        type: me.business.business_type ?? '',
+        turnover: me.business.annual_turnover ?? '',
+        city: me.business.city ?? '',
+        gstin: me.business.gstin ?? '',
+        ownerUid: forUid,
+      }
+      localStorage.setItem(`msme-business-${forUid}`, JSON.stringify(fromServer))
+      localStorage.setItem(`msme-onboarded-${forUid}`, 'true')
+      setBusiness(fromServer)
+      setOnboarded(true)
+    } else {
+      // The backend has no business for this user, so they are not
+      // onboarded, whatever an old local cache says.
+      localStorage.removeItem(`msme-business-${forUid}`)
+      localStorage.removeItem(`msme-onboarded-${forUid}`)
+      setBusiness(null)
+      setOnboarded(false)
+    }
+  }
+
+  // Re-reads business and access from the backend, e.g. right after
+  // accepting an invite (the user now belongs to another business).
+  const refreshBusiness = async () => {
+    if (!uid) return
+    const me = await getMe({ force: true })
+    applyMe(me, uid)
+    return me
+  }
 
   const saveBusiness = (details) => {
     if (!user) {
@@ -134,6 +189,16 @@ export function BusinessProvider({ children }) {
         hasBusinessProfile: !!business,
         onboarded,
         saveBusiness,
+        refreshBusiness,
+        // STEP 5 access info (see `access` above).
+        role: access?.role ?? null,
+        department: access?.department ?? null,
+        effectiveFeatures: access?.effectiveFeatures ?? [],
+        invitePending: access?.invitePending ?? false,
+        // Unknown role (backend unreachable, nothing cached) is treated as
+        // owner for display only; the backend still refuses non-owners.
+        isOwner: (access?.role ?? 'owner') === 'owner',
+        deactivated,
         loading: loading || loadedFor !== (uid ?? null),
       }}
     >

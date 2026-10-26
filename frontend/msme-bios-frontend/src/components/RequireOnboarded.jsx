@@ -3,10 +3,11 @@ import { useAuth } from '../context/AuthContext'
 import { useBusiness } from '../context/BusinessContext'
 import { usePlan } from '../context/PlanContext'
 import AuthLoadingScreen from './AuthLoadingScreen'
+import AccessStatusScreen from './AccessStatusScreen'
 
 export default function RequireOnboarded({ children }) {
   const { isLoggedIn, loading: authLoading } = useAuth()
-  const { onboarded, loading: businessLoading } = useBusiness()
+  const { onboarded, deactivated, invitePending, loading: businessLoading } = useBusiness()
   const { hasPlan, isPaid, loading: planLoading } = usePlan()
 
   // Wait for Firebase's session check AND both contexts' own localStorage
@@ -19,6 +20,10 @@ export default function RequireOnboarded({ children }) {
   }
 
   if (!isLoggedIn) return <Navigate to="/login" replace />
+  // STEP 5: members never see business setup or plans - they join a
+  // business that already has both. These two states replace the app.
+  if (deactivated) return <AccessStatusScreen kind="deactivated" />
+  if (invitePending) return <AccessStatusScreen kind="invitePending" />
   if (!onboarded) return <Navigate to="/business-setup" replace />
   if (!hasPlan) return <Navigate to="/choose-plan" replace />
   // STEP 3: a chosen but unpaid plan goes to checkout. The backend

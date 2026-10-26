@@ -40,6 +40,7 @@
   },
   "serverMessage": "Server message:",
   "errors": {
+    "notAllowed": { "title": "Your role cannot upload documents", "detail": "Uploading needs the document parser, which your role or your business's plan does not include. Ask the business owner." },
     "notEnabled": {
       "title": "AI-powered reading isn’t enabled for this document yet",
       "detail": "This document needs AI vision to read, and that’s not turned on for this parser yet. Try a different document, or check back once it’s enabled."

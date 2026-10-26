@@ -7,12 +7,14 @@ import { usePlan } from '../context/PlanContext'
 import { FEATURES } from '../lib/featuresData'
 import { useCatalog } from '../lib/useCatalog'
 import { listDocuments } from '../lib/api'
+import { useBusiness } from '../context/BusinessContext'
 
 export default function FeatureDashboardPage() {
   const { user } = useAuth()
   const { plan } = usePlan()
   const navigate = useNavigate()
   const { t } = useTranslation('dashboard')
+  const { t: tTeam } = useTranslation('team')
   const { featureName, featureTagline, featureDescription, tierName, customPlanName } = useCatalog()
 
   const rawName = user?.displayName || user?.name || user?.email || ''
@@ -22,8 +24,11 @@ export default function FeatureDashboardPage() {
   const hour = new Date().getHours()
   const greetingKey = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
 
-  // Enabled feature IDs in the current user's plan
-  const planFeatureIds = plan?.featureIds || ['document_parser']
+  // STEP 5: enabled features = plan ∩ role, from /api/me. The owner's
+  // equals the plan. Falls back to the plan if the role isn't known yet.
+  const { role, isOwner, effectiveFeatures } = useBusiness()
+  const planFeatureIds = role ? effectiveFeatures : (plan?.featureIds || ['document_parser'])
+  const canUpload = planFeatureIds.includes('document_parser')
 
   // Real count of this business's documents saved this month (the card
   // says "Processed this month"). null = loading or backend unreachable.
@@ -63,6 +68,7 @@ export default function FeatureDashboardPage() {
 
           <button
             onClick={() => navigate('/upload')}
+            hidden={!canUpload}
             className="self-start sm:self-auto flex items-center gap-2 rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all cursor-pointer"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14"/></svg>
@@ -145,11 +151,14 @@ export default function FeatureDashboardPage() {
                 {t('page.tools.title')}
               </h2>
               <p className="mt-0.5 text-xs text-[#8A7F74] dark:text-[#A89E92]">
-                {t('page.tools.subtitle', { plan: plan?.type === 'tier' ? tierName(plan.tierId) : customPlanName() })}
+                {isOwner
+                  ? t('page.tools.subtitle', { plan: plan?.type === 'tier' ? tierName(plan.tierId) : customPlanName() })
+                  : t('page.tools.subtitleMember', { role: tTeam(`roles.${role}`) })}
               </p>
             </div>
             <button
-              onClick={() => navigate('/choose-plan')}
+              onClick={() => navigate('/billing')}
+              hidden={!isOwner}
               className="text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:underline cursor-pointer"
             >
               {t('page.tools.upgrade')}

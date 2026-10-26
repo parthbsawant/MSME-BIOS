@@ -95,7 +95,11 @@ export default function CheckoutPage() {
             </div>
             <h1 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-extrabold">{t('checkout.successTitle')}</h1>
             <p className="mt-2 text-sm text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.successText', { plan: planName })}</p>
-            <button onClick={() => navigate('/dashboard')} className={`${primary} mt-8`}>{t('checkout.goDashboard')}</button>
+            {/* STEP 5: next comes team setup (SPEC section 5 order), skippable. */}
+            <button onClick={() => navigate('/team?setup=1')} className={`${primary} mt-8`}>{t('checkout.setUpTeam')}</button>
+            <button onClick={() => navigate('/dashboard')} className="mt-3 w-full text-center text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer">
+              {t('checkout.skipToDashboard')}
+            </button>
           </div>
         ) : (
           <div className={card}>
