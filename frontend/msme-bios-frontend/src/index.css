@@ -126,6 +126,11 @@ html[lang="en"] .tracking-tight {
   letter-spacing: -0.02em;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 body {
   font-family: var(--font-body);
   background-color: var(--color-canvas);

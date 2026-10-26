@@ -22,10 +22,11 @@ export default function LanguageSwitcher() {
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-label={t('language.change')}
-        className="flex h-8 items-center gap-1.5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-2.5 text-xs font-medium text-[var(--color-ink)] shadow-xs hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+        className="flex h-8 items-center gap-1.5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-2 sm:px-2.5 text-xs font-medium text-[var(--color-ink)] shadow-xs hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
       >
-        <Globe className="h-3.5 w-3.5 text-[var(--color-muted)]" strokeWidth={1.75} />
-        <span className="font-medium">{current.label}</span>
+        <Globe className="h-3.5 w-3.5 text-[var(--color-muted)] shrink-0" strokeWidth={1.75} />
+        <span className="font-medium hidden sm:inline">{current.label}</span>
+        <span className="font-semibold uppercase sm:hidden text-[10px]">{current.code}</span>
       </button>
 
       <AnimatePresence>

@@ -213,7 +213,7 @@ export default function Navbar({ showNavLinks = false }) {
               </AnimatePresence>
             </div>
           ) : (
-            <div className="flex items-center gap-2 sm:gap-2.5">
+            <div className="hidden sm:flex items-center gap-2 sm:gap-2.5">
               <Link
                 to="/login"
                 className="px-3 py-1.5 text-xs sm:text-sm font-semibold text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
@@ -288,6 +288,25 @@ export default function Navbar({ showNavLinks = false }) {
             >
               {t('nav.msmeGuideShort')}
             </Link>
+
+            {!isLoggedIn && (
+              <div className="pt-3 border-t border-[var(--color-line)] flex items-center gap-3">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="px-3 py-2 text-xs font-semibold text-[var(--color-ink)] hover:text-[var(--color-accent)] transition-colors rounded-lg"
+                >
+                  {t('nav.login')}
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs"
+                >
+                  {t('nav.getStarted')}
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
