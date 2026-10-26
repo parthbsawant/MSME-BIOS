@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Minus, Plus } from 'lucide-react'
 import { EXTRA_SEAT_PRICE, MAX_EXTRA_SEATS, formatPrice } from '../lib/featuresData'
 
 // Extra-seat chooser shared by PlanSummaryPage and CustomBuilderPage
@@ -8,33 +9,55 @@ export default function SeatStepper({ included, extra, onChange, disabled, compa
   const { t } = useTranslation('billing')
   const set = (n) => onChange(Math.min(MAX_EXTRA_SEATS, Math.max(0, n)))
 
-  const button =
-    'flex h-8 w-8 items-center justify-center rounded-lg border border-[#F0E4D8] dark:border-[#3A332A] text-sm font-bold text-[#2A2521] dark:text-[#F5EFE8] hover:border-[#E8622C] hover:text-[#E8622C] dark:hover:border-[#F27A4A] dark:hover:text-[#F27A4A] transition-colors disabled:opacity-40 disabled:hover:border-[#F0E4D8] disabled:hover:text-inherit cursor-pointer disabled:cursor-not-allowed'
+  const buttonClass =
+    'flex h-7 w-7 items-center justify-center rounded-lg border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all active:scale-[0.95] disabled:opacity-40 disabled:hover:border-[var(--color-line)] disabled:hover:text-inherit cursor-pointer disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
 
   return (
-    <div className={compact ? '' : 'rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] p-4'}>
+    <div
+      className={
+        compact
+          ? ''
+          : 'rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface-2)]/60 p-4 shadow-xs'
+      }
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="text-xs font-bold text-[#2A2521] dark:text-[#F5EFE8]">{t('seats.title')}</p>
-          <p className="text-[11px] text-[#8A7F74] dark:text-[#A89E92]">
+          <p className="text-xs font-bold text-[var(--color-ink)]">{t('seats.title')}</p>
+          <p className="text-[11px] text-[var(--color-muted)] mt-0.5">
             {t('seats.included', { count: included })} &middot; {t('seats.totalSeats', { count: included + extra })}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92]">{t('seats.extra')}</span>
-          <button type="button" onClick={() => set(extra - 1)} disabled={disabled || extra <= 0} aria-label={t('seats.decrease')} className={button}>
-            &minus;
+          <span className="text-[11px] font-semibold text-[var(--color-muted)]">{t('seats.extra')}</span>
+          <button
+            type="button"
+            onClick={() => set(extra - 1)}
+            disabled={disabled || extra <= 0}
+            aria-label={t('seats.decrease')}
+            className={buttonClass}
+          >
+            <Minus className="h-3.5 w-3.5" strokeWidth={2.5} />
           </button>
-          <span className="w-6 text-center font-[family-name:var(--font-data)] text-sm font-bold text-[#2A2521] dark:text-[#F5EFE8]" aria-live="polite">
+          <span
+            data-tabular="true"
+            className="w-6 text-center font-[family-name:var(--font-data)] text-sm font-bold text-[var(--color-ink)]"
+            aria-live="polite"
+          >
             {extra}
           </span>
-          <button type="button" onClick={() => set(extra + 1)} disabled={disabled || extra >= MAX_EXTRA_SEATS} aria-label={t('seats.increase')} className={button}>
-            +
+          <button
+            type="button"
+            onClick={() => set(extra + 1)}
+            disabled={disabled || extra >= MAX_EXTRA_SEATS}
+            aria-label={t('seats.increase')}
+            className={buttonClass}
+          >
+            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
           </button>
         </div>
       </div>
       {!compact && (
-        <p className="mt-2 text-[11px] text-[#8A7F74] dark:text-[#A89E92]">
+        <p className="mt-2 text-[11px] text-[var(--color-muted)] leading-relaxed">
           {t('seats.extraHint', { price: formatPrice(EXTRA_SEAT_PRICE), max: MAX_EXTRA_SEATS })}
         </p>
       )}

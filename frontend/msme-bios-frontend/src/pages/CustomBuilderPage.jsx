@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion'
+import { ArrowLeft, Check, Plus } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import { usePlan } from '../context/PlanContext'
 import { FEATURES, CUSTOM_SEATS_INCLUDED, EXTRA_SEAT_PRICE, formatPrice } from '../lib/featuresData'
@@ -14,11 +15,11 @@ function AnimatedPrice({ value }) {
   const rounded = useTransform(motionValue, (v) => formatPrice(Math.round(v)))
 
   useEffect(() => {
-    const controls = animate(motionValue, value, { duration: 0.4, ease: 'easeOut' })
+    const controls = animate(motionValue, value, { duration: 0.35, ease: [0.22, 1, 0.36, 1] })
     return controls.stop
   }, [value, motionValue])
 
-  return <motion.span>{rounded}</motion.span>
+  return <motion.span data-tabular="true">{rounded}</motion.span>
 }
 
 export default function CustomBuilderPage() {
@@ -39,8 +40,9 @@ export default function CustomBuilderPage() {
   }
 
   // Display only - the backend computes the real amount at checkout.
-  const total = selectedIds.reduce((sum, id) => sum + FEATURES.find((f) => f.id === id).price, 0)
-    + extraSeats * EXTRA_SEAT_PRICE
+  const total =
+    selectedIds.reduce((sum, id) => sum + FEATURES.find((f) => f.id === id).price, 0) +
+    extraSeats * EXTRA_SEAT_PRICE
 
   // STEP 3: confirming starts checkout instead of activating the plan.
   const handleConfirm = async () => {
@@ -62,22 +64,26 @@ export default function CustomBuilderPage() {
   if (isPaid) return <Navigate to="/billing" replace />
 
   return (
-    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-6 py-12 pb-44">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 md:py-14 pb-48">
         <button
+          type="button"
           onClick={() => navigate('/choose-plan')}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer group"
         >
-          &larr; {t('customBuilder.back')}
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" strokeWidth={2.5} />
+          <span>{t('customBuilder.back')}</span>
         </button>
 
         <div className="mt-4 max-w-2xl">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">{t('customBuilder.badge')}</span>
-          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)]">
+            {t('customBuilder.badge')}
+          </span>
+          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[var(--color-ink)]">
             {t('customBuilder.title')}
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+          <p className="mt-1.5 text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed">
             {t('customBuilder.subtitle')}
           </p>
         </div>
@@ -89,49 +95,58 @@ export default function CustomBuilderPage() {
             return (
               <div
                 key={f.id}
-                className={`flex flex-col justify-between rounded-2xl border p-5 transition-all ${
+                className={`flex flex-col justify-between rounded-2xl border p-5 transition-all duration-200 ${
                   isSelected
-                    ? 'border-[#E8622C] dark:border-[#F27A4A] bg-[#FFFFFF] dark:bg-[#242019] ring-2 ring-[#E8622C]/20 shadow-sm'
-                    : 'border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF]/60 dark:bg-[#242019]/60 hover:border-[#E8622C]/40'
+                    ? 'border-[var(--color-accent)] bg-[var(--color-surface)] ring-2 ring-[var(--color-accent)]/20 shadow-xs'
+                    : 'border-[var(--color-line)] bg-[var(--color-surface)]/70 hover:border-[var(--color-line)] hover:shadow-[var(--shadow-warm-sm)]'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+                    <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-ink)]">
                       {featureName(f.id)}
                     </h3>
-                    <span className="font-[family-name:var(--font-data)] text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
-                      {formatPrice(f.price)}{t('customBuilder.perMonthShort')}
+                    <span
+                      data-tabular="true"
+                      className="font-[family-name:var(--font-data)] text-xs font-bold text-[var(--color-accent)]"
+                    >
+                      {formatPrice(f.price)}
+                      {t('customBuilder.perMonthShort')}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92] leading-relaxed">
+                  <p className="mt-1.5 text-xs text-[var(--color-muted)] leading-relaxed">
                     {f.description}
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#F0E4D8] dark:border-[#3A332A]/50 flex items-center justify-between">
-                  <span className="text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92] truncate max-w-[170px]">
+                <div className="mt-5 pt-3 border-t border-[var(--color-line-subtle)] flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold text-[var(--color-muted)] truncate max-w-[170px]">
                     {featureTagline(f.id)}
                   </span>
 
                   {f.locked ? (
-                    <span className="rounded-full bg-[#E8F5EC] dark:bg-[#132E21] px-2.5 py-1 text-[10px] font-bold text-[#1F9254] dark:text-[#34D399]">
+                    <span className="rounded-full bg-[var(--color-success-soft)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--color-success)]">
                       {t('customBuilder.included')}
                     </span>
                   ) : (
                     <button
+                      type="button"
                       onClick={() => toggleFeature(f.id)}
-                      aria-label={isSelected ? t('customBuilder.remove', { name: featureName(f.id) }) : t('customBuilder.add', { name: featureName(f.id) })}
-                      className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all cursor-pointer ${
+                      aria-label={
                         isSelected
-                          ? 'bg-[#E8622C] text-white dark:bg-[#F27A4A] dark:text-white shadow-xs'
-                          : 'border border-[#F0E4D8] dark:border-[#3A332A] text-[#8A7F74] hover:border-[#E8622C] hover:text-[#E8622C]'
+                          ? t('customBuilder.remove', { name: featureName(f.id) })
+                          : t('customBuilder.add', { name: featureName(f.id) })
+                      }
+                      className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-[0.95] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
+                        isSelected
+                          ? 'bg-[var(--color-accent)] text-white shadow-xs'
+                          : 'border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'
                       }`}
                     >
                       {isSelected ? (
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <Check className="h-4 w-4" strokeWidth={2.5} />
                       ) : (
-                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        <Plus className="h-4 w-4" strokeWidth={2.5} />
                       )}
                     </button>
                   )}
@@ -143,9 +158,8 @@ export default function CustomBuilderPage() {
       </main>
 
       {/* Fixed Bottom Checkout Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF]/95 dark:bg-[#242019]/95 backdrop-blur-md px-6 py-4 shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-line)] bg-[var(--color-surface)]/95 backdrop-blur-md px-4 sm:px-6 py-4 shadow-[var(--shadow-warm-lg)]">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          
           {/* Selected Pills */}
           <div className="flex flex-1 items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0">
             <AnimatePresence initial={false}>
@@ -157,8 +171,8 @@ export default function CustomBuilderPage() {
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.2 }}
-                    className="whitespace-nowrap rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 border border-[#E8622C]/30 px-3 py-1 text-xs font-semibold text-[#E8622C] dark:text-[#F27A4A]"
+                    transition={{ duration: 0.15 }}
+                    className="whitespace-nowrap rounded-full bg-[var(--color-accent-soft)] border border-[var(--color-accent)]/20 px-3 py-1 text-xs font-semibold text-[var(--color-accent)]"
                   >
                     {featureName(id)}
                   </motion.span>
@@ -169,29 +183,43 @@ export default function CustomBuilderPage() {
 
           {/* Seats */}
           <div className="shrink-0 w-full sm:w-auto">
-            <SeatStepper included={CUSTOM_SEATS_INCLUDED} extra={extraSeats} onChange={setExtraSeats} disabled={saving} compact />
+            <SeatStepper
+              included={CUSTOM_SEATS_INCLUDED}
+              extra={extraSeats}
+              onChange={setExtraSeats}
+              disabled={saving}
+              compact
+            />
           </div>
 
           {/* Price & Confirmation */}
           <div className="flex items-center gap-6 shrink-0 w-full sm:w-auto justify-between sm:justify-end">
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('customBuilder.monthlyTotal')}</p>
-              <p className="font-[family-name:var(--font-display)] text-2xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-                <AnimatedPrice value={total} /><span className="text-xs font-normal text-[#8A7F74]">{t('customBuilder.perMonthShort')}</span>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
+                {t('customBuilder.monthlyTotal')}
+              </p>
+              <p className="font-[family-name:var(--font-display)] text-2xl font-extrabold text-[var(--color-ink)]">
+                <AnimatedPrice value={total} />
+                <span className="text-xs font-normal text-[var(--color-muted)] ml-1">
+                  {t('customBuilder.perMonthShort')}
+                </span>
               </p>
             </div>
 
             <button
+              type="button"
               onClick={handleConfirm}
               disabled={saving}
-              className="rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-7 py-3.5 text-xs font-bold text-white shadow-lg shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               {saving ? tb('preparing') : tb('continueToPayment')}
             </button>
           </div>
         </div>
         {error && (
-          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-red-600 dark:text-red-400 text-center">{tb(error)}</p>
+          <p className="mx-auto max-w-6xl mt-2 text-xs font-semibold text-[var(--color-danger)] text-center">
+            {tb(error)}
+          </p>
         )}
       </div>
     </div>

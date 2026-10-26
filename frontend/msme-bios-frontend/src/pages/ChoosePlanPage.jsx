@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import PricingTierCard from '../components/PricingTierCard'
 import { TIERS } from '../lib/featuresData'
@@ -9,22 +10,26 @@ export default function ChoosePlanPage() {
   const { t } = useTranslation('onboarding')
 
   return (
-    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-7xl px-6 py-12">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 md:py-14">
         <button
+          type="button"
           onClick={() => navigate('/business-setup')}
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer group"
         >
-          &larr; {t('choosePlan.back')}
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" strokeWidth={2.5} />
+          <span>{t('choosePlan.back')}</span>
         </button>
 
         <div className="mt-4 max-w-2xl">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#E8622C] dark:text-[#F27A4A]">{t('choosePlan.badge')}</span>
-          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[#2A2521] dark:text-[#F5EFE8]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-accent)]">
+            {t('choosePlan.badge')}
+          </span>
+          <h1 className="mt-1 font-[family-name:var(--font-display)] text-3xl font-extrabold tracking-tight text-[var(--color-ink)]">
             {t('choosePlan.title')}
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-[#8A7F74] dark:text-[#A89E92]">
+          <p className="mt-1.5 text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed">
             {t('choosePlan.subtitle')}
           </p>
         </div>
@@ -40,22 +45,23 @@ export default function ChoosePlanPage() {
           ))}
 
           {/* Custom Plan Option Card */}
-          <div className="flex flex-col justify-between rounded-2xl border border-dashed border-[#E8622C]/50 dark:border-[#F27A4A]/50 bg-[#FFFFFF] dark:bg-[#242019] p-6 shadow-sm">
+          <div className="flex flex-col justify-between rounded-2xl border-2 border-dashed border-[var(--color-accent)]/40 bg-[var(--color-surface)] p-6 shadow-xs hover:border-[var(--color-accent)] hover:shadow-[var(--shadow-warm-md)] transition-all">
             <div>
-              <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-2.5 py-0.5 text-[10px] font-bold text-[#E8622C] dark:text-[#F27A4A]">
+              <span className="rounded-full bg-[var(--color-accent-soft)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--color-accent)]">
                 {t('choosePlan.customBadge')}
               </span>
-              <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">
+              <h3 className="mt-3 font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-ink)]">
                 {t('choosePlan.customTitle')}
               </h3>
-              <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('choosePlan.customTagline')}</p>
-              <p className="mt-6 text-xs text-[#2A2521]/80 dark:text-[#F5EFE8]/80 leading-relaxed">
+              <p className="mt-1 text-xs text-[var(--color-muted)]">{t('choosePlan.customTagline')}</p>
+              <p className="mt-5 text-xs text-[var(--color-ink)]/80 leading-relaxed">
                 {t('choosePlan.customDescription')}
               </p>
             </div>
             <button
+              type="button"
               onClick={() => navigate('/custom-plan')}
-              className="mt-8 w-full rounded-xl border border-[#E8622C] dark:border-[#F27A4A] py-3 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714] transition-all cursor-pointer"
+              className="mt-8 w-full rounded-xl border border-[var(--color-accent)] py-3 text-xs font-bold text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition-all cursor-pointer active:scale-[0.98]"
             >
               {t('choosePlan.customCta')}
             </button>

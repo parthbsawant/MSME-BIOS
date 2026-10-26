@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { motion, AnimatePresence } from 'framer-motion'
+import { AlertCircle, Info } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import AuthLoadingScreen from '../components/AuthLoadingScreen'
 import { usePlan } from '../context/PlanContext'
@@ -48,7 +50,7 @@ export default function CheckoutPage() {
         setPhase('ready')
       }
     })()
-  }, [loading])
+  }, [loading, refreshPlan])
 
   if (loading || phase === 'loading') return <AuthLoadingScreen />
   if (!hasPlan) return <Navigate to="/choose-plan" replace />
@@ -80,81 +82,179 @@ export default function CheckoutPage() {
     }
   }
 
-  const card = 'rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-10 shadow-xl'
-  const primary = 'w-full rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-3.5 text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all transform active:scale-95 disabled:opacity-50 cursor-pointer'
-  const secondary = 'w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] px-6 py-3 text-xs font-bold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] hover:border-[#E8622C] transition-colors disabled:opacity-50 cursor-pointer'
+  const card =
+    'rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-warm-md)]'
+  const primary =
+    'w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
+  const secondary =
+    'w-full inline-flex items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3 text-xs sm:text-sm font-semibold text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
 
   return (
-    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-lg px-6 py-12">
+      <main className="mx-auto max-w-lg px-4 sm:px-6 py-10 md:py-14">
         {phase === 'success' ? (
-          <div className={`${card} text-center`}>
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#E8F5EC] dark:bg-[#132E21] text-[#1F9254] dark:text-[#34D399]">
-              <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`${card} text-center`}
+          >
+            {/* Animated Drawn Checkmark */}
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] shadow-xs">
+              <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <motion.path
+                  d="M5 13l4 4L19 7"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 0.45, ease: 'easeOut', delay: 0.15 }}
+                />
+              </svg>
             </div>
-            <h1 className="mt-4 font-[family-name:var(--font-display)] text-2xl font-extrabold">{t('checkout.successTitle')}</h1>
-            <p className="mt-2 text-sm text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.successText', { plan: planName })}</p>
+            <h1 className="mt-5 font-[family-name:var(--font-display)] text-2xl font-extrabold text-[var(--color-ink)]">
+              {t('checkout.successTitle')}
+            </h1>
+            <p className="mt-2 text-sm text-[var(--color-muted)] leading-relaxed">
+              {t('checkout.successText', { plan: planName })}
+            </p>
             {/* STEP 5: next comes team setup (SPEC section 5 order), skippable. */}
-            <button onClick={() => navigate('/team?setup=1')} className={`${primary} mt-8`}>{t('checkout.setUpTeam')}</button>
-            <button onClick={() => navigate('/dashboard')} className="mt-3 w-full text-center text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer">
+            <button
+              type="button"
+              onClick={() => navigate('/team?setup=1')}
+              className={`${primary} mt-8`}
+            >
+              {t('checkout.setUpTeam')}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="mt-3.5 w-full text-center text-xs font-bold text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer py-1"
+            >
               {t('checkout.skipToDashboard')}
             </button>
-          </div>
+          </motion.div>
         ) : (
           <div className={card}>
-            <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+            <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold text-[var(--color-accent)]">
               {t('checkout.badge')}
             </span>
-            <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold">{t('checkout.title')}</h1>
+            <h1 className="mt-3 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--color-ink)]">
+              {t('checkout.title')}
+            </h1>
 
-            {phase === 'failed' && (
-              <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-4 text-xs text-red-700 dark:text-red-300">
-                <p className="font-bold">{t('checkout.failedTitle')}</p>
-                <p className="mt-1">{t('checkout.failedText')}</p>
-              </div>
-            )}
+            {/* Failure state with gentle shake animation */}
+            <AnimatePresence>
+              {phase === 'failed' && (
+                <motion.div
+                  initial={{ opacity: 0, x: -6 }}
+                  animate={{ opacity: 1, x: [0, -6, 6, -3, 3, 0] }}
+                  exit={{ opacity: 0, x: -6 }}
+                  transition={{ duration: 0.35 }}
+                  className="mt-5 rounded-2xl border border-[var(--color-danger)]/30 bg-[var(--color-danger-soft)] p-4 text-xs text-[var(--color-danger)]"
+                >
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={2} />
+                    <div>
+                      <p className="font-bold">{t('checkout.failedTitle')}</p>
+                      <p className="mt-1 leading-relaxed opacity-90">{t('checkout.failedText')}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Order summary - amounts from the backend */}
-            <dl className="mt-6 space-y-3 rounded-2xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FBF3EC] dark:bg-[#1A1714] p-5 text-xs">
+            <dl className="mt-6 space-y-3 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface-2)]/60 p-5 text-xs">
               <div className="flex justify-between gap-4">
-                <dt className="text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.plan')}</dt>
-                <dd className="font-bold">{planName}</dd>
+                <dt className="text-[var(--color-muted)]">{t('checkout.plan')}</dt>
+                <dd className="font-bold text-[var(--color-ink)]">{planName}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt className="text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.basePrice')}</dt>
-                <dd className="font-[family-name:var(--font-data)] font-semibold">{formatPrice(amount - extraPrice)}</dd>
+                <dt className="text-[var(--color-muted)]">{t('checkout.basePrice')}</dt>
+                <dd
+                  data-tabular="true"
+                  className="font-[family-name:var(--font-data)] font-semibold text-[var(--color-ink)]"
+                >
+                  {formatPrice(amount - extraPrice)}
+                </dd>
               </div>
               {extraSeats > 0 && (
                 <div className="flex justify-between gap-4">
-                  <dt className="text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.extraSeats', { count: extraSeats, price: formatPrice(EXTRA_SEAT_PRICE) })}</dt>
-                  <dd className="font-[family-name:var(--font-data)] font-semibold">{formatPrice(extraPrice)}</dd>
+                  <dt className="text-[var(--color-muted)]">
+                    {t('checkout.extraSeats', {
+                      count: extraSeats,
+                      price: formatPrice(EXTRA_SEAT_PRICE),
+                    })}
+                  </dt>
+                  <dd
+                    data-tabular="true"
+                    className="font-[family-name:var(--font-data)] font-semibold text-[var(--color-ink)]"
+                  >
+                    {formatPrice(extraPrice)}
+                  </dd>
                 </div>
               )}
               <div className="flex justify-between gap-4">
-                <dt className="text-[#8A7F74] dark:text-[#A89E92]">{t('checkout.seats')}</dt>
-                <dd className="font-semibold">{subscription?.seats_purchased ?? (plan.seatsIncluded ?? 0) + extraSeats}</dd>
+                <dt className="text-[var(--color-muted)]">{t('checkout.seats')}</dt>
+                <dd className="font-semibold text-[var(--color-ink)]">
+                  {subscription?.seats_purchased ?? (plan.seatsIncluded ?? 0) + extraSeats}
+                </dd>
               </div>
-              <div className="flex justify-between gap-4 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-3">
-                <dt className="font-bold">{t('checkout.total')}</dt>
-                <dd className="font-[family-name:var(--font-display)] text-lg font-extrabold text-[#E8622C] dark:text-[#F27A4A]">{formatPrice(amount)}</dd>
+              <div className="flex justify-between gap-4 border-t border-[var(--color-line-subtle)] pt-3">
+                <dt className="font-bold text-[var(--color-ink)]">{t('checkout.total')}</dt>
+                <dd
+                  data-tabular="true"
+                  className="font-[family-name:var(--font-display)] text-xl font-extrabold text-[var(--color-accent)]"
+                >
+                  {formatPrice(amount)}
+                </dd>
               </div>
             </dl>
 
-            <p className="mt-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/50 px-3 py-2 text-[11px] font-semibold text-amber-800 dark:text-amber-300">
-              {t('checkout.mockNotice')}
-            </p>
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-[var(--color-warning-soft)] border border-[var(--color-warning)]/30 px-3.5 py-2.5 text-[11px] font-semibold text-[var(--color-warning)]">
+              <Info className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={2} />
+              <span>{t('checkout.mockNotice')}</span>
+            </div>
 
-            {error && <p className="mt-4 text-xs font-semibold text-red-600 dark:text-red-400">{t(error)}</p>}
+            {error && (
+              <p className="mt-4 text-xs font-semibold text-[var(--color-danger)]">{t(error)}</p>
+            )}
 
             <div className="mt-6 space-y-3">
-              <button onClick={() => pay('success')} disabled={phase === 'paying' || !subscription?.order_id} className={primary}>
-                {phase === 'paying' ? t('checkout.paying') : phase === 'failed' ? t('checkout.tryAgain') : t('checkout.pay', { amount: formatPrice(amount) })}
+              <button
+                type="button"
+                onClick={() => pay('success')}
+                disabled={phase === 'paying' || !subscription?.order_id}
+                className={primary}
+              >
+                {phase === 'paying' ? (
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                    <span>{t('checkout.paying')}</span>
+                  </span>
+                ) : phase === 'failed' ? (
+                  t('checkout.tryAgain')
+                ) : (
+                  t('checkout.pay', { amount: formatPrice(amount) })
+                )}
               </button>
-              <button onClick={() => pay('fail')} disabled={phase === 'paying' || !subscription?.order_id} className={secondary}>
+              <button
+                type="button"
+                onClick={() => pay('fail')}
+                disabled={phase === 'paying' || !subscription?.order_id}
+                className={secondary}
+              >
                 {t('checkout.simulateFailure')}
               </button>
-              <button onClick={() => navigate('/choose-plan')} disabled={phase === 'paying'} className="w-full text-center text-xs font-bold text-[#8A7F74] hover:text-[#E8622C] dark:hover:text-[#F27A4A] transition-colors cursor-pointer disabled:opacity-50">
+              <button
+                type="button"
+                onClick={() => navigate('/choose-plan')}
+                disabled={phase === 'paying'}
+                className="w-full text-center text-xs font-bold text-[var(--color-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer disabled:opacity-50 py-1"
+              >
                 {t('checkout.changePlan')}
               </button>
             </div>
