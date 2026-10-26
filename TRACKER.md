@@ -69,13 +69,13 @@ Spec: SPEC.md
 ## STEP 4: Roles and invitations (backend)
 - [x] Migration 004: roles constrained to five values, status on user_tenants, invitations table (plus audit_log; applied to dev and test)
 - [x] Central role-to-feature mapping module (single source of truth: roles.py)
-- [ ] Request dependency resolving user, tenant, role, status
-- [ ] require_role and require_feature guards
+- [x] Request dependency resolving user, tenant, role, status (access.py current_context)
+- [x] require_role and require_feature guards (access.require_owner, access.feature_access)
 - [ ] Fix tenant resolution: invitees join inviter's business, no new tenant created
 - [ ] Endpoints: create invite, list invites, revoke invite, list members, change role, deactivate member
 - [ ] Endpoint: accept invite (token, email match, expiry, one-time use)
 - [ ] Seat limit enforced on invites
-- [ ] Department filter applied to document endpoints for non-owner roles
+- [x] Department filter applied to document endpoints for non-owner roles
 - [ ] All isolation tests from SPEC section 9 passing
 - [ ] Deploy and verify live
 

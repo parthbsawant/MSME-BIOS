@@ -72,21 +72,45 @@ def get_or_create_tenant_for_user(conn, user_id: str) -> str:
         return str(new_tenant_id)
 
 
-def resolve_tenant_id(conn, firebase_uid: str, email: str, display_name: Optional[str]) -> str:
-    """
-    The one function api.py actually calls. Given a verified Firebase
-    identity, returns the tenant_id to use for every downstream
-    operation - the only path by which tenant_id is ever determined.
-    """
-    user_id = get_or_create_user(conn, firebase_uid, email, display_name)
-    return get_or_create_tenant_for_user(conn, user_id)
+def get_membership(conn, user_id: str) -> Optional[dict]:
+    """The user's one business membership (tenant_id, role, status), or
+    None. Migration 004 guarantees at most one row per user."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT tenant_id, role, status FROM user_tenants WHERE user_id = %s", (user_id,))
+        row = cur.fetchone()
+    if row is None:
+        return None
+    return {"tenant_id": str(row["tenant_id"]), "role": row["role"], "status": row["status"]}
 
 
-def resolve_user_and_tenant(conn, firebase_uid: str, email: str, display_name: Optional[str]) -> Tuple[str, str]:
+def has_pending_invite(conn, email: str) -> bool:
+    """True if a live (pending, unexpired) invitation exists for this email."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT 1 FROM invitations WHERE email = %s AND status = 'pending' AND expires_at > now() LIMIT 1",
+            ((email or "").strip().lower(),),
+        )
+        return cur.fetchone() is not None
+
+
+def resolve_membership(conn, firebase_uid: str, email: str, display_name: Optional[str]) -> Tuple[str, Optional[dict]]:
     """
-    Same resolution as resolve_tenant_id(), but also returns the user's
-    own id - needed where a row records WHO did something (documents.
-    uploaded_by), not only which tenant it belongs to.
+    STEP 4: the one resolution path for every endpoint. Returns
+    (user_id, membership) where membership is {tenant_id, role, status}.
+
+    - Existing member (owner or invited member): their membership.
+    - New user WITH a pending invitation for their email: (user_id, None).
+      No business is created - accepting the invite will join them to the
+      inviter's business (SPEC section 6). Before Step 4 this case got a
+      fresh empty business of its own.
+    - New user without an invitation: a new business with them as owner
+      (the normal signup flow, unchanged).
     """
     user_id = get_or_create_user(conn, firebase_uid, email, display_name)
-    return user_id, get_or_create_tenant_for_user(conn, user_id)
+    membership = get_membership(conn, user_id)
+    if membership is not None:
+        return user_id, membership
+    if has_pending_invite(conn, email):
+        return user_id, None
+    get_or_create_tenant_for_user(conn, user_id)
+    return user_id, get_membership(conn, user_id)

@@ -33,7 +33,7 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 142 passed, 1 skipped; about 4-5 minutes because the test DB is remote)
+- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 159 passed, 1 skipped; about 6-8 minutes because the test DB is remote)
 - Roles: roles.py is the only place role rules live (department_for, allowed_features, effective_features = plan ∩ role, can_manage_business, is_member_role). Never write `if role == ...` in endpoints..
 - Prices: backend/parser-backend/pricing.py is the only authority (quote()). featuresData.js mirrors it for display; tests/test_pricing.py fails if they differ, so change both together. tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
@@ -53,7 +53,7 @@ MSME-BIOS/
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
 - Handwritten parser is local Tesseract only. ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
 - Parsed results are saved by document_store.save_parser_result() (one transaction: documents row + bank_transactions / invoices + invoice_line_items / handwritten_bills + handwritten_line_items, each row stamped with tenant_id, department, uploaded_by). /api/parse takes optional department (default finance) and returns document_id and department. Parsers are unchanged. Rule for future migrations: apply to production BEFORE pushing backend code that needs them (Render autoDeploy is on), or live requests fail.
-- tenant_resolution.py currently creates a new tenant for any user without one. Step 4 must change this (invited users join the owner's tenant).
+- Access (Step 4): access.py resolves a Context (user_id, tenant_id, role, status, department) from the verified token via tenant_resolution.resolve_membership. Endpoints declare what they need: access.current_context (any active member), access.require_owner (business, plan, checkout, team), access.require_paid (documents; 402 if unpaid), access.feature_access("document_parser") (upload; 402 then 403 if not in plan ∩ role). Errors are access.ApiError -> {"error","message"}: owner_only, deactivated, invite_pending, feature_not_available, payment_required. Members' uploads are forced to their own department; owner may choose. A user with a pending, unexpired invitation gets NO business of their own (/api/me returns invite_pending: true); others still get a new business as owner on first sign-in. /api/me also returns role, department, status, effective_features; members get plan without price/seats and subscription with status only.
 
 ## Conventions and gotchas
 - Python 3.9 compatibility (Mac and some tooling): no bare `str | None` unless the file has `from __future__ import annotations`. Use Optional[str].

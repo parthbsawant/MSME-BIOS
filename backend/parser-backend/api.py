@@ -26,11 +26,13 @@ from pipeline import process, DocumentType
 from msme_bios_shared import config
 from firebase_auth import verify_firebase_token
 from db_pool import get_connection
-import tenant_resolution as tr
 import document_store as ds
 import payments
 import pricing
+import roles
 import subscriptions as subs
+import access
+from access import Context
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -53,39 +55,13 @@ app.add_middleware(
 )
 
 
-def _resolve_tenant(decoded_token: dict) -> str:
-    """
-    Shared by every endpoint below that needs a tenant_id. Takes the
-    ALREADY-VERIFIED token from verify_firebase_token and resolves it to
-    a tenant_id via the database - this is the only path by which any
-    endpoint here ever learns a tenant_id. No endpoint accepts one as a
-    request parameter.
-    """
-    conn = get_connection()
-    try:
-        return tr.resolve_tenant_id(
-            conn,
-            firebase_uid=decoded_token["uid"],
-            email=decoded_token.get("email", ""),
-            display_name=decoded_token.get("name"),
-        )
-    finally:
-        conn.close()
-
-
-def _resolve_user_and_tenant(decoded_token: dict):
-    """Like _resolve_tenant(), but also returns the user's id, for rows
-    that record who did something (documents.uploaded_by)."""
-    conn = get_connection()
-    try:
-        return tr.resolve_user_and_tenant(
-            conn,
-            firebase_uid=decoded_token["uid"],
-            email=decoded_token.get("email", ""),
-            display_name=decoded_token.get("name"),
-        )
-    finally:
-        conn.close()
+# STEP 4: every endpoint learns who is calling - user, business (tenant),
+# role, status, department - from access.py's dependencies, which resolve
+# it on the server from the verified token. No endpoint accepts a
+# tenant_id, role or (for members) department from the request.
+@app.exception_handler(access.ApiError)
+async def api_error_handler(request: Request, exc: access.ApiError):
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.error, "message": exc.message})
 
 
 @app.get("/api/health")
@@ -122,8 +98,31 @@ async def get_me(decoded_token: dict = Depends(verify_firebase_token)):
     previously that was only remembered in one browser's localStorage,
     so a new browser sent fully-registered users back to the form.
     Both lookups are keyed by the server-resolved tenant_id only.
+
+    STEP 4: also returns role, department, status and effective_features
+    (plan ∩ role) for role-based menus. A deactivated member gets 403.
+    Someone with a pending invitation and no business yet gets
+    invite_pending: true and nulls (no empty business is created for them).
+    Members see the plan's features and whether it is paid, but not
+    prices, seats or payment details - those are the owner's billing data.
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    _, ctx = access.resolve(decoded_token)
+    if ctx is None:
+        return {
+            "firebase_uid": decoded_token["uid"],
+            "email": decoded_token.get("email"),
+            "tenant_id": None,
+            "invite_pending": True,
+            "role": None,
+            "department": None,
+            "status": None,
+            "effective_features": [],
+            "business": None,
+            "plan": None,
+            "subscription": None,
+        }
+    access.check_active(ctx)
+    tenant_id = ctx.tenant_id
 
     conn = get_connection()
     try:
@@ -150,11 +149,12 @@ async def get_me(decoded_token: dict = Depends(verify_firebase_token)):
     finally:
         conn.close()
 
+    plan_features = list(plan["feature_ids"] or []) if plan is not None else []
     if plan is not None:
         plan = {
             "plan_type": plan["plan_type"],
             "tier_id": plan["tier_id"],
-            "feature_ids": list(plan["feature_ids"] or []),
+            "feature_ids": plan_features,
             "price": float(plan["price"]),
             "seats_included": plan["seats_included"],
             "extra_seats": plan["extra_seats"],
@@ -172,10 +172,21 @@ async def get_me(decoded_token: dict = Depends(verify_firebase_token)):
             "paid_at": subscription["paid_at"].isoformat() if subscription["paid_at"] else None,
         }
 
+    if not ctx.is_owner:
+        if plan is not None:
+            plan = {k: plan[k] for k in ("plan_type", "tier_id", "feature_ids")}
+        if subscription is not None:
+            subscription = {"status": subscription["status"]}
+
     return {
         "firebase_uid": decoded_token["uid"],
         "email": decoded_token.get("email"),
         "tenant_id": tenant_id,
+        "invite_pending": False,
+        "role": ctx.role,
+        "department": ctx.department,
+        "status": ctx.status,
+        "effective_features": roles.effective_features(ctx.role, plan_features),
         "business": dict(business) if business is not None else None,
         "plan": plan,
         "subscription": subscription,
@@ -190,14 +201,14 @@ async def save_business(
     annual_turnover: str = Form(default=None),
     city: str = Form(default=None),
     gstin: str = Form(default=None),
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.require_owner),
 ):
     """
     Persists the business profile against the CALLER'S OWN resolved
     tenant - there is no tenant_id form field here at all, so there is
-    nothing for a client to override even if it tried.
+    nothing for a client to override even if it tried. STEP 4: owner only.
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    tenant_id = ctx.tenant_id
     conn = get_connection()
     try:
         with conn.cursor() as cur:
@@ -228,7 +239,7 @@ async def save_plan(
     tier_id: str = Form(default=None),
     feature_ids: str = Form(default=""),  # comma-separated - see frontend api.js for how this is built
     price: str = Form(default=None),  # IGNORED since Step 3 - kept so older clients don't get a 422
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.require_owner),
 ):
     """
     Persists the plan selection against the caller's own resolved
@@ -238,9 +249,9 @@ async def save_plan(
     STEP 3: the price (and, for a tier, the feature list) is computed by
     pricing.quote(); whatever price the client sends is ignored. This
     endpoint never activates anything - only a verified payment via
-    /api/checkout does. Kept for the pre-checkout frontend.
+    /api/checkout does. Kept for the pre-checkout frontend. STEP 4: owner only.
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    tenant_id = ctx.tenant_id
     try:
         q = pricing.quote(plan_type, tier_id, _split_ids(feature_ids), 0)
     except ValueError as e:
@@ -256,25 +267,8 @@ async def save_plan(
         conn.close()
 
 
-def _has_active_plan(tenant_id: str) -> bool:
-    """STEP 3 paywall: uploads and documents need an active subscription
-    (a verified payment, or a pre-Step-3 'legacy' account)."""
-    conn = get_connection()
-    try:
-        return subs.is_active(conn, tenant_id)
-    finally:
-        conn.close()
-
-
 def _split_ids(feature_ids: str):
     return [f.strip() for f in (feature_ids or "").split(",") if f.strip()]
-
-
-def _payment_required():
-    return JSONResponse(
-        status_code=402,
-        content={"error": "payment_required", "message": "This business has no active plan. Complete checkout first."},
-    )
 
 
 @app.post("/api/checkout/order")
@@ -283,7 +277,7 @@ async def checkout_order(
     tier_id: str = Form(default=None),
     feature_ids: str = Form(default=""),
     extra_seats: int = Form(default=0),
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.require_owner),
 ):
     """
     STEP 3: starts checkout. The client sends only WHAT it chose; the
@@ -291,8 +285,9 @@ async def checkout_order(
     PENDING subscription, and creates a provider order. Any price,
     amount or tenant_id field the client adds is ignored. 409 if the
     business already has an active plan (upgrades are a later step).
+    STEP 4: owner only, like every checkout endpoint.
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    tenant_id = ctx.tenant_id
     try:
         q = pricing.quote(plan_type, tier_id, _split_ids(feature_ids), extra_seats)
     except ValueError as e:
@@ -326,7 +321,7 @@ async def checkout_order(
 async def checkout_mock_pay(
     order_id: str = Form(...),
     outcome: str = Form(...),  # "success" or "fail"
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.require_owner),
 ):
     """
     STEP 3, mock provider only: plays the provider's checkout window and
@@ -348,7 +343,7 @@ async def checkout_verify(
     order_id: str = Form(...),
     payment_id: str = Form(...),
     signature: str = Form(default=""),
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.require_owner),
 ):
     """
     STEP 3: the ONLY browser path that can activate a plan. The provider
@@ -357,7 +352,7 @@ async def checkout_verify(
     The order must belong to the caller's own business (404 otherwise),
     and an already-paid order can't be paid again (409).
     """
-    tenant_id = _resolve_tenant(decoded_token)
+    tenant_id = ctx.tenant_id
     provider = payments.get_provider()
     paid = provider.verify_payment(order_id, payment_id, signature)
 
@@ -406,7 +401,7 @@ async def parse_document(
     file: UploadFile = File(...),
     document_type: str = Form(...),
     department: str = Form(default=None),
-    decoded_token: dict = Depends(verify_firebase_token),
+    ctx: Context = Depends(access.feature_access("document_parser")),
 ):
     """
     Accepts a document upload and returns the parsed result as JSON.
@@ -417,20 +412,25 @@ async def parse_document(
 
     STEP 2: a successful parse is also saved (document_store.py, one
     transaction) and the response gains document_id and department.
-    department is optional and defaults to finance; until roles exist
-    (Step 4) every caller is the owner, who may choose it. If the save
-    fails, the caller gets an error, never a result that wasn't saved.
-    """
-    department = department or ds.DEFAULT_DEPARTMENT
-    if department not in ds.DEPARTMENTS:
-        return JSONResponse(
-            status_code=400,
-            content={"error": "bad_request", "message": f"department must be one of {list(ds.DEPARTMENTS)}"},
-        )
+    If the save fails, the caller gets an error, never a result that
+    wasn't saved.
 
-    user_id, tenant_id = _resolve_user_and_tenant(decoded_token)
-    if not _has_active_plan(tenant_id):
-        return _payment_required()
+    STEP 4: needs an active plan (402) and document_parser in plan ∩ role
+    (403). department: the OWNER may choose it (default finance); a
+    MEMBER's documents always go to their own role's department and any
+    department they send is ignored.
+    """
+    if ctx.is_owner:
+        department = department or ds.DEFAULT_DEPARTMENT
+        if department not in ds.DEPARTMENTS:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "bad_request", "message": f"department must be one of {list(ds.DEPARTMENTS)}"},
+            )
+    else:
+        department = ctx.department
+
+    user_id, tenant_id = ctx.user_id, ctx.tenant_id
 
     suffix = os.path.splitext(file.filename or "")[1]
     with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
@@ -489,30 +489,31 @@ async def parse_document(
 
 
 @app.get("/api/documents")
-async def list_my_documents(decoded_token: dict = Depends(verify_firebase_token)):
+async def list_my_documents(ctx: Context = Depends(access.require_paid)):
     """
     STEP 2: the caller's business's saved documents, newest first, one
-    summary each. Scoped to the server-resolved tenant only. Every caller
-    is the owner until Step 4, so no department filter is applied yet
-    (department=None means all departments - see document_store._scope).
+    summary each. Scoped to the server-resolved tenant only.
+
+    STEP 4: the owner sees every department; a member sees only their own
+    department's documents (ctx.department, applied in document_store._scope).
+    Reading is open to any active member of a paid business - uploading
+    additionally needs the document_parser feature.
     """
-    tenant_id = _resolve_tenant(decoded_token)
     conn = get_connection()
     try:
-        if not subs.is_active(conn, tenant_id):
-            return _payment_required()
-        return {"documents": ds.list_documents(conn, tenant_id)}
+        return {"documents": ds.list_documents(conn, ctx.tenant_id, department=ctx.department)}
     finally:
         conn.close()
 
 
 @app.get("/api/documents/{document_id}")
-async def get_my_document(document_id: str, decoded_token: dict = Depends(verify_firebase_token)):
+async def get_my_document(document_id: str, ctx: Context = Depends(access.require_paid)):
     """
     STEP 2: one saved document with all its rows, in the same shape
     /api/parse returns. A document that belongs to another business gets
     the same 404 as one that doesn't exist, so ids of other businesses'
     documents can't even be confirmed. A malformed id is also a 404.
+    STEP 4: the same 404 for another department's document (members).
     """
     not_found = JSONResponse(status_code=404, content={"error": "not_found", "message": "Document not found"})
     try:
@@ -520,12 +521,9 @@ async def get_my_document(document_id: str, decoded_token: dict = Depends(verify
     except ValueError:
         return not_found
 
-    tenant_id = _resolve_tenant(decoded_token)
     conn = get_connection()
     try:
-        if not subs.is_active(conn, tenant_id):
-            return _payment_required()
-        document = ds.get_document(conn, tenant_id, document_id)
+        document = ds.get_document(conn, ctx.tenant_id, document_id, department=ctx.department)
     finally:
         conn.close()
     return document if document is not None else not_found
