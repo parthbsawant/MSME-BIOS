@@ -53,6 +53,10 @@ export function PlanProvider({ children }) {
 
   const [plan, setPlan] = useState(null)
   const [loading, setLoading] = useState(true)
+  // Which uid `plan` belongs to (null = signed out) - same refresh race
+  // as in BusinessContext; without it a refresh could redirect a user
+  // who has a plan to /choose-plan.
+  const [loadedFor, setLoadedFor] = useState(undefined)
 
   // Same approach as BusinessContext: the database (via /api/me) is the
   // source of truth for the saved plan; localStorage is a fast cache that
@@ -63,6 +67,7 @@ export function PlanProvider({ children }) {
     if (!uid) {
       setPlan(null)
       setLoading(false)
+      setLoadedFor(null)
       return
     }
 
@@ -79,6 +84,7 @@ export function PlanProvider({ children }) {
     if (cached) {
       setPlan(cached)
       setLoading(false)
+      setLoadedFor(uid)
     } else {
       setLoading(true)
     }
@@ -104,7 +110,10 @@ export function PlanProvider({ children }) {
         console.error('Could not load plan from the backend:', err)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          setLoadedFor(uid)
+        }
       })
 
     return () => {
@@ -174,7 +183,7 @@ export function PlanProvider({ children }) {
         hasPlan: !!plan,
         selectTier,
         selectCustom,
-        loading,
+        loading: loading || loadedFor !== (uid ?? null),
       }}
     >
       {children}

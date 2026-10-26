@@ -89,6 +89,18 @@ export async function savePlan({ type, tierId, featureIds, price }) {
 }
 
 /**
+ * GET /api/documents - this business's saved documents, newest first
+ * (summaries: type, file, department, item_count, total, created_at).
+ */
+export async function listDocuments() {
+  const headers = await authHeader()
+  const res = await fetch(`${API_URL}/api/documents`, { headers })
+  if (!res.ok) throw new Error(`Failed to load documents (${res.status})`)
+  const body = await res.json()
+  return body.documents
+}
+
+/**
  * POST /api/parse - parses a document. Note there is no tenant_id
  * field here at all, unlike the pre-Milestone-2 version of this call -
  * the backend resolves it from the auth token instead.

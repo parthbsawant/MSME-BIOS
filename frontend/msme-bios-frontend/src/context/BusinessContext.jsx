@@ -11,6 +11,14 @@ export function BusinessProvider({ children }) {
   const [business, setBusiness] = useState(null)
   const [onboarded, setOnboarded] = useState(false)
   const [loading, setLoading] = useState(true)
+  // Which uid the state above belongs to (null = signed out). On a page
+  // refresh, Firebase restores the user in the same render where this
+  // context still holds its signed-out state; the effect below only runs
+  // AFTER that render. Without this, RequireOnboarded saw "not onboarded"
+  // for that one render and redirected a registered user to
+  // /business-setup. Reporting loading until loadedFor matches the
+  // current uid closes that gap.
+  const [loadedFor, setLoadedFor] = useState(undefined)
 
   // The database (via /api/me) is the source of truth for "has this
   // user finished onboarding" - so it works on a new browser or device.
@@ -25,6 +33,7 @@ export function BusinessProvider({ children }) {
       setBusiness(null)
       setOnboarded(false)
       setLoading(false)
+      setLoadedFor(null)
       return
     }
 
@@ -47,6 +56,7 @@ export function BusinessProvider({ children }) {
       setBusiness(cached)
       setOnboarded(true)
       setLoading(false)
+      setLoadedFor(uid)
     } else {
       setLoading(true)
     }
@@ -82,7 +92,10 @@ export function BusinessProvider({ children }) {
         console.error('Could not load business from the backend:', err)
       })
       .finally(() => {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
+          setLoadedFor(uid)
+        }
       })
 
     return () => {
@@ -121,7 +134,7 @@ export function BusinessProvider({ children }) {
         hasBusinessProfile: !!business,
         onboarded,
         saveBusiness,
-        loading,
+        loading: loading || loadedFor !== (uid ?? null),
       }}
     >
       {children}

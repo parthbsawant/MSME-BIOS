@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import DashboardLayout from '../components/DashboardLayout'
@@ -5,6 +6,7 @@ import { useAuth } from '../context/AuthContext'
 import { usePlan } from '../context/PlanContext'
 import { FEATURES } from '../lib/featuresData'
 import { useCatalog } from '../lib/useCatalog'
+import { listDocuments } from '../lib/api'
 
 export default function FeatureDashboardPage() {
   const { user } = useAuth()
@@ -22,6 +24,26 @@ export default function FeatureDashboardPage() {
 
   // Enabled feature IDs in the current user's plan
   const planFeatureIds = plan?.featureIds || ['document_parser']
+
+  // Real count of this business's documents saved this month (the card
+  // says "Processed this month"). null = loading or backend unreachable.
+  const [docsThisMonth, setDocsThisMonth] = useState(null)
+  useEffect(() => {
+    let cancelled = false
+    listDocuments()
+      .then((docs) => {
+        if (cancelled) return
+        const now = new Date()
+        setDocsThisMonth(docs.filter((d) => {
+          const created = new Date(d.created_at)
+          return created.getFullYear() === now.getFullYear() && created.getMonth() === now.getMonth()
+        }).length)
+      })
+      .catch((err) => console.error('Could not load documents:', err))
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   return (
     <DashboardLayout activeItem="Dashboard">
@@ -107,7 +129,7 @@ export default function FeatureDashboardPage() {
               </div>
             </div>
             <p className="mt-3 font-[family-name:var(--font-display)] text-2xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
-              14
+              {docsThisMonth ?? '–'}
             </p>
             <div className="mt-2 flex items-center gap-1.5 text-[11px] font-semibold text-[#8A7F74] dark:text-[#A89E92]">
               <span>{t('page.stats.documentsNote')}</span>
