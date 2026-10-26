@@ -53,8 +53,8 @@ Spec: SPEC.md
 - [x] Results page reads from saved documents
 
 ## STEP 3: Mock payments and seats
-- [ ] Migration 003: subscriptions, payments, seats on plans
-- [ ] Seat counts per tier and extra seat price in one shared config (backend and frontend)
+- [x] Migration 003: subscriptions, payments, seats on plans (applied to dev and test; legacy backfill)
+- [x] Seat counts per tier and extra seat price in one shared config (backend pricing.py; featuresData.js mirror checked by tests/test_pricing.py)
 - [ ] Server-side price calculation (features + tier + extra seats); ignore client price
 - [ ] Payment provider interface (create_order, verify_payment, handle_webhook)
 - [ ] Mock provider with success and failure paths

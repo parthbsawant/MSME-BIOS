@@ -99,6 +99,7 @@ export const TIERS = [
     name: 'Starter',
     band: '\u20b95L\u201350L turnover',
     price: 2999,
+    seatsIncluded: 2,
     featureIds: ['document_parser', 'cash_dashboard', 'invoice_generator'],
   },
   {
@@ -106,6 +107,7 @@ export const TIERS = [
     name: 'Growth',
     band: '\u20b950L\u20135Cr turnover',
     price: 6999,
+    seatsIncluded: 4,
     featureIds: ['document_parser', 'cash_dashboard', 'invoice_generator', 'receivables_payables', 'pnl_statement', 'aging_reports'],
   },
   {
@@ -113,6 +115,7 @@ export const TIERS = [
     name: 'Intelligence',
     band: '\u20b95Cr\u201320Cr turnover',
     price: 14999,
+    seatsIncluded: 6,
     featureIds: ['document_parser', 'cash_dashboard', 'invoice_generator', 'receivables_payables', 'pnl_statement', 'aging_reports', 'anomaly_detection', 'business_health_index', 'revenue_concentration'],
   },
   {
@@ -120,9 +123,17 @@ export const TIERS = [
     name: 'Full suite',
     band: '\u20b920Cr\u201350Cr turnover',
     price: 24999,
+    seatsIncluded: 10,
     featureIds: FEATURES.map((f) => f.id),
   },
 ]
+
+// Seats (SPEC.md section 4). Display only - the backend's pricing.py is
+// the authority and computes the real amount at checkout;
+// tests/test_pricing.py checks these numbers match it.
+export const CUSTOM_SEATS_INCLUDED = 2
+export const EXTRA_SEAT_PRICE = 499
+export const MAX_EXTRA_SEATS = 20
 
 export function formatPrice(n) {
   return `\u20b9${n.toLocaleString('en-IN')}`

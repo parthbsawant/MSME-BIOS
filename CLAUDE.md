@@ -33,9 +33,10 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 86 passed, 1 skipped). tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
+- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 107 passed, 1 skipped).
+- Prices: backend/parser-backend/pricing.py is the only authority (quote()). featuresData.js mirrors it for display; tests/test_pricing.py fails if they differ, so change both together. tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
-- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb, 2026-10-26) all have 001+002. Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
+- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb, 2026-10-26) all have 001+002; dev and test also have 003 (production gets 003 before Step 3 backend is pushed). Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
 - If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
 - Two-machine setup is in SETUP.md. Gitignored files (.env, Firebase service-account JSON, node_modules, .venv) do not travel between machines.
 - .gitattributes forces LF. CRLF conversion corrupts the sample PDFs and breaks the bank-parser tests.
@@ -82,6 +83,7 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Feature to role: Finance = document parser, cash dashboard, receivables and payables, P&L, aging, cash flow simulator, anomaly detection. Sales = invoice generator, revenue concentration, demand forecasting. HR = document parser limited to HR documents. Marketing = demand forecasting, revenue concentration, WhatsApp alerts. Owner = everything bought plus business health index, team, billing.
 - Effective access = plan features intersect role features.
 - Payments: mock provider behind create_order / verify_payment / handle_webhook. Price computed server-side. Plan active only after verified payment. Real Razorpay later.
+- Step 3 decisions (2026-10-26): extra seat = Rs 499 per seat per month (placeholder); at most 20 extra seats; accounts that had a plan before Step 3 get an active subscription with provider 'legacy' (migration 003), so nobody is locked out; new signups must pay.
 - Build our own document database now (not waiting for the teammate's design).
 - Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Until roles exist, the backend accepts an optional department from the owner and defaults to finance. This stays as the fallback for single-owner businesses; members (Step 4) always get their own department, never a client-supplied one.
 
