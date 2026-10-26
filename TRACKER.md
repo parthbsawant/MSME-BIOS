@@ -71,12 +71,12 @@ Spec: SPEC.md
 - [x] Central role-to-feature mapping module (single source of truth: roles.py)
 - [x] Request dependency resolving user, tenant, role, status (access.py current_context)
 - [x] require_role and require_feature guards (access.require_owner, access.feature_access)
-- [ ] Fix tenant resolution: invitees join inviter's business, no new tenant created
-- [ ] Endpoints: create invite, list invites, revoke invite, list members, change role, deactivate member
-- [ ] Endpoint: accept invite (token, email match, expiry, one-time use)
-- [ ] Seat limit enforced on invites
+- [x] Fix tenant resolution: invitees join inviter's business, no new tenant created
+- [x] Endpoints: create invite, list invites, revoke invite, list members, change role, deactivate member (plus reactivate, audit log)
+- [x] Endpoint: accept invite (token, email match, expiry, one-time use)
+- [x] Seat limit enforced on invites
 - [x] Department filter applied to document endpoints for non-owner roles
-- [ ] All isolation tests from SPEC section 9 passing
+- [x] All isolation tests from SPEC section 9 passing (185 passed, 1 skipped)
 - [ ] Deploy and verify live
 
 ## STEP 5: Team frontend and role-based panels

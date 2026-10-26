@@ -8,7 +8,8 @@ the server, nothing taken from the request. The guards below are the only
 place access rules are applied; the rules themselves live in roles.py.
 
   current_context          any active member of a business
-  require_owner            team, billing, plan, checkout, business details
+  require_owner            billing, plan, checkout, business details
+  require_paid_owner       team management (owner of a paid business)
   feature_access(feature)  business has an active plan (else 402) AND the
                            caller's role may use the feature (else 403)
 
@@ -119,6 +120,12 @@ def require_paid(ctx: Context = Depends(current_context)) -> Context:
     if not active:
         raise ApiError(402, "payment_required", "This business has no active plan. Complete checkout first.")
     return ctx
+
+
+def require_paid_owner(ctx: Context = Depends(require_owner)) -> Context:
+    """Team management: the owner of a business with an active plan (the
+    plan's seats are what invitations fill)."""
+    return require_paid(ctx)
 
 
 def feature_access(feature_id: str):

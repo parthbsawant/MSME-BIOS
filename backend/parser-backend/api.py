@@ -31,6 +31,8 @@ import payments
 import pricing
 import roles
 import subscriptions as subs
+import team
+import tenant_resolution as tr
 import access
 from access import Context
 
@@ -60,7 +62,8 @@ app.add_middleware(
 # it on the server from the verified token. No endpoint accepts a
 # tenant_id, role or (for members) department from the request.
 @app.exception_handler(access.ApiError)
-async def api_error_handler(request: Request, exc: access.ApiError):
+@app.exception_handler(team.TeamError)
+async def api_error_handler(request: Request, exc):
     return JSONResponse(status_code=exc.status_code, content={"error": exc.error, "message": exc.message})
 
 
@@ -527,3 +530,112 @@ async def get_my_document(document_id: str, ctx: Context = Depends(access.requir
     finally:
         conn.close()
     return document if document is not None else not_found
+
+
+# ============================================================
+# STEP 4: TEAM (owner of a paid business) and INVITES (invitee)
+# All database rules live in team.py; errors come back as TeamError.
+# ============================================================
+
+def _uuid_or_404(value: str, what: str) -> str:
+    try:
+        return str(uuid.UUID(value))
+    except ValueError:
+        raise team.TeamError(404, "not_found", f"No {what} with this id.")
+
+
+def _with_conn(fn):
+    conn = get_connection()
+    try:
+        return fn(conn)
+    finally:
+        conn.close()
+
+
+@app.post("/api/team/invites")
+async def create_invite(
+    email: str = Form(...),
+    role: str = Form(...),
+    ctx: Context = Depends(access.require_paid_owner),
+):
+    """Creates an invite and returns its link token ONCE (only a hash is
+    stored). The owner copies /invite/<token> until real emails exist.
+    409 seat_limit when members + pending invites would exceed the seats
+    bought; 409 already_member / invite_exists for duplicates."""
+    invite = _with_conn(lambda conn: team.create_invite(conn, ctx.tenant_id, ctx.user_id, email, role))
+    invite["invite_path"] = f"/invite/{invite['token']}"
+    return invite
+
+
+@app.get("/api/team/invites")
+async def list_invites(ctx: Context = Depends(access.require_paid_owner)):
+    return {"invites": _with_conn(lambda conn: team.list_invites(conn, ctx.tenant_id))}
+
+
+@app.post("/api/team/invites/{invite_id}/revoke")
+async def revoke_invite(invite_id: str, ctx: Context = Depends(access.require_paid_owner)):
+    invite_id = _uuid_or_404(invite_id, "pending invite")
+    _with_conn(lambda conn: team.revoke_invite(conn, ctx.tenant_id, ctx.user_id, invite_id))
+    return {"status": "revoked"}
+
+
+@app.get("/api/team/members")
+async def list_members(ctx: Context = Depends(access.require_paid_owner)):
+    """Members (owner first) plus the seat summary: purchased, active
+    members, pending invites, in use."""
+    def run(conn):
+        return {"members": team.list_members(conn, ctx.tenant_id), "seats": team.seat_summary(conn, ctx.tenant_id)}
+    return _with_conn(run)
+
+
+@app.post("/api/team/members/{user_id}/role")
+async def change_member_role(user_id: str, role: str = Form(...), ctx: Context = Depends(access.require_paid_owner)):
+    user_id = _uuid_or_404(user_id, "member")
+    _with_conn(lambda conn: team.change_role(conn, ctx.tenant_id, ctx.user_id, user_id, role))
+    return {"status": "ok", "role": role, "department": roles.department_for(role)}
+
+
+@app.post("/api/team/members/{user_id}/deactivate")
+async def deactivate_member(user_id: str, ctx: Context = Depends(access.require_paid_owner)):
+    user_id = _uuid_or_404(user_id, "member")
+    _with_conn(lambda conn: team.set_status(conn, ctx.tenant_id, ctx.user_id, user_id, "deactivated"))
+    return {"status": "deactivated"}
+
+
+@app.post("/api/team/members/{user_id}/reactivate")
+async def reactivate_member(user_id: str, ctx: Context = Depends(access.require_paid_owner)):
+    """Takes a seat again, so it obeys the seat limit."""
+    user_id = _uuid_or_404(user_id, "member")
+    _with_conn(lambda conn: team.set_status(conn, ctx.tenant_id, ctx.user_id, user_id, "active"))
+    return {"status": "active"}
+
+
+@app.get("/api/team/audit")
+async def team_audit(ctx: Context = Depends(access.require_owner)):
+    """Recent team actions, newest first: who did what, to whom, when."""
+    return {"entries": _with_conn(lambda conn: team.list_audit(conn, ctx.tenant_id))}
+
+
+@app.get("/api/invites/{token}")
+async def preview_invite(token: str):
+    """Public: what the accept page shows before sign-in (business name,
+    role, invited email, status). Knowing the secret link is the access
+    check - the same as receiving the invite email."""
+    preview = _with_conn(lambda conn: team.preview_invite(conn, token))
+    if preview is None:
+        raise team.TeamError(404, "invite_invalid", "This invite link is not valid.")
+    return preview
+
+
+@app.post("/api/invites/accept")
+async def accept_invite(token: str = Form(...), decoded_token: dict = Depends(verify_firebase_token)):
+    """
+    Joins the signed-in user to the inviting business with the invited
+    role (SPEC section 6). The email on the verified token must match the
+    invite; expired, revoked or used links fail. Deliberately does NOT use
+    current_context: the caller usually has no business yet.
+    """
+    def run(conn):
+        user_id = tr.get_or_create_user(conn, decoded_token["uid"], decoded_token.get("email", ""), decoded_token.get("name"))
+        return team.accept_invite(conn, user_id, decoded_token.get("email", ""), token)
+    return {"status": "joined", **_with_conn(run)}
