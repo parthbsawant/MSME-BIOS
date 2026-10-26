@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Check } from 'lucide-react'
 import { formatPrice } from '../lib/featuresData'
 import { useCatalog } from '../lib/useCatalog'
 
@@ -9,44 +10,53 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = 
   const popular = isPopular || tier.id === 'growth'
 
   return (
-    <div className={`relative flex flex-col justify-between rounded-2xl border bg-[#FFFFFF] dark:bg-[#242019] p-6 shadow-sm transition-all hover:shadow-lg ${
-      popular 
-        ? 'border-[#E8622C] dark:border-[#F27A4A] ring-2 ring-[#E8622C]/20 dark:ring-[#F27A4A]/20' 
-        : 'border-[#F0E4D8] dark:border-[#3A332A]'
-    }`}>
+    <div
+      className={`relative flex flex-col justify-between rounded-2xl border bg-[var(--color-surface)] p-6 transition-all duration-200 hover:-translate-y-1 ${
+        popular
+          ? 'border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-[var(--shadow-warm-md)]'
+          : 'border-[var(--color-line)] shadow-xs hover:border-[var(--color-line)] hover:shadow-[var(--shadow-warm-md)]'
+      }`}
+    >
       {popular && (
-        <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-[#E8622C] dark:bg-[#F27A4A] px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase text-white shadow-sm">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-[var(--color-accent)] px-3 py-0.5 text-[10px] font-bold tracking-wide uppercase text-white shadow-xs">
           {t('plan.mostPopular')}
         </div>
       )}
 
       <div>
         <div className="flex items-baseline justify-between">
-          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-[#2A2521] dark:text-[#F5EFE8]">{tierName(tier.id)}</h3>
+          <h3 className="font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-ink)]">
+            {tierName(tier.id)}
+          </h3>
         </div>
-        <p className="mt-1 text-xs text-[#8A7F74] dark:text-[#A89E92]">{tierBand(tier.id)}</p>
+        <p className="mt-1 text-xs text-[var(--color-muted)] leading-relaxed">{tierBand(tier.id)}</p>
 
-        <div className="mt-6 flex items-baseline gap-1">
-          <span className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[#2A2521] dark:text-[#F5EFE8]">
+        <div className="mt-6 flex items-baseline gap-1.5">
+          <span
+            data-tabular="true"
+            className="font-[family-name:var(--font-display)] text-3xl font-extrabold text-[var(--color-ink)] tracking-tight"
+          >
             {formatPrice(tier.price)}
           </span>
-          <span className="text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('plan.perMonth')}</span>
+          <span className="text-xs text-[var(--color-muted)] font-medium">{t('plan.perMonth')}</span>
         </div>
         {tier.seatsIncluded && (
-          <p className="mt-1 text-[11px] font-semibold text-[#E8622C] dark:text-[#F27A4A]">
+          <p className="mt-1.5 text-xs font-semibold text-[var(--color-accent)]">
             {tb('seats.included', { count: tier.seatsIncluded })}
           </p>
         )}
 
-        <div className="mt-6 space-y-2.5 border-t border-[#F0E4D8] dark:border-[#3A332A] pt-6">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[#8A7F74] dark:text-[#A89E92]">{t('plan.featuresIncluded')}</p>
+        <div className="mt-6 space-y-2.5 border-t border-[var(--color-line-subtle)] pt-5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
+            {t('plan.featuresIncluded')}
+          </p>
           {tier.featureIds.map((id) => {
             return (
-              <div key={id} className="flex items-start gap-2 text-xs text-[#2A2521] dark:text-[#F5EFE8]">
-                <svg className="h-4 w-4 shrink-0 text-[#1F9254] dark:text-[#34D399] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>{featureName(id)}</span>
+              <div key={id} className="flex items-start gap-2.5 text-xs text-[var(--color-ink)]">
+                <div className="flex h-4 w-4 items-center justify-center rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] shrink-0 mt-0.5">
+                  <Check className="h-2.5 w-2.5" strokeWidth={3} />
+                </div>
+                <span className="leading-tight">{featureName(id)}</span>
               </div>
             )
           })}
@@ -55,11 +65,12 @@ export default function PricingTierCard({ tier, onSelect, ctaLabel, isPopular = 
 
       {onSelect && (
         <button
+          type="button"
           onClick={onSelect}
-          className={`mt-8 w-full rounded-xl py-3 text-xs font-bold transition-all shadow-sm transform active:scale-95 cursor-pointer ${
+          className={`mt-8 w-full rounded-xl py-3 text-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
             popular
-              ? 'bg-[#E8622C] dark:bg-[#F27A4A] text-white hover:bg-[#D4531F] dark:hover:bg-[#E56938] shadow-[#E8622C]/20'
-              : 'border border-[#E8622C] dark:border-[#F27A4A] text-[#E8622C] dark:text-[#F27A4A] hover:bg-[#E8622C] hover:text-white dark:hover:bg-[#F27A4A] dark:hover:text-[#1A1714]'
+              ? 'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] shadow-xs'
+              : 'border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-ink)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-2)]'
           }`}
         >
           {ctaLabel ?? t('plan.choosePlan')}

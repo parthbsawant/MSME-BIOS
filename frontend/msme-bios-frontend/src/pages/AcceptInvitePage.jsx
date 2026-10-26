@@ -54,28 +54,31 @@ export default function AcceptInvitePage() {
     }
   }
 
-  const card = 'rounded-3xl border border-[#F0E4D8] dark:border-[#3A332A] bg-[#FFFFFF] dark:bg-[#242019] p-8 sm:p-10 shadow-xl'
-  const primary = 'block w-full rounded-xl bg-[#E8622C] dark:bg-[#F27A4A] px-6 py-3.5 text-center text-xs font-bold text-white shadow-md shadow-[#E8622C]/20 hover:bg-[#D4531F] dark:hover:bg-[#E56938] transition-all disabled:opacity-50 cursor-pointer'
-  const secondary = 'block w-full rounded-xl border border-[#F0E4D8] dark:border-[#3A332A] px-6 py-3 text-center text-xs font-bold text-[#8A7F74] dark:text-[#A89E92] hover:text-[#2A2521] dark:hover:text-[#F5EFE8] hover:border-[#E8622C] transition-colors cursor-pointer'
+  const card =
+    'rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-warm-md)]'
+  const primary =
+    'inline-flex items-center justify-center w-full rounded-xl bg-[var(--color-accent)] px-6 py-3.5 text-center text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
+  const secondary =
+    'inline-flex items-center justify-center w-full rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3 text-center text-xs sm:text-sm font-semibold text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
 
   let body
   if (loadError) {
-    body = <p className="text-sm text-[#8A7F74] dark:text-[#A89E92]">{t(`invite.errors.${loadError}`)}</p>
+    body = <p className="text-sm text-[var(--color-muted)]">{t(`invite.errors.${loadError}`)}</p>
   } else if (!invite || authLoading) {
     body = (
-      <div className="flex justify-center py-6">
-        <div className="h-8 w-8 rounded-full border-4 border-[#E8622C]/20 border-t-[#E8622C] dark:border-[#F27A4A]/20 dark:border-t-[#F27A4A] animate-spin" />
+      <div className="flex justify-center py-8">
+        <div className="h-8 w-8 rounded-full border-2 border-[var(--color-line)] border-t-[var(--color-accent)] animate-spin" />
       </div>
     )
   } else if (invite.status !== 'pending') {
-    body = <p className="text-sm text-[#8A7F74] dark:text-[#A89E92]">{t(`invite.status_${invite.status}`)}</p>
+    body = <p className="text-sm text-[var(--color-muted)]">{t(`invite.status_${invite.status}`)}</p>
   } else {
     body = (
       <>
-        <p className="text-sm text-[#2A2521] dark:text-[#F5EFE8]">
+        <p className="text-sm text-[var(--color-ink)] leading-relaxed">
           {t('invite.intro', { business: invite.business_name || t('invite.aBusiness'), role: t(`roles.${invite.role}`) })}
         </p>
-        <p className="mt-2 text-xs text-[#8A7F74] dark:text-[#A89E92]">{t('invite.sentTo', { email: invite.email })}</p>
+        <p className="mt-2 text-xs text-[var(--color-muted)]">{t('invite.sentTo', { email: invite.email })}</p>
 
         {!isLoggedIn ? (
           <div className="mt-8 space-y-3">
@@ -84,21 +87,25 @@ export default function AcceptInvitePage() {
           </div>
         ) : !emailMatches ? (
           <div className="mt-6">
-            <p className="rounded-xl border border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs text-amber-800 dark:text-amber-300">
+            <p className="rounded-xl border border-[var(--color-warning)]/30 bg-[var(--color-warning-soft)] p-3.5 text-xs text-[var(--color-warning)] font-medium leading-relaxed">
               {t('invite.wrongAccount', { current: user?.email ?? '', invited: invite.email })}
             </p>
-            <button onClick={async () => { await logout(); navigate(`/login${nextQuery(here)}`) }} className={`${secondary} mt-4`}>
+            <button
+              type="button"
+              onClick={async () => { await logout(); navigate(`/login${nextQuery(here)}`) }}
+              className={`${secondary} mt-4`}
+            >
               {t('invite.switchAccount')}
             </button>
           </div>
         ) : (
           <div className="mt-8">
             {joinError && (
-              <p className="mb-4 rounded-xl border border-red-200 bg-red-50 dark:border-red-900/50 dark:bg-red-950/40 p-3 text-xs text-red-700 dark:text-red-300">
+              <p className="mb-4 rounded-xl border border-[var(--color-danger)]/30 bg-[var(--color-danger-soft)] p-3 text-xs text-[var(--color-danger)] font-medium">
                 {t(`invite.errors.${joinError}`, { defaultValue: t('invite.errors.generic') })}
               </p>
             )}
-            <button onClick={join} disabled={joining} className={primary}>
+            <button type="button" onClick={join} disabled={joining} className={primary}>
               {joining ? t('invite.joining') : t('invite.join', { business: invite.business_name || t('invite.aBusiness') })}
             </button>
           </div>
@@ -108,14 +115,16 @@ export default function AcceptInvitePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBF3EC] dark:bg-[#1A1714] text-[#2A2521] dark:text-[#F5EFE8] transition-colors">
+    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-lg px-6 py-12">
+      <main className="mx-auto max-w-lg px-4 sm:px-6 py-12 md:py-16">
         <div className={card}>
-          <span className="rounded-full bg-[#E8622C]/10 dark:bg-[#F27A4A]/20 px-3 py-1 text-xs font-bold text-[#E8622C] dark:text-[#F27A4A]">
+          <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold text-[var(--color-accent)]">
             {t('invite.badge')}
           </span>
-          <h1 className="mt-3 mb-4 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold">{t('invite.title')}</h1>
+          <h1 className="mt-3 mb-4 font-[family-name:var(--font-display)] text-2xl sm:text-3xl font-extrabold tracking-tight text-[var(--color-ink)]">
+            {t('invite.title')}
+          </h1>
           {body}
         </div>
       </main>
