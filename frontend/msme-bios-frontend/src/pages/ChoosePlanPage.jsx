@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowLeft } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import OnboardingProgress from '../components/OnboardingProgress'
 import PricingTierCard from '../components/PricingTierCard'
 import { TIERS } from '../lib/featuresData'
 
@@ -13,6 +14,7 @@ export default function ChoosePlanPage() {
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+        <OnboardingProgress currentStep={2} />
         <button
           type="button"
           onClick={() => navigate('/business-setup')}

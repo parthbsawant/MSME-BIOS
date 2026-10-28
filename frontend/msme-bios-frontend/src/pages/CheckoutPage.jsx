@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Info } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import OnboardingProgress from '../components/OnboardingProgress'
 import AuthLoadingScreen from '../components/AuthLoadingScreen'
 import { usePlan } from '../context/PlanContext'
 import { useCatalog } from '../lib/useCatalog'
@@ -83,9 +84,9 @@ export default function CheckoutPage() {
   }
 
   const card =
-    'rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-warm-md)]'
+    'rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-cool-md)]'
   const primary =
-    'w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-6 py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
+    'w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-6 py-3.5 text-xs sm:text-sm font-bold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
   const secondary =
     'w-full inline-flex items-center justify-center rounded-xl border border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-3 text-xs sm:text-sm font-semibold text-[var(--color-ink)] hover:bg-[var(--color-surface-2)] transition-colors disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]'
 
@@ -93,6 +94,7 @@ export default function CheckoutPage() {
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
       <main className="mx-auto max-w-lg px-4 sm:px-6 py-10 md:py-14">
+        {phase !== 'success' && <OnboardingProgress currentStep={3} />}
         {phase === 'success' ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}

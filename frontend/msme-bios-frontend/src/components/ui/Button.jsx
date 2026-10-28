@@ -2,7 +2,7 @@ import { forwardRef } from 'react'
 
 const variantStyles = {
   primary:
-    'bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)] shadow-sm hover:shadow-[0_4px_14px_rgba(242,106,27,0.25)] border border-transparent',
+    'bg-[var(--color-accent)] text-white dark:text-[#0E1116] hover:bg-[var(--color-accent-hover)] shadow-xs hover:shadow-[0_4px_14px_rgba(47,91,255,0.25)] border border-transparent',
   secondary:
     'bg-[var(--color-surface)] text-[var(--color-ink)] border border-[var(--color-line)] hover:bg-[var(--color-surface-2)] hover:border-[var(--color-line)] shadow-xs',
   outline:

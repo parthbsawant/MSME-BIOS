@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
+import OnboardingProgress from '../components/OnboardingProgress'
 import { useBusiness } from '../context/BusinessContext'
 import { saveBusiness as saveBusinessToBackend } from '../lib/api'
 
@@ -73,8 +74,9 @@ export default function BusinessSetupPage() {
   return (
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
-      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-12 md:py-16">
-        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-warm-md)]">
+      <main className="mx-auto max-w-2xl px-4 sm:px-6 py-10 md:py-14">
+        <OnboardingProgress currentStep={1} />
+        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-cool-md)]">
           <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold text-[var(--color-accent)]">
             {t('businessSetup.badge')}
           </span>
@@ -157,7 +159,7 @@ export default function BusinessSetupPage() {
             <button
               type="submit"
               disabled={saving}
-              className="mt-6 w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] py-3.5 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="mt-6 w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] py-3.5 text-xs sm:text-sm font-bold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               {saving ? t('businessSetup.submitting') : t('businessSetup.submit')}
             </button>

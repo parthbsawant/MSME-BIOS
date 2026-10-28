@@ -5,14 +5,16 @@
  */
 
 export const durations = {
-  micro: 0.16,
-  standard: 0.3,
-  reveal: 0.55,
+  micro: 0.2,
+  standard: 0.35,
+  reveal: 0.65,
+  hover: 0.38,
 }
 
 export const easings = {
   entrance: [0.22, 1, 0.36, 1],
   hover: [0.16, 1, 0.3, 1],
+  smooth: [0.25, 0.8, 0.25, 1],
   linear: 'linear',
 }
 
@@ -29,10 +31,19 @@ export const transitions = {
     duration: durations.reveal,
     ease: easings.entrance,
   },
+  hover: {
+    duration: durations.hover,
+    ease: easings.hover,
+  },
   springQuick: {
     type: 'spring',
-    stiffness: 400,
-    damping: 30,
+    stiffness: 300,
+    damping: 28,
+  },
+  springSmooth: {
+    type: 'spring',
+    stiffness: 220,
+    damping: 24,
   },
 }
 
@@ -102,6 +113,38 @@ export const createStaggerContainer = (staggerChildren = 0.05, maxDelay = 0.35) 
  */
 export const buttonTap = { scale: 0.98 }
 export const cardLift = {
-  y: -2,
-  transition: transitions.micro,
+  y: -4,
+  transition: transitions.hover,
+}
+
+/**
+ * Chart line drawing animation
+ */
+export const pathDrawVariants = {
+  initial: { pathLength: 0, opacity: 0 },
+  animate: {
+    pathLength: 1,
+    opacity: 1,
+    transition: {
+      pathLength: { duration: 1.4, ease: [0.16, 1, 0.3, 1] },
+      opacity: { duration: 0.4 },
+    },
+  },
+}
+
+/**
+ * Bar growth animation
+ */
+export const barGrowVariants = {
+  initial: { scaleY: 0, originY: 1, opacity: 0.4 },
+  animate: (i = 0) => ({
+    scaleY: 1,
+    originY: 1,
+    opacity: 1,
+    transition: {
+      duration: 0.85,
+      delay: 0.15 + i * 0.08,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  }),
 }

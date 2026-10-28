@@ -286,7 +286,7 @@ export default function SignupPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-2 w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+                className="mt-2 w-full inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] py-3 text-xs sm:text-sm font-bold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
               >
                 {loading ? t('signup.submitting') : t('signup.submit')}
               </button>
@@ -329,29 +329,83 @@ export default function SignupPage() {
             </p>
           </div>
 
-          {/* RIGHT COLUMN: WARM LINE ILLUSTRATION & HIGHLIGHTS */}
-          <div className="hidden lg:flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)]/70 p-10 shadow-xs backdrop-blur-xs">
-            {/* SVG Line Illustration */}
-            <div className="mx-auto w-full max-w-sm" aria-hidden="true">
-              <svg viewBox="0 0 400 280" fill="none" className="w-full h-auto text-[var(--color-accent)]">
-                {/* Store Roof & Awning */}
-                <path d="M50 120 L200 40 L350 120" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M70 120 C90 140 110 140 130 120 C150 140 170 140 190 120 C210 140 230 140 250 120 C270 140 290 140 310 120 C330 140 350 140 370 120" stroke="currentColor" strokeWidth="3" fill="none" />
+          {/* RIGHT COLUMN: TEXT-FREE WINDOW CARD VISUAL & HIGHLIGHTS */}
+          <div className="hidden lg:flex flex-col justify-between rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)]/70 p-10 shadow-xs backdrop-blur-xs relative overflow-hidden">
+            {/* Subtle background grid pattern */}
+            <div
+              className="pointer-events-none absolute inset-0 select-none"
+              style={{
+                backgroundImage:
+                  'repeating-linear-gradient(45deg, var(--color-line) 0, var(--color-line) 1px, transparent 0, transparent 20px)',
+                opacity: 0.08,
+                maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 80%)',
+                WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 80%)',
+              }}
+              aria-hidden="true"
+            />
 
-                {/* Store Building Outer */}
-                <rect x="70" y="120" width="260" height="130" rx="8" stroke="currentColor" strokeWidth="4" fill="none" />
+            {/* Window Card Visual */}
+            <div
+              className="relative z-10 mx-auto w-full max-w-sm rounded-2xl border border-[var(--color-line)] bg-white dark:bg-[var(--color-surface)] p-5 shadow-[var(--shadow-cool-md)]"
+              aria-hidden="true"
+            >
+              {/* Window top dots */}
+              <div className="flex items-center justify-between border-b border-[var(--color-line-subtle)] pb-2.5">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-2 w-2 rounded-full bg-[#FF5F57]" />
+                  <div className="h-2 w-2 rounded-full bg-[#FEBC2E]" />
+                  <div className="h-2 w-2 rounded-full bg-[#28C840]" />
+                </div>
+                <div className="h-1.5 w-16 rounded-full bg-[var(--color-line)]" />
+                <div className="h-1.5 w-6 rounded-full bg-[var(--color-line-subtle)]" />
+              </div>
 
-                {/* Store Door */}
-                <rect x="170" y="170" width="60" height="80" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
-                <circle cx="218" cy="210" r="4" fill="currentColor" />
+              {/* Mini metric row */}
+              <div className="mt-3.5 grid grid-cols-2 gap-2.5">
+                <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-tint-blue)] p-2.5">
+                  <div className="h-1.5 w-12 rounded bg-[var(--color-accent)]/40" />
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <span data-tabular="true" className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
+                      ₹ 4.8L
+                    </span>
+                    <svg className="w-6 h-3 text-[var(--color-accent)]" viewBox="0 0 24 12" fill="none">
+                      <path d="M1 10 L 8 6 L 15 8 L 23 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                </div>
 
-                {/* Windows */}
-                <rect x="95" y="150" width="55" height="50" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
-                <line x1="95" y1="175" x2="150" y2="175" stroke="currentColor" strokeWidth="2" />
+                <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-tint-green)] p-2.5">
+                  <div className="h-1.5 w-10 rounded bg-[var(--color-dept-finance)]/40" />
+                  <div className="mt-2 flex items-baseline justify-between">
+                    <span data-tabular="true" className="font-[family-name:var(--font-display)] text-sm font-bold text-[var(--color-ink)]">
+                      99.4%
+                    </span>
+                    <svg className="w-6 h-3 text-[var(--color-dept-finance)]" viewBox="0 0 24 12" fill="none">
+                      <path d="M1 9 L 7 10 L 15 4 L 23 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
 
-                <rect x="250" y="150" width="55" height="50" rx="4" stroke="currentColor" strokeWidth="3" fill="none" />
-                <line x1="250" y1="175" x2="305" y2="175" stroke="currentColor" strokeWidth="2" />
-              </svg>
+              {/* Sparkline area chart with saffron line */}
+              <div className="mt-3 rounded-xl border border-[var(--color-line-subtle)] bg-[var(--color-surface-2)] p-2.5">
+                <svg className="w-full h-16" viewBox="0 0 280 64" fill="none">
+                  <path
+                    d="M 5 50 Q 60 40 100 25 T 190 20 T 275 6 L 275 60 L 5 60 Z"
+                    fill="var(--color-accent-soft)"
+                    opacity="0.35"
+                  />
+                  <path
+                    d="M 5 50 Q 60 40 100 25 T 190 20 T 275 6"
+                    fill="none"
+                    stroke="var(--color-highlight)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                  <circle cx="100" cy="25" r="3" fill="var(--color-surface)" stroke="var(--color-highlight)" strokeWidth="2" />
+                  <circle cx="275" cy="6" r="3" fill="var(--color-highlight)" />
+                </svg>
+              </div>
             </div>
 
             {/* Headline & Bullet Points */}

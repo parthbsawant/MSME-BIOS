@@ -1,5 +1,12 @@
 import { Card } from './Card'
 
+const tintStyles = {
+  blue: 'bg-[var(--color-tint-blue)] border-[var(--color-line)]',
+  green: 'bg-[var(--color-tint-green)] border-[var(--color-line)]',
+  amber: 'bg-[var(--color-tint-amber)] border-[var(--color-line)]',
+  rose: 'bg-[var(--color-tint-rose)] border-[var(--color-line)]',
+}
+
 export function Stat({
   label,
   value,
@@ -7,10 +14,15 @@ export function Stat({
   icon,
   trend,
   trendLabel,
+  tint,
   className = '',
 }) {
   return (
-    <Card variant="default" padding="md" className={`flex flex-col justify-between ${className}`}>
+    <Card
+      variant={tint ? 'subtle' : 'default'}
+      padding="md"
+      className={`flex flex-col justify-between ${tint ? tintStyles[tint] || '' : ''} ${className}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-muted)]">
           {label}

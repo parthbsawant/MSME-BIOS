@@ -4,13 +4,13 @@ const variantStyles = {
   default:
     'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-xs',
   raised:
-    'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-[var(--shadow-warm-md)]',
+    'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-[var(--shadow-cool-md)]',
   elevated:
-    'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-[var(--shadow-warm-lg)]',
+    'bg-[var(--color-surface)] border border-[var(--color-line)] shadow-[var(--shadow-cool-lg)]',
   subtle:
     'bg-[var(--color-surface-2)] border border-[var(--color-line-subtle)]',
   accent:
-    'bg-[var(--color-surface)] border border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-sm',
+    'bg-[var(--color-surface)] border border-[var(--color-accent)] ring-2 ring-[var(--color-accent)]/20 shadow-xs',
   dashed:
     'bg-[var(--color-surface)] border-2 border-dashed border-[var(--color-line)] hover:border-[var(--color-accent)]/50',
 }
@@ -36,11 +36,11 @@ export const Card = forwardRef(function Card(
   return (
     <div
       ref={ref}
-      className={`rounded-2xl transition-all duration-200 ${
+      className={`rounded-2xl transition-all duration-350 ease-out ${
         variantStyles[variant] || variantStyles.default
       } ${paddingStyles[padding] || paddingStyles.md} ${
         interactive
-          ? 'hover:-translate-y-0.5 hover:shadow-[var(--shadow-warm-md)] hover:border-[var(--color-accent)]/30 cursor-pointer'
+          ? 'hover:-translate-y-1 hover:shadow-[var(--shadow-cool-md)] hover:border-[var(--color-accent)]/30 cursor-pointer'
           : ''
       } ${className}`}
       {...props}

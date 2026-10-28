@@ -25,6 +25,13 @@ import ThemeToggle from './ThemeToggle'
 import LanguageSwitcher from './LanguageSwitcher'
 import logo from '../assets/logo.png'
 
+const DEPARTMENT_COLORS = {
+  finance: '#1E9E6E',
+  sales: '#2F6FDE',
+  hr: '#8A5CD6',
+  marketing: '#E0457B',
+}
+
 export default function DashboardLayout({ children, activeItem = 'Dashboard' }) {
   const { user, logout } = useAuth()
   const { t } = useTranslation('dashboard')
@@ -58,30 +65,35 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       label: t('layout.items.upload'),
       path: '/upload',
       feature: 'document_parser',
+      deptColor: DEPARTMENT_COLORS.sales,
       icon: <Upload className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Documents',
       label: t('layout.items.documents'),
       path: '/results',
+      deptColor: DEPARTMENT_COLORS.finance,
       icon: <FileText className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Invoices',
       label: t('layout.items.invoices'),
       comingSoon: true,
+      deptColor: DEPARTMENT_COLORS.finance,
       icon: <Receipt className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Cash Flow',
       label: t('layout.items.cashFlow'),
       comingSoon: true,
+      deptColor: DEPARTMENT_COLORS.finance,
       icon: <DollarSign className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Reports',
       label: t('layout.items.reports'),
       comingSoon: true,
+      deptColor: DEPARTMENT_COLORS.sales,
       icon: <BarChart3 className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
@@ -89,6 +101,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       label: t('layout.items.team'),
       path: '/team',
       ownerOnly: true,
+      deptColor: DEPARTMENT_COLORS.hr,
       icon: <Users className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
@@ -96,6 +109,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       label: t('layout.items.billing'),
       path: '/billing',
       ownerOnly: true,
+      deptColor: DEPARTMENT_COLORS.finance,
       icon: <CreditCard className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
@@ -113,23 +127,23 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
     .filter((item) => !item.feature || !role || effectiveFeatures.includes(item.feature))
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] flex flex-col transition-colors selection:bg-[var(--color-accent)] selection:text-white">
+    <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-text)] flex flex-col transition-colors selection:bg-[var(--color-accent)] selection:text-white">
       {/* Top Navbar */}
-      <header className="sticky top-0 z-30 bg-[var(--color-card)]/90 backdrop-blur-md border-b border-[var(--color-border)] px-4 sm:px-6 py-2.5">
+      <header className="sticky top-0 z-30 bg-white/95 dark:bg-[#151A21]/95 backdrop-blur-md border-b border-[var(--color-line)] dark:border-[#272F3A] px-4 sm:px-6 py-2.5 transition-colors">
         <div className="flex items-center justify-between gap-4">
           {/* Left: Mobile Drawer Trigger + Brand */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarOpen((o) => !o)}
               aria-label={t('layout.openMenu')}
-              className="lg:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-bg-subtle)] rounded-xl transition-colors cursor-pointer"
+              className="lg:hidden p-2 text-[var(--color-muted)] hover:text-[var(--color-accent)] hover:bg-[var(--color-surface-2)] rounded-xl transition-colors cursor-pointer"
             >
               {sidebarOpen ? <X className="h-5 w-5" strokeWidth={2} /> : <Menu className="h-5 w-5" strokeWidth={2} />}
             </button>
 
             <Link to="/dashboard" className="flex items-center shrink-0">
               {/* White chip wrapper preserves dark wordmark visibility in both light & dark themes */}
-              <div className="shrink-0 flex items-center justify-center rounded-xl bg-white px-3 py-1.5 shadow-xs border border-stone-200/60 dark:border-transparent">
+              <div className="shrink-0 flex items-center justify-center rounded-xl bg-white px-3 py-1.5 shadow-xs border border-[var(--color-hero-line)]">
                 <img src={logo} alt="MSME-BIOS" className="h-6 w-auto min-w-[96px] object-contain" />
               </div>
             </Link>
@@ -141,7 +155,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
             <input
               type="text"
               placeholder={t('layout.search')}
-              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder-[var(--color-muted)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all"
+              className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-text)] placeholder-[var(--color-muted)]/60 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-all"
             />
           </div>
 
@@ -153,17 +167,17 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
             {/* Notification Bell */}
             <button
               aria-label={t('layout.notifications')}
-              className="relative p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-subtle)] rounded-xl transition-colors cursor-pointer"
+              className="relative p-2 text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-surface-2)] rounded-xl transition-colors cursor-pointer"
             >
               <Bell className="h-4.5 w-4.5" strokeWidth={2} />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-card)]" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[var(--color-accent)] ring-2 ring-white dark:ring-[#151A21]" />
             </button>
 
             {/* User Dropdown */}
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen((o) => !o)}
-                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[var(--color-bg-subtle)] border border-transparent hover:border-[var(--color-border)] transition-all cursor-pointer"
+                className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-[var(--color-surface-2)] border border-transparent hover:border-[var(--color-line)] transition-all cursor-pointer"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--color-accent)] text-white font-bold text-xs shadow-xs">
                   {displayName[0]?.toUpperCase()}
@@ -180,16 +194,22 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                     initial={{ opacity: 0, scale: 0.95, y: -4 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                    transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                    className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-1.5 shadow-xl z-50"
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-1.5 shadow-[var(--shadow-cool-lg)] z-50"
                   >
-                    <div className="px-3 py-2.5 border-b border-[var(--color-border)]">
+                    <div className="px-3 py-2.5 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                       <p className="text-xs font-bold truncate text-[var(--color-text)]">{displayName}</p>
                       <p className="text-[11px] text-[var(--color-muted)] truncate mt-0.5">{user?.email}</p>
                       {role && (
-                        <span className="mt-1.5 inline-block rounded-md bg-[var(--color-accent-soft)] px-2 py-0.5 text-[10px] font-bold text-[var(--color-accent)]">
-                          {tTeam(`roles.${role}`)}
-                        </span>
+                        <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-2 py-0.5 text-[10px] font-bold text-[var(--color-text)]">
+                          {DEPARTMENT_COLORS[role] && (
+                            <span
+                              className="h-1.5 w-1.5 rounded-full"
+                              style={{ backgroundColor: DEPARTMENT_COLORS[role] }}
+                            />
+                          )}
+                          <span>{tTeam(`roles.${role}`)}</span>
+                        </div>
                       )}
                     </div>
                     <div className="py-1">
@@ -197,7 +217,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                         <Link
                           to="/business-setup"
                           onClick={() => setUserDropdownOpen(false)}
-                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-subtle)] transition-colors"
+                          className="flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-[var(--color-text)] hover:bg-[var(--color-surface-2)] transition-colors"
                         >
                           <Settings className="h-3.5 w-3.5 text-[var(--color-muted)]" strokeWidth={2} />
                           <span>{t('layout.businessProfile')}</span>
@@ -205,7 +225,7 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
                       )}
                       <button
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-[var(--color-danger)] hover:bg-[var(--color-danger-soft)] transition-colors cursor-pointer"
+                        className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-xs font-medium text-[var(--color-danger)] hover:bg-[var(--color-tint-rose)] transition-colors cursor-pointer"
                       >
                         <LogOut className="h-3.5 w-3.5" strokeWidth={2} />
                         <span>{t('layout.logOut')}</span>
@@ -229,19 +249,19 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden"
             />
           )}
         </AnimatePresence>
 
-        {/* Left Sidebar */}
+        {/* Left Sidebar - F1 Dark Block */}
         <aside
-          className={`fixed lg:sticky top-[53px] z-40 h-[calc(100vh-53px)] w-64 shrink-0 bg-[var(--color-card)] border-r border-[var(--color-border)] p-4 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+          className={`fixed lg:sticky top-[53px] z-40 h-[calc(100vh-53px)] w-64 shrink-0 bg-[#0D1526] dark:bg-[#10141B] border-r border-[#223152] dark:border-[#272F3A] p-4 flex flex-col justify-between transition-transform duration-350 ease-out lg:translate-x-0 ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           <div className="space-y-1">
-            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)]">
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-[#5A667A]">
               {t('layout.menu')}
             </p>
             {sidebarItems.map((item) => {
@@ -249,34 +269,52 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
               return (
                 <div key={item.id} className="relative">
                   {item.comingSoon ? (
-                    <div className="flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-medium text-[var(--color-muted)]/60 cursor-not-allowed">
+                    <div className="flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-medium text-[#5A667A] cursor-not-allowed">
                       <div className="flex items-center gap-3">
-                        {item.icon}
+                        <span className="opacity-70">{item.icon}</span>
                         <span>{item.label}</span>
                       </div>
-                      <span className="rounded-md bg-[var(--color-bg-subtle)] border border-[var(--color-border)] px-1.5 py-0.5 text-[9px] font-semibold text-[var(--color-muted)]">
-                        {t('layout.soon')}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        {item.deptColor && (
+                          <span
+                            className="h-1.5 w-1.5 rounded-full shrink-0 opacity-60"
+                            style={{ backgroundColor: item.deptColor }}
+                          />
+                        )}
+                        <span className="rounded-md bg-[#141F38] border border-[#223152] px-1.5 py-0.5 text-[9px] font-semibold text-[#A3B1C9]">
+                          {t('layout.soon')}
+                        </span>
+                      </div>
                     </div>
                   ) : (
                     <Link
                       to={item.path}
                       onClick={() => setSidebarOpen(false)}
-                      className={`relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-xs font-semibold transition-colors z-10 ${
+                      className={`relative flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold transition-all duration-300 ease-out z-10 ${
                         isActive
-                          ? 'text-[var(--color-accent)]'
-                          : 'text-[var(--color-text)] hover:text-[var(--color-accent)] hover:bg-[var(--color-bg-subtle)]'
+                          ? 'text-white'
+                          : 'text-[#A3B1C9] hover:text-[#F2F6FF] hover:bg-[#141F38]'
                       }`}
                     >
                       {isActive && (
                         <motion.div
                           layoutId="activeSidebarPill"
-                          className="absolute inset-0 rounded-xl bg-[var(--color-accent-soft)] border-l-3 border-[var(--color-accent)] -z-10"
-                          transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                          className="absolute inset-0 rounded-xl bg-[var(--color-accent)] -z-10 shadow-sm"
+                          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
                         />
                       )}
-                      {item.icon}
-                      <span>{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        {item.icon}
+                        <span>{item.label}</span>
+                      </div>
+                      {item.deptColor && (
+                        <span
+                          className={`h-1.5 w-1.5 rounded-full shrink-0 shadow-xs ${
+                            isActive ? 'ring-2 ring-white/30' : ''
+                          }`}
+                          style={{ backgroundColor: item.deptColor }}
+                        />
+                      )}
                     </Link>
                   )}
                 </div>
@@ -285,9 +323,9 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
           </div>
 
           {/* Footer Badge inside Sidebar */}
-          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-3.5 text-center">
-            <p className="text-[11px] font-bold text-[var(--color-text)]">MSME-BIOS v2.0</p>
-            <p className="text-[10px] text-[var(--color-muted)] mt-0.5">{t('layout.footerTagline')}</p>
+          <div className="rounded-2xl border border-[#223152] bg-[#141F38] p-3.5 text-center">
+            <p className="text-[11px] font-bold text-[#F2F6FF]">MSME-BIOS v2.0</p>
+            <p className="text-[10px] text-[#A3B1C9] mt-0.5">{t('layout.footerTagline')}</p>
           </div>
         </aside>
 

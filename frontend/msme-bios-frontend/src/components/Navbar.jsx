@@ -50,15 +50,17 @@ export default function Navbar({ showNavLinks = false }) {
   return (
     <header
       className={`sticky top-0 z-40 transition-all duration-200 ${
-        isScrolled
-          ? 'bg-[var(--color-canvas)]/95 backdrop-blur-md border-b border-[var(--color-line)] shadow-xs'
-          : 'bg-[var(--color-canvas)]/80 backdrop-blur-sm border-b border-[var(--color-line)]/50'
+        isLanding
+          ? isScrolled
+            ? 'bg-[var(--color-surface)]/95 backdrop-blur-md border-b border-[var(--color-line)] shadow-xs'
+            : 'bg-transparent border-b border-transparent'
+          : 'bg-[var(--color-surface)]/95 backdrop-blur-md border-b border-[var(--color-line)] shadow-xs'
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
         {/* Brand Logo - Fixed white chip bug with shrink-0 and min-w constraints */}
         <Link to="/" className="flex items-center shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg">
-          <div className="rounded-lg bg-white px-2.5 py-1.5 shadow-xs border border-black/5 shrink-0 transition-transform group-hover:scale-102 flex items-center justify-center">
+          <div className="rounded-xl bg-white px-2.5 py-1.5 shadow-xs border border-[var(--color-hero-line)] shrink-0 transition-transform group-hover:scale-102 flex items-center justify-center">
             <img
               src={logo}
               alt="MSME-BIOS"
@@ -222,7 +224,7 @@ export default function Navbar({ showNavLinks = false }) {
               </Link>
               <Link
                 to="/signup"
-                className="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] shrink-0"
+                className="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] shrink-0"
               >
                 {t('nav.getStarted')}
               </Link>
@@ -301,7 +303,7 @@ export default function Navbar({ showNavLinks = false }) {
                 <Link
                   to="/signup"
                   onClick={() => setMobileNavOpen(false)}
-                  className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white shadow-xs"
+                  className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-xs font-semibold text-white dark:text-[#0E1116] shadow-xs"
                 >
                   {t('nav.getStarted')}
                 </Link>

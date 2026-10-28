@@ -102,18 +102,21 @@ export default function UploadPage() {
         </div>
 
         {/* Department (STEP 5) */}
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-3.5 shadow-xs">
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] px-5 py-3.5 shadow-xs">
           {isOwner ? (
             <>
-              <label htmlFor="upload-department" className="text-xs font-bold text-[var(--color-text)]">
-                {tTeam('department.label')}
-              </label>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-[#1E9E6E]" />
+                <label htmlFor="upload-department" className="text-xs font-bold text-[var(--color-text)]">
+                  {tTeam('department.label')}
+                </label>
+              </div>
               <select
                 id="upload-department"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
                 disabled={isProcessing}
-                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-text)] focus:ring-2 focus:ring-[var(--color-accent)] focus:outline-none transition-all"
+                className="rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-3 py-1.5 text-xs font-medium text-[var(--color-text)] focus:ring-2 focus:ring-[var(--color-accent)] focus:outline-none transition-all"
               >
                 {['finance', 'sales', 'hr', 'marketing'].map((d) => (
                   <option key={d} value={d}>
@@ -155,19 +158,19 @@ export default function UploadPage() {
                     setFile(null)
                     setError(null)
                   }}
-                  className={`flex flex-col justify-between rounded-2xl border p-5 text-left transition-all cursor-pointer ${
+                  className={`flex flex-col justify-between rounded-2xl border p-5 text-left transition-all duration-350 ease-out cursor-pointer ${
                     isSelected
-                      ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]/40 ring-2 ring-[var(--color-accent)]/30 shadow-md'
-                      : 'border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-accent)]/50 shadow-xs'
+                      ? 'border-[var(--color-accent)] bg-[var(--color-surface-2)] dark:bg-[#1C222B] ring-2 ring-[var(--color-accent)]/20 shadow-[var(--shadow-cool-md)]'
+                      : 'border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] hover:-translate-y-1 hover:border-[var(--color-accent)]/50 hover:shadow-[var(--shadow-cool-md)] shadow-xs'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between">
                       <div
-                        className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+                        className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors duration-300 ${
                           isSelected
                             ? 'bg-[var(--color-accent)] text-white shadow-xs'
-                            : 'bg-[var(--color-bg-subtle)] text-[var(--color-accent)]'
+                            : 'bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-accent)]'
                         }`}
                       >
                         {type.icon}
@@ -176,7 +179,7 @@ export default function UploadPage() {
                         className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
                           isSelected
                             ? 'bg-[var(--color-accent)] text-white'
-                            : 'bg-[var(--color-bg-subtle)] text-[var(--color-muted)] border border-[var(--color-border)]'
+                            : 'bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-muted)] border border-[var(--color-line)] dark:border-[#272F3A]'
                         }`}
                       >
                         {t(`types.${type.id}.hint`)}
@@ -191,12 +194,12 @@ export default function UploadPage() {
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-[var(--color-border)] flex items-center justify-end">
+                  <div className="mt-4 pt-3 border-t border-[var(--color-line)] dark:border-[#272F3A] flex items-center justify-end">
                     <div
-                      className={`h-4 w-4 rounded-full border flex items-center justify-center transition-colors ${
+                      className={`h-4 w-4 rounded-full border flex items-center justify-center transition-colors duration-300 ${
                         isSelected
                           ? 'border-[var(--color-accent)] bg-[var(--color-accent)]'
-                          : 'border-[var(--color-muted)]'
+                          : 'border-[var(--color-line)] dark:border-[#272F3A]'
                       }`}
                     >
                       {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
@@ -210,7 +213,7 @@ export default function UploadPage() {
 
         {/* STEP 2: UPLOAD FILE */}
         {activeType ? (
-          <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+          <div className="space-y-4 pt-4 border-t border-[var(--color-line)] dark:border-[#272F3A]">
             <div className="flex items-center gap-2">
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-accent)] text-white font-bold text-xs shadow-xs">
                 2
@@ -229,10 +232,10 @@ export default function UploadPage() {
               onDragLeave={() => setIsDragging(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition-all ${
+              className={`flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center transition-all duration-350 ease-out ${
                 isDragging
-                  ? 'border-[var(--color-accent)] bg-[var(--color-accent-soft)]/50 scale-[0.99]'
-                  : 'border-[var(--color-border)] bg-[var(--color-card)] hover:border-[var(--color-accent)]/60 shadow-xs'
+                  ? 'border-[var(--color-accent)] bg-[var(--color-surface-2)] dark:bg-[#1C222B] scale-[0.99] shadow-[var(--shadow-cool-md)]'
+                  : 'border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] hover:border-[var(--color-accent)]/60 hover:shadow-[var(--shadow-cool-md)] shadow-xs'
               }`}
             >
               <input
@@ -248,7 +251,7 @@ export default function UploadPage() {
                 className="hidden"
               />
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-accent-soft)] text-[var(--color-accent)] mb-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-accent)] mb-4 shadow-xs">
                 {file ? <FileCheck2 className="h-7 w-7" strokeWidth={2} /> : <UploadCloud className="h-7 w-7" strokeWidth={2} />}
               </div>
 
@@ -277,7 +280,7 @@ export default function UploadPage() {
 
               <button
                 type="button"
-                className="mt-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-xs font-bold text-[var(--color-text)] hover:border-[var(--color-accent)] transition-colors cursor-pointer"
+                className="mt-5 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-4 py-2 text-xs font-bold text-[var(--color-text)] hover:border-[var(--color-accent)] transition-colors duration-300 cursor-pointer"
               >
                 {t('dropzone.browseButton')}
               </button>
@@ -288,7 +291,7 @@ export default function UploadPage() {
               <button
                 onClick={handleSubmit}
                 disabled={!file || isProcessing}
-                className="flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-8 py-3 text-xs font-bold text-white shadow-md shadow-[var(--color-accent)]/20 hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-8 py-3 text-xs font-bold text-white shadow-md shadow-[var(--color-accent)]/20 hover:brightness-110 transition-all duration-300 ease-out transform active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isProcessing ? (
                   <>
@@ -298,13 +301,24 @@ export default function UploadPage() {
                 ) : (
                   <>
                     <span>{t('process')}</span>
-                    <ArrowRight className="h-4 w-4" strokeWidth={2} />
+                    <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
                   </>
                 )}
               </button>
             </div>
+          </div>
+        ) : (
+          <div className="rounded-3xl border border-dashed border-[var(--color-line)] dark:border-[#272F3A] bg-white/50 dark:bg-[#151A21]/50 p-10 text-center">
+            {/* Calm geometric SVG placeholder */}
+            <svg className="mx-auto h-12 w-12 text-[var(--color-muted)]/40 mb-3" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="8" width="32" height="32" rx="8" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
+              <circle cx="24" cy="24" r="6" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            <p className="text-xs text-[var(--color-muted)]">{t('step2Hint')}</p>
+          </div>
+        )}
 
-            {/* Error Callout */}
+        {/* Error Callout */}
             <AnimatePresence>
               {error && (
                 <motion.div
@@ -340,12 +354,6 @@ export default function UploadPage() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-[var(--color-border)] p-8 text-center text-xs text-[var(--color-muted)]">
-            {t('selectPrompt')}
-          </div>
-        )}
 
         {/* INFO TIP CALLOUT */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-card)] p-4 flex items-center gap-3 text-xs text-[var(--color-muted)] shadow-xs">

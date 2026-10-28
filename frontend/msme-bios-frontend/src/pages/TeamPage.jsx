@@ -115,20 +115,32 @@ export default function TeamPage() {
   const emailFor = (userId) => members.find((m) => m.user_id === userId)?.email ?? userId
   const seatsFull = seats && seats.in_use >= seats.purchased
 
-  const card = 'rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 sm:p-7 shadow-xs'
+  const card = 'rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 sm:p-7 shadow-xs hover:shadow-[var(--shadow-cool-md)] transition-all duration-350 ease-out'
   const input =
-    'w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2.5 text-xs text-[var(--color-text)] placeholder-[var(--color-muted)]/60 focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent focus:outline-none transition-all'
+    'w-full rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-4 py-2.5 text-xs text-[var(--color-text)] placeholder-[var(--color-muted)]/60 focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent focus:outline-none transition-all duration-300'
   const smallButton =
-    'rounded-xl border border-[var(--color-border)] px-3 py-1.5 text-[11px] font-bold text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors disabled:opacity-40 cursor-pointer'
+    'rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] px-3 py-1.5 text-[11px] font-bold text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors duration-300 disabled:opacity-40 cursor-pointer'
 
   const chip = (tone) =>
     `inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${
       {
-        green: 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]/30',
-        amber: 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]/30',
-        grey: 'bg-[var(--color-bg-subtle)] text-[var(--color-muted)] border-[var(--color-border)]',
-      }[tone]
+        green: 'bg-[#E3F6EC] text-[#12A06B] border-[#C2EDD5] dark:bg-[#12302A] dark:text-[#34D399] dark:border-[#1E4A3F]',
+        amber: 'bg-[#FFF1E0] text-[#FF8A1F] border-[#FDE1C3] dark:bg-[#3A2A18] dark:text-[#FFA040] dark:border-[#523A20]',
+        grey: 'bg-[var(--color-surface-2)] text-[var(--color-muted)] border-[var(--color-line)] dark:bg-[#1C222B] dark:border-[#272F3A]',
+      }[tone] || 'bg-[var(--color-surface-2)] text-[var(--color-muted)] border-[var(--color-line)]'
     }`
+
+  const deptChip = (roleKey) => {
+    const map = {
+      finance: 'bg-[#E3F6EC] text-[#12A06B] border-[#C2EDD5] dark:bg-[#12302A] dark:text-[#34D399] dark:border-[#1E4A3F]',
+      sales: 'bg-[#E4ECFF] text-[#2F5BFF] border-[#C8D6F2] dark:bg-[#16213A] dark:text-[#6C8CFF] dark:border-[#223152]',
+      hr: 'bg-[#F2EEFF] text-[#8A5CD6] border-[#DDD5F5] dark:bg-[#281C3F] dark:text-[#B292F0] dark:border-[#432E6B]',
+      marketing: 'bg-[#FDE7EA] text-[#E0457B] border-[#FBD0D6] dark:bg-[#3A1C24] dark:text-[#F4729F] dark:border-[#52222E]',
+      owner: 'bg-[#E4ECFF] text-[#2F5BFF] border-[#C8D6F2] dark:bg-[#16213A] dark:text-[#6C8CFF] dark:border-[#223152]',
+    }
+    return `inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold ${map[roleKey] || 'bg-[var(--color-surface-2)] text-[var(--color-muted)] border-[var(--color-line)]'}`
+  }
+
   const inviteTone = { pending: 'amber', accepted: 'green', revoked: 'grey', expired: 'grey' }
 
   return (
@@ -297,7 +309,7 @@ export default function TeamPage() {
                       </p>
                     </div>
                     {m.role === 'owner' ? (
-                      <span className={chip('green')}>{t('roles.owner')}</span>
+                      <span className={deptChip('owner')}>{t('roles.owner')}</span>
                     ) : (
                       <div className="flex flex-wrap items-center gap-2">
                         <label className="sr-only" htmlFor={`role-${m.user_id}`}>
@@ -308,7 +320,7 @@ export default function TeamPage() {
                           value={m.role}
                           disabled={busyId === m.user_id}
                           onChange={(e) => act(m.user_id, () => changeMemberRole(m.user_id, e.target.value))}
-                          className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--color-text)] focus:ring-1 focus:ring-[var(--color-accent)] focus:outline-none"
+                          className="rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-2.5 py-1.5 text-[11px] font-medium text-[var(--color-text)] focus:ring-1 focus:ring-[var(--color-accent)] focus:outline-none transition-all"
                         >
                           {MEMBER_ROLES.map((r) => (
                             <option key={r} value={r}>
@@ -316,6 +328,9 @@ export default function TeamPage() {
                             </option>
                           ))}
                         </select>
+                        <span className={deptChip(m.role)}>
+                          {t(`roles.${m.role}`)}
+                        </span>
                         <span className={chip(m.status === 'active' ? 'green' : 'grey')}>
                           {t(`members.status_${m.status}`)}
                         </span>

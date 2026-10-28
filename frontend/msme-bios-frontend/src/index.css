@@ -3,10 +3,9 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-display: 'Bricolage Grotesque', sans-serif;
-  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-devanagari: 'Noto Sans Devanagari', sans-serif;
-  --font-data: 'IBM Plex Mono', monospace;
 
   --color-canvas: var(--color-canvas);
   --color-surface: var(--color-surface);
@@ -14,49 +13,113 @@
   --color-line: var(--color-line);
   --color-line-subtle: var(--color-line-subtle);
   --color-ink: var(--color-ink);
+  --color-text: var(--color-text);
   --color-muted: var(--color-muted);
   --color-accent: var(--color-accent);
   --color-accent-hover: var(--color-accent-hover);
+  --color-accent-text: var(--color-accent-text);
   --color-accent-soft: var(--color-accent-soft);
   --color-success: var(--color-success);
+  --color-success-text: var(--color-success-text);
   --color-success-soft: var(--color-success-soft);
+  --color-highlight: var(--color-highlight);
+  --color-highlight-text: var(--color-highlight-text);
   --color-warning: var(--color-warning);
   --color-warning-soft: var(--color-warning-soft);
   --color-danger: var(--color-danger);
   --color-danger-soft: var(--color-danger-soft);
 
+  --color-hero-wash: var(--color-hero-wash);
+  --color-hero-line: var(--color-hero-line);
+  --color-hero-muted: var(--color-hero-muted);
+
+  --color-dark-block: var(--color-dark-block);
+  --color-dark-text: var(--color-dark-text);
+  --color-dark-muted: var(--color-dark-muted);
+  --color-dark-line: var(--color-dark-line);
+  --color-dark-surface: var(--color-dark-surface);
+
+  --color-dept-finance: #1E9E6E;
+  --color-dept-sales: #2F6FDE;
+  --color-dept-hr: #8A5CD6;
+  --color-dept-marketing: #E0457B;
+
+  --color-tint-blue: var(--color-tint-blue);
+  --color-tint-green: var(--color-tint-green);
+  --color-tint-amber: var(--color-tint-amber);
+  --color-tint-rose: var(--color-tint-rose);
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
+  --radius-2xl: 24px;
 
-  --shadow-warm-sm: 0 1px 2px 0 rgba(20, 17, 15, 0.05);
-  --shadow-warm-md: 0 4px 12px -2px rgba(20, 17, 15, 0.08), 0 2px 6px -2px rgba(20, 17, 15, 0.04);
-  --shadow-warm-lg: 0 12px 28px -4px rgba(20, 17, 15, 0.1), 0 4px 10px -2px rgba(20, 17, 15, 0.04);
+  --shadow-cool-sm: var(--shadow-cool-sm);
+  --shadow-cool-md: var(--shadow-cool-md);
+  --shadow-cool-lg: var(--shadow-cool-lg);
 }
 
 :root {
   box-sizing: border-box;
 
-  /* Modern B2B SaaS Light Palette */
-  --color-canvas: #F7F5F1;
+  /* F1 Light Palette */
+  --color-canvas: #F7F9FC;
   --color-surface: #FFFFFF;
-  --color-surface-2: #F1EEE8;
-  --color-line: #E5E0D6;
-  --color-line-subtle: #EFEBE3;
-  --color-ink: #14110F;
-  --color-muted: #6B645B;
-  --color-accent: #F26A1B;
-  --color-accent-hover: #DE590D;
-  --color-accent-soft: #FDEBDD;
-  --color-success: #12805C;
-  --color-success-soft: #E7F6F0;
+  --color-surface-2: #EEF2F9;
+  --color-line: #E1E7F0;
+  --color-line-subtle: #E8EEF7;
+  --color-ink: #0D1526;
+  --color-text: #0D1526;
+  --color-muted: #5A667A;
+
+  /* Primary Accent: Cobalt */
+  --color-accent: #2F5BFF;
+  --color-accent-hover: #224ADB;
+  --color-accent-text: #2547D0;
+  --color-accent-soft: #E9F0FF;
+
+  /* Semantic Feedback */
+  --color-success: #12A06B;
+  --color-success-text: #0C7A50;
+  --color-success-soft: #E3F6EC;
   --color-warning: #B7791F;
   --color-warning-soft: #FEF7EB;
-  --color-danger: #B42318;
+  --color-danger: #D92D20;
   --color-danger-soft: #FEE4E2;
 
-  /* Legacy variable mappings to ensure 100% backward compatibility during rollout */
+  /* Highlight: Saffron (Strict restricted use) */
+  --color-highlight: #FF8A1F;
+  --color-highlight-text: #14171C;
+
+  /* Hero & Landing */
+  --color-hero-wash: #E9F0FF;
+  --color-hero-line: #C8D6F2;
+  --color-hero-muted: #4F5E78;
+
+  /* Dark Block (Dark sidebar, dark sections, featured plan card) */
+  --color-dark-block: #0D1526;
+  --color-dark-text: #F2F6FF;
+  --color-dark-muted: #A3B1C9;
+  --color-dark-line: #223152;
+  --color-dark-surface: #141F38;
+
+  /* Card Tints */
+  --color-tint-blue: #E4ECFF;
+  --color-tint-green: #E3F6EC;
+  --color-tint-amber: #FFF1E0;
+  --color-tint-rose: #FDE7EA;
+
+  /* Cool-tinted Soft Shadows (Light mode) */
+  --shadow-cool-sm: 0 1px 2px 0 rgba(13, 21, 38, 0.05);
+  --shadow-cool-md: 0 4px 12px -2px rgba(13, 21, 38, 0.08), 0 2px 6px -2px rgba(13, 21, 38, 0.04);
+  --shadow-cool-lg: 0 12px 28px -4px rgba(13, 21, 38, 0.10), 0 4px 10px -2px rgba(13, 21, 38, 0.04);
+
+  /* Legacy variable mappings for backward compatibility across all existing pages */
+  --color-bg: var(--color-canvas);
+  --color-card: var(--color-surface);
+  --color-border: var(--color-line);
+  --color-bg-subtle: var(--color-surface-2);
   --bg-page: var(--color-canvas);
   --bg-surface: var(--color-surface);
   --bg-surface-hover: var(--color-surface-2);
@@ -66,41 +129,82 @@
   --accent-primary: var(--color-accent);
   --accent-hover: var(--color-accent-hover);
   --accent-light: var(--color-accent-soft);
+  --shadow-warm-sm: var(--shadow-cool-sm);
+  --shadow-warm-md: var(--shadow-cool-md);
+  --shadow-warm-lg: var(--shadow-cool-lg);
 }
 
 .dark {
-  /* Modern B2B SaaS Dark Palette */
-  --color-canvas: #0F1113;
-  --color-surface: #171A1D;
-  --color-surface-2: #1F2327;
-  --color-line: #2A2F34;
-  --color-line-subtle: #22262B;
-  --color-ink: #EDEAE4;
-  --color-muted: #9A948A;
-  --color-accent: #FF7A33;
-  --color-accent-hover: #FF8E52;
-  --color-accent-soft: rgba(255, 122, 51, 0.14);
-  --color-success: #34C38F;
-  --color-success-soft: rgba(52, 195, 143, 0.14);
-  --color-warning: #F3BA4A;
-  --color-warning-soft: rgba(243, 186, 74, 0.14);
-  --color-danger: #F87171;
-  --color-danger-soft: rgba(248, 113, 113, 0.14);
+  /* F1 Dark Mode: Graphite & Cobalt */
+  --color-canvas: #0E1116;
+  --color-surface: #151A21;
+  --color-surface-2: #1C222B;
+  --color-line: #272F3A;
+  --color-line-subtle: #1F2630;
+  --color-ink: #ECEFF4;
+  --color-text: #ECEFF4;
+  --color-muted: #98A2B3;
 
-  /* Legacy variable mappings (dark) */
-  --bg-page: var(--color-canvas);
-  --bg-surface: var(--color-surface);
-  --bg-surface-hover: var(--color-surface-2);
-  --border-color: var(--color-line);
-  --text-primary: var(--color-ink);
-  --text-secondary: var(--color-muted);
-  --accent-primary: var(--color-accent);
-  --accent-hover: var(--color-accent-hover);
-  --accent-light: var(--color-accent-soft);
+  /* Primary Accent: Cobalt Dark */
+  --color-accent: #6C8CFF;
+  --color-accent-hover: #839DFF;
+  --color-accent-text: #9DB2FF;
+  --color-accent-soft: rgba(108, 140, 255, 0.15);
+
+  /* Semantic Feedback */
+  --color-success: #34D399;
+  --color-success-text: #34D399;
+  --color-success-soft: rgba(52, 211, 153, 0.15);
+  --color-warning: #F3BA4A;
+  --color-warning-soft: rgba(243, 186, 74, 0.15);
+  --color-danger: #F87171;
+  --color-danger-soft: rgba(248, 113, 113, 0.15);
+
+  /* Highlight: Saffron Dark */
+  --color-highlight: #FFA040;
+  --color-highlight-text: #14171C;
+
+  /* Hero & Dark Block */
+  --color-hero-wash: #10141B;
+  --color-hero-line: #272F3A;
+  --color-hero-muted: #98A2B3;
+  --color-dark-block: #10141B;
+  --color-dark-text: #ECEFF4;
+  --color-dark-muted: #98A2B3;
+  --color-dark-line: #272F3A;
+  --color-dark-surface: #161C25;
+
+  /* Card Tints in Dark Mode */
+  --color-tint-blue: #16213A;
+  --color-tint-green: #12302A;
+  --color-tint-amber: #3A2A18;
+  --color-tint-rose: #3A1C24;
+
+  /* In dark mode, rely on surface lightness and crisp borders instead of heavy shadows */
+  --shadow-cool-sm: none;
+  --shadow-cool-md: none;
+  --shadow-cool-lg: none;
+  --shadow-warm-sm: none;
+  --shadow-warm-md: none;
+  --shadow-warm-lg: none;
 }
 
 *, *::before, *::after {
   box-sizing: inherit;
+}
+
+/* Typography scale and heading styling for English */
+html[lang="en"] {
+  --font-display: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html[lang="en"] h1, html[lang="en"] h2, html[lang="en"] h3,
+html[lang="en"] .font-display, html[lang="en"] [data-display="true"] {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
 }
 
 /* Indic scripts (Hindi and Marathi) use Noto Sans Devanagari with appropriate line-heights */
@@ -111,19 +215,18 @@ html[lang="hi"], html[lang="mr"] {
 }
 
 html[lang="hi"] body, html[lang="mr"] body {
-  line-height: 1.6;
+  font-family: var(--font-body);
+  line-height: 1.5;
+  letter-spacing: 0 !important;
 }
 
 html[lang="hi"] h1, html[lang="hi"] h2, html[lang="hi"] h3,
 html[lang="mr"] h1, html[lang="mr"] h2, html[lang="mr"] h3 {
-  line-height: 1.35;
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.3;
   letter-spacing: 0 !important;
   text-transform: none !important;
-}
-
-/* English typography display scale tuning */
-html[lang="en"] .tracking-tight {
-  letter-spacing: -0.02em;
 }
 
 html, body {
@@ -146,7 +249,7 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Branded text selection */
+/* Branded text selection: Cobalt with white text, or dark text in dark mode */
 ::selection {
   background-color: var(--color-accent);
   color: #FFFFFF;
@@ -154,31 +257,136 @@ body {
 
 .dark ::selection {
   background-color: var(--color-accent);
-  color: #0F1113;
+  color: #0E1116;
 }
 
-/* Smooth Card Flip */
-.card-flip {
-  perspective: 1200px;
+/* Logo chip wrapper styling */
+.logo-chip {
+  background-color: #FFFFFF;
+  border: 1px solid var(--color-hero-line);
+  border-radius: var(--radius-md);
 }
 
-.card-flip-inner {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+/* ==========================================================================
+   Bento Feature Cards: Slow, Smooth & Distinct Multi-Style Hover Animations
+   Replaces fast jarring flips with calm, majestic 3D gliding layer reveals
+   ========================================================================== */
+.bento-card {
+  perspective: 1400px;
+}
+
+.bento-card-inner {
+  transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   transform-style: preserve-3d;
 }
 
-.card-flip:hover .card-flip-inner,
-.card-flip:focus-within .card-flip-inner {
-  transform: rotateY(180deg);
+.bento-card:hover .bento-card-inner,
+.bento-card:focus-within .bento-card-inner {
+  transform: translateY(-8px);
 }
 
-.card-flip-face {
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+.bento-card-face {
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s ease, border-color 0.5s ease;
+  will-change: transform, opacity;
 }
 
-.card-flip-back {
-  transform: rotateY(180deg);
+/* Front Face Base */
+.bento-card-front {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* Back Face Base */
+.bento-card-back {
+  opacity: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Variant 1: Blue (Business Tracking) -> Silky Horizontal Glide Reveal
+   Front glides left into subtle fade, Back glides smoothly from right
+   -------------------------------------------------------------------------- */
+.bento-card-blue .bento-card-back {
+  transform: translateX(32px);
+}
+.bento-card-blue:hover .bento-card-front,
+.bento-card-blue:focus-within .bento-card-front {
+  opacity: 0;
+  transform: translateX(-32px);
+  pointer-events: none;
+}
+.bento-card-blue:hover .bento-card-back,
+.bento-card-blue:focus-within .bento-card-back {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  box-shadow: 0 20px 42px -10px rgba(47, 91, 255, 0.22);
+}
+
+/* --------------------------------------------------------------------------
+   Variant 2: Cobalt (Document Digitization) -> Elegant Vertical Ascend Reveal
+   Front floats upward into fade, Back ascends gracefully from bottom
+   -------------------------------------------------------------------------- */
+.bento-card-cobalt .bento-card-back {
+  transform: translateY(32px);
+}
+.bento-card-cobalt:hover .bento-card-front,
+.bento-card-cobalt:focus-within .bento-card-front {
+  opacity: 0;
+  transform: translateY(-32px);
+  pointer-events: none;
+}
+.bento-card-cobalt:hover .bento-card-back,
+.bento-card-cobalt:focus-within .bento-card-back {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  box-shadow: 0 24px 48px -8px rgba(47, 91, 255, 0.42);
+}
+
+/* --------------------------------------------------------------------------
+   Variant 3: Dark Block (Built for India) -> 3D Depth Focal Zoom Reveal
+   Front sinks smoothly back with slight scale, Back emerges forward
+   -------------------------------------------------------------------------- */
+.bento-card-dark .bento-card-back {
+  transform: scale(0.92);
+}
+.bento-card-dark:hover .bento-card-front,
+.bento-card-dark:focus-within .bento-card-front {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+.bento-card-dark:hover .bento-card-back,
+.bento-card-dark:focus-within .bento-card-back {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+  box-shadow: 0 26px 52px -10px rgba(13, 21, 38, 0.68);
+}
+
+/* --------------------------------------------------------------------------
+   Variant 4: Amber (Invoice Generation) -> Diagonal Traverse Reveal
+   Front glides toward top-left, Back glides smoothly from bottom-right
+   -------------------------------------------------------------------------- */
+.bento-card-amber .bento-card-back {
+  transform: translate(28px, 20px);
+}
+.bento-card-amber:hover .bento-card-front,
+.bento-card-amber:focus-within .bento-card-front {
+  opacity: 0;
+  transform: translate(-28px, -20px);
+  pointer-events: none;
+}
+.bento-card-amber:hover .bento-card-back,
+.bento-card-amber:focus-within .bento-card-back {
+  opacity: 1;
+  transform: translate(0, 0);
+  pointer-events: auto;
+  box-shadow: 0 20px 42px -10px rgba(255, 138, 31, 0.28);
 }
 
 /* Accessibility: respect user preference for reduced motion */
@@ -189,7 +397,9 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .card-flip-inner {
+  .bento-card-inner,
+  .bento-card-face {
     transition: none !important;
+    transform: none !important;
   }
 }

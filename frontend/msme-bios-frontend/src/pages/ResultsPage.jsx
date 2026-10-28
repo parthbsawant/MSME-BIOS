@@ -83,10 +83,10 @@ export default function ResultsPage() {
     <DashboardLayout activeItem="Documents">
       <div className="max-w-4xl mx-auto space-y-8">
         {/* Header & Status Badge Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] bg-[var(--color-bg-subtle)] px-2.5 py-0.5 rounded-full border border-[var(--color-border)]">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-muted)] bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-2.5 py-0.5 rounded-full border border-[var(--color-line)] dark:border-[#272F3A]">
                 {documentType ? t(`types.${documentType}`, { defaultValue: t('parsedRecord') }) : t('parsedRecord')}
               </span>
               <span className="text-xs text-[var(--color-muted)] font-[family-name:var(--font-data)] truncate max-w-[200px] sm:max-w-xs">
@@ -101,12 +101,12 @@ export default function ResultsPage() {
           {/* Status Badge */}
           <div className="self-start sm:self-auto">
             {isReviewNeeded ? (
-              <div className="flex items-center gap-2 rounded-full border border-[var(--color-warning)]/30 bg-[var(--color-warning-soft)] px-3.5 py-1.5 text-xs font-bold text-[var(--color-warning)]">
+              <div className="flex items-center gap-2 rounded-full border border-[#FDE1C3] dark:border-[#523A20] bg-[#FFF1E0] dark:bg-[#3A2A18] px-3.5 py-1.5 text-xs font-bold text-[#FF8A1F] dark:text-[#FFA040]">
                 <AlertTriangle className="h-4 w-4" strokeWidth={2.2} />
                 <span>{t('status.needsReview')}</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 rounded-full border border-[var(--color-success)]/30 bg-[var(--color-success-soft)] px-3.5 py-1.5 text-xs font-bold text-[var(--color-success)]">
+              <div className="flex items-center gap-2 rounded-full border border-[#C2EDD5] dark:border-[#1E4A3F] bg-[#E3F6EC] dark:bg-[#12302A] px-3.5 py-1.5 text-xs font-bold text-[#12A06B] dark:text-[#34D399]">
                 <CheckCircle2 className="h-4 w-4" strokeWidth={2.2} />
                 <span>{t('status.trusted')}</span>
               </div>
@@ -117,8 +117,8 @@ export default function ResultsPage() {
         {/* BANK STATEMENT DATA VIEW */}
         {documentType === 'bank_statement' && (
           <div className="space-y-6">
-            <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs overflow-hidden">
-              <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
+            <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs overflow-hidden">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                 <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)]">
                   {t('bank.title')}
                 </h3>
@@ -127,32 +127,32 @@ export default function ResultsPage() {
                 </span>
               </div>
 
-              <div className="overflow-x-auto mt-4">
+              <div className="overflow-x-auto mt-4 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A]">
                 <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[var(--color-border)] text-[var(--color-muted)] font-semibold">
-                      <th className="pb-3 pr-4">{t('bank.cols.date')}</th>
-                      <th className="pb-3 pr-4">{t('bank.cols.description')}</th>
-                      <th className="pb-3 px-4 text-right">{t('bank.cols.debit')}</th>
-                      <th className="pb-3 px-4 text-right">{t('bank.cols.credit')}</th>
-                      <th className="pb-3 pl-4 text-right">{t('bank.cols.balance')}</th>
+                  <thead className="bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-text)]">
+                    <tr className="border-b border-[var(--color-line)] dark:border-[#272F3A] font-semibold">
+                      <th className="py-3 px-4">{t('bank.cols.date')}</th>
+                      <th className="py-3 px-4">{t('bank.cols.description')}</th>
+                      <th className="py-3 px-4 text-right">{t('bank.cols.debit')}</th>
+                      <th className="py-3 px-4 text-right">{t('bank.cols.credit')}</th>
+                      <th className="py-3 px-4 text-right">{t('bank.cols.balance')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--color-border)]/60 font-[family-name:var(--font-data)]">
+                  <tbody className="divide-y divide-[var(--color-line)]/70 dark:divide-[#272F3A]/70 font-[family-name:var(--font-data)]">
                     {result.transactions?.map((row, i) => (
                       <tr
                         key={i}
-                        className={`hover:bg-[var(--color-bg-subtle)]/50 transition-colors ${
-                          row.needs_review ? 'bg-[var(--color-warning-soft)]/40' : ''
+                        className={`hover:bg-[var(--color-surface-2)]/60 dark:hover:bg-[#1C222B]/60 transition-colors duration-250 ${
+                          row.needs_review ? 'bg-[#FFF1E0]/50 dark:bg-[#3A2A18]/50' : ''
                         }`}
                       >
-                        <td className="py-3.5 pr-4 text-[var(--color-text)] font-medium whitespace-nowrap tabular-nums">
+                        <td className="py-3.5 px-4 text-[var(--color-text)] font-medium whitespace-nowrap tabular-nums">
                           {row.txn_date}
                         </td>
-                        <td className="py-3.5 pr-4 font-[family-name:var(--font-body)] text-[var(--color-text)]">
+                        <td className="py-3.5 px-4 font-[family-name:var(--font-body)] text-[var(--color-text)]">
                           {row.description}
                           {row.needs_review && (
-                            <span className="ml-2 inline-block rounded-md bg-[var(--color-warning-soft)] border border-[var(--color-warning)]/30 px-2 py-0.5 text-[10px] font-bold text-[var(--color-warning)]">
+                            <span className="ml-2 inline-block rounded-md bg-[#FFF1E0] dark:bg-[#3A2A18] border border-[#FDE1C3] dark:border-[#523A20] px-2 py-0.5 text-[10px] font-bold text-[#FF8A1F] dark:text-[#FFA040]">
                               {t('bank.review', { reason: row.review_reason || t('bank.checkAmount') })}
                             </span>
                           )}
@@ -163,7 +163,7 @@ export default function ResultsPage() {
                         <td className="py-3.5 px-4 text-right text-[var(--color-success)] font-semibold tabular-nums">
                           {row.credit ? money(row.credit) : '—'}
                         </td>
-                        <td className="py-3.5 pl-4 text-right font-bold text-[var(--color-text)] tabular-nums">
+                        <td className="py-3.5 px-4 text-right font-bold text-[var(--color-text)] tabular-nums">
                           {money(row.balance)}
                         </td>
                       </tr>
@@ -179,7 +179,7 @@ export default function ResultsPage() {
         {documentType === 'invoice_bill' && (
           <div className="space-y-6">
             {/* Header Metadata Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs">
               <div>
                 <p className="text-[11px] font-semibold text-[var(--color-muted)]">{t('invoice.vendor')}</p>
                 <p className="mt-1 text-sm font-bold text-[var(--color-text)] truncate">{result.vendor_name || t('na')}</p>
@@ -205,29 +205,29 @@ export default function ResultsPage() {
             </div>
 
             {/* Line Items Table */}
-            <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs overflow-hidden">
-              <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)] pb-4 border-b border-[var(--color-border)]">
+            <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs overflow-hidden">
+              <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)] pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                 {t('invoice.lineItems')}
               </h3>
-              <div className="overflow-x-auto mt-4">
+              <div className="overflow-x-auto mt-4 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A]">
                 <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[var(--color-border)] text-[var(--color-muted)] font-semibold">
-                      <th className="pb-3 pr-4">{t('invoice.cols.item')}</th>
-                      <th className="pb-3 px-4 text-right">{t('invoice.cols.qty')}</th>
-                      <th className="pb-3 px-4 text-right">{t('invoice.cols.rate')}</th>
-                      <th className="pb-3 pl-4 text-right">{t('invoice.cols.gst')}</th>
+                  <thead className="bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-text)]">
+                    <tr className="border-b border-[var(--color-line)] dark:border-[#272F3A] font-semibold">
+                      <th className="py-3 px-4">{t('invoice.cols.item')}</th>
+                      <th className="py-3 px-4 text-right">{t('invoice.cols.qty')}</th>
+                      <th className="py-3 px-4 text-right">{t('invoice.cols.rate')}</th>
+                      <th className="py-3 px-4 text-right">{t('invoice.cols.gst')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--color-border)]/60 font-[family-name:var(--font-data)]">
+                  <tbody className="divide-y divide-[var(--color-line)]/70 dark:divide-[#272F3A]/70 font-[family-name:var(--font-data)]">
                     {result.line_items?.map((item, i) => (
-                      <tr key={i} className="hover:bg-[var(--color-bg-subtle)]/50 transition-colors">
-                        <td className="py-3.5 pr-4 font-[family-name:var(--font-body)] text-[var(--color-text)] font-medium">
+                      <tr key={i} className="hover:bg-[var(--color-surface-2)]/60 dark:hover:bg-[#1C222B]/60 transition-colors duration-250">
+                        <td className="py-3.5 px-4 font-[family-name:var(--font-body)] text-[var(--color-text)] font-medium">
                           {item.description}
                         </td>
                         <td className="py-3.5 px-4 text-right text-[var(--color-text)] tabular-nums">{item.qty}</td>
                         <td className="py-3.5 px-4 text-right text-[var(--color-text)] tabular-nums">{money(item.rate)}</td>
-                        <td className="py-3.5 pl-4 text-right text-[var(--color-text)] tabular-nums">{item.gst_pct}%</td>
+                        <td className="py-3.5 px-4 text-right text-[var(--color-text)] tabular-nums">{item.gst_pct}%</td>
                       </tr>
                     ))}
                   </tbody>
@@ -235,7 +235,7 @@ export default function ResultsPage() {
               </div>
 
               {/* Totals Summary */}
-              <div className="mt-6 flex justify-end border-t border-[var(--color-border)] pt-4">
+              <div className="mt-6 flex justify-end border-t border-[var(--color-line)] dark:border-[#272F3A] pt-4">
                 <div className="w-64 space-y-2 text-xs">
                   <div className="flex justify-between text-[var(--color-muted)]">
                     <span>{t('invoice.subtotal')}</span>
@@ -243,7 +243,7 @@ export default function ResultsPage() {
                       {money(result.subtotal)}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center rounded-2xl bg-[var(--color-accent-soft)] p-3 font-bold text-sm text-[var(--color-accent)]">
+                  <div className="flex justify-between items-center rounded-2xl bg-[#E4ECFF] dark:bg-[#16213A] border border-[#C8D6F2] dark:border-[#223152] p-3 font-bold text-sm text-[var(--color-accent)]">
                     <span>{t('invoice.grandTotal')}</span>
                     <span className="font-[family-name:var(--font-data)] text-base tabular-nums">
                       {money(result.total)}
@@ -258,7 +258,7 @@ export default function ResultsPage() {
         {/* HANDWRITTEN PHOTO BILL VIEW */}
         {documentType === 'photo_bill' && (
           <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4 rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs">
+            <div className="grid grid-cols-2 gap-4 rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs">
               <div>
                 <p className="text-[11px] font-semibold text-[var(--color-muted)]">{t('photo.vendorOrCustomer')}</p>
                 <p className="mt-1 text-sm font-bold text-[var(--color-text)] truncate">
@@ -273,36 +273,36 @@ export default function ResultsPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-[var(--color-border)] bg-[var(--color-card)] p-6 shadow-xs overflow-hidden">
-              <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)] pb-4 border-b border-[var(--color-border)]">
+            <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-xs overflow-hidden">
+              <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)] pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                 {t('photo.extracted')}
               </h3>
-              <div className="overflow-x-auto mt-4">
+              <div className="overflow-x-auto mt-4 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A]">
                 <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-[var(--color-border)] text-[var(--color-muted)] font-semibold">
-                      <th className="pb-3 pr-4">{t('photo.cols.item')}</th>
-                      <th className="pb-3 px-4 text-right">{t('photo.cols.qty')}</th>
-                      <th className="pb-3 px-4 text-right">{t('photo.cols.amount')}</th>
-                      <th className="pb-3 pl-4 text-right">{t('photo.cols.confidence')}</th>
+                  <thead className="bg-[var(--color-surface-2)] dark:bg-[#1C222B] text-[var(--color-text)]">
+                    <tr className="border-b border-[var(--color-line)] dark:border-[#272F3A] font-semibold">
+                      <th className="py-3 px-4">{t('photo.cols.item')}</th>
+                      <th className="py-3 px-4 text-right">{t('photo.cols.qty')}</th>
+                      <th className="py-3 px-4 text-right">{t('photo.cols.amount')}</th>
+                      <th className="py-3 px-4 text-right">{t('photo.cols.confidence')}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[var(--color-border)]/60 font-[family-name:var(--font-data)]">
+                  <tbody className="divide-y divide-[var(--color-line)]/70 dark:divide-[#272F3A]/70 font-[family-name:var(--font-data)]">
                     {result.line_items?.map((item, i) => (
-                      <tr key={i} className="hover:bg-[var(--color-bg-subtle)]/50 transition-colors">
-                        <td className="py-3.5 pr-4 font-[family-name:var(--font-body)] text-[var(--color-text)] font-medium">
+                      <tr key={i} className="hover:bg-[var(--color-surface-2)]/60 dark:hover:bg-[#1C222B]/60 transition-colors duration-250">
+                        <td className="py-3.5 px-4 font-[family-name:var(--font-body)] text-[var(--color-text)] font-medium">
                           {item.description}
                         </td>
                         <td className="py-3.5 px-4 text-right text-[var(--color-text)] tabular-nums">{item.qty}</td>
                         <td className="py-3.5 px-4 text-right font-bold text-[var(--color-text)] tabular-nums">
                           {money(item.amount)}
                         </td>
-                        <td className="py-3.5 pl-4 text-right">
+                        <td className="py-3.5 px-4 text-right">
                           <span
                             className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-bold border ${
                               item.confidence === 'low'
-                                ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]/30'
-                                : 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]/30'
+                                ? 'bg-[#FFF1E0] dark:bg-[#3A2A18] text-[#FF8A1F] dark:text-[#FFA040] border-[#FDE1C3] dark:border-[#523A20]'
+                                : 'bg-[#E3F6EC] dark:bg-[#12302A] text-[#12A06B] dark:text-[#34D399] border-[#C2EDD5] dark:border-[#1E4A3F]'
                             }`}
                           >
                             {t(`photo.confidence.${item.confidence === 'low' ? 'low' : 'high'}`)}
@@ -314,8 +314,8 @@ export default function ResultsPage() {
                 </table>
               </div>
 
-              <div className="mt-6 flex justify-end border-t border-[var(--color-border)] pt-4">
-                <div className="w-64 flex justify-between items-center rounded-2xl bg-[var(--color-accent-soft)] p-3 font-bold text-sm text-[var(--color-accent)]">
+              <div className="mt-6 flex justify-end border-t border-[var(--color-line)] dark:border-[#272F3A] pt-4">
+                <div className="w-64 flex justify-between items-center rounded-2xl bg-[#E4ECFF] dark:bg-[#16213A] border border-[#C8D6F2] dark:border-[#223152] p-3 font-bold text-sm text-[var(--color-accent)]">
                   <span>{t('photo.totalAmount')}</span>
                   <span className="font-[family-name:var(--font-data)] text-base tabular-nums">
                     {money(result.total)}
@@ -330,7 +330,7 @@ export default function ResultsPage() {
         <div className="flex items-center justify-between pt-4">
           <button
             onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 rounded-xl border border-[var(--color-border)] bg-[var(--color-card)] px-5 py-2.5 text-xs font-bold text-[var(--color-text)] hover:border-[var(--color-accent)] transition-colors cursor-pointer shadow-xs"
+            className="flex items-center gap-2 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] px-5 py-2.5 text-xs font-bold text-[var(--color-text)] hover:border-[var(--color-accent)] transition-colors duration-300 cursor-pointer shadow-xs"
           >
             <ArrowLeft className="h-4 w-4" strokeWidth={2} />
             <span>{t('back')}</span>
@@ -338,7 +338,7 @@ export default function ResultsPage() {
 
           <button
             onClick={() => navigate('/upload')}
-            className="flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-[var(--color-accent)]/20 hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-95 cursor-pointer"
+            className="flex items-center gap-2 rounded-xl bg-[var(--color-accent)] px-6 py-2.5 text-xs font-bold text-white shadow-md shadow-[var(--color-accent)]/20 hover:brightness-110 transition-all duration-300 ease-out transform active:scale-95 cursor-pointer"
           >
             <Plus className="h-4 w-4" strokeWidth={2.5} />
             <span>{t('another')}</span>

@@ -139,7 +139,7 @@ export default function CustomBuilderPage() {
                       }
                       className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-[0.95] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                         isSelected
-                          ? 'bg-[var(--color-accent)] text-white shadow-xs'
+                          ? 'bg-[var(--color-accent)] text-white dark:text-[#0E1116] shadow-xs'
                           : 'border border-[var(--color-line)] bg-[var(--color-surface)] text-[var(--color-muted)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]'
                       }`}
                     >
@@ -158,7 +158,7 @@ export default function CustomBuilderPage() {
       </main>
 
       {/* Fixed Bottom Checkout Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-line)] bg-[var(--color-surface)]/95 backdrop-blur-md px-4 sm:px-6 py-4 shadow-[var(--shadow-warm-lg)]">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-[var(--color-line)] bg-[var(--color-surface)]/95 backdrop-blur-md px-4 sm:px-6 py-4 shadow-[var(--shadow-cool-lg)]">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Selected Pills */}
           <div className="flex flex-1 items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0">
@@ -210,7 +210,7 @@ export default function CustomBuilderPage() {
               type="button"
               onClick={handleConfirm}
               disabled={saving}
-              className="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-7 py-3 text-xs sm:text-sm font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-7 py-3 text-xs sm:text-sm font-bold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               {saving ? tb('preparing') : tb('continueToPayment')}
             </button>

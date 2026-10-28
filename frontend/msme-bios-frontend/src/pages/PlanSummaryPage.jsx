@@ -49,7 +49,7 @@ export default function PlanSummaryPage() {
     <div className="min-h-screen bg-[var(--color-canvas)] text-[var(--color-ink)] transition-colors">
       <Navbar />
       <main className="mx-auto max-w-2xl px-4 sm:px-6 py-10 md:py-14">
-        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-warm-md)]">
+        <div className="rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 sm:p-10 shadow-[var(--shadow-cool-md)]">
           <span className="inline-block rounded-full bg-[var(--color-accent-soft)] px-3 py-1 text-xs font-bold text-[var(--color-accent)]">
             {t('planSummary.badge')}
           </span>
@@ -141,7 +141,7 @@ export default function PlanSummaryPage() {
               type="button"
               onClick={handleConfirm}
               disabled={saving}
-              className="flex-1 inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-6 py-3 text-xs font-bold text-white shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
+              className="flex-1 inline-flex items-center justify-center rounded-xl bg-[var(--color-accent)] px-6 py-3 text-xs font-bold text-white dark:text-[#0E1116] shadow-xs hover:bg-[var(--color-accent-hover)] transition-all transform active:scale-[0.98] disabled:opacity-50 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
             >
               {saving ? tb('preparing') : tb('continueToPayment')}
             </button>

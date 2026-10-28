@@ -41,7 +41,7 @@ export function Modal({
             role="dialog"
             aria-modal="true"
             aria-labelledby={title ? 'modal-title' : undefined}
-            className={`relative z-10 w-full ${maxWidth} rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-warm-lg)] ${className}`}
+            className={`relative z-10 w-full ${maxWidth} rounded-3xl border border-[var(--color-line)] bg-[var(--color-surface)] p-6 shadow-[var(--shadow-cool-lg)] ${className}`}
           >
             {title && (
               <div className="mb-4 flex items-center justify-between border-b border-[var(--color-line)] pb-3">
