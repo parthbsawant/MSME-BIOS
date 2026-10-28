@@ -15,7 +15,7 @@ import { useAuth } from '../context/AuthContext'
 import ThemeToggle from './ThemeToggle'
 import LanguageSwitcher from './LanguageSwitcher'
 import { scaleIn } from '../lib/motion'
-import logo from '../assets/logo.png'
+import Logo from './Logo'
 
 export default function Navbar({ showNavLinks = false }) {
   const { t } = useTranslation()
@@ -58,15 +58,12 @@ export default function Navbar({ showNavLinks = false }) {
       }`}
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 py-3">
-        {/* Brand Logo - Fixed white chip bug with shrink-0 and min-w constraints */}
-        <Link to="/" className="flex items-center shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg">
-          <div className="rounded-xl bg-white px-2.5 py-1.5 shadow-xs border border-[var(--color-hero-line)] shrink-0 transition-transform group-hover:scale-102 flex items-center justify-center">
-            <img
-              src={logo}
-              alt="MSME-BIOS"
-              className="h-7 w-auto min-w-[96px] object-contain block shrink-0"
-            />
-          </div>
+        {/* Brand Logo */}
+        <Link
+          to="/"
+          className="flex items-center shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg text-[var(--color-ink)] transition-transform group-hover:scale-[1.02]"
+        >
+          <Logo size={34} showName={true} />
         </Link>
 
         {/* Center Nav Links (Desktop) */}

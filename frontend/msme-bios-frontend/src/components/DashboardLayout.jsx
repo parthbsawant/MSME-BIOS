@@ -23,7 +23,7 @@ import { useBusiness } from '../context/BusinessContext'
 import { useTranslation } from 'react-i18next'
 import ThemeToggle from './ThemeToggle'
 import LanguageSwitcher from './LanguageSwitcher'
-import logo from '../assets/logo.png'
+import Logo from './Logo'
 
 const DEPARTMENT_COLORS = {
   finance: '#1E9E6E',
@@ -141,11 +141,11 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
               {sidebarOpen ? <X className="h-5 w-5" strokeWidth={2} /> : <Menu className="h-5 w-5" strokeWidth={2} />}
             </button>
 
-            <Link to="/dashboard" className="flex items-center shrink-0">
-              {/* White chip wrapper preserves dark wordmark visibility in both light & dark themes */}
-              <div className="shrink-0 flex items-center justify-center rounded-xl bg-white px-3 py-1.5 shadow-xs border border-[var(--color-hero-line)]">
-                <img src={logo} alt="MSME-BIOS" className="h-6 w-auto min-w-[96px] object-contain" />
-              </div>
+            <Link
+              to="/dashboard"
+              className="flex items-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg text-[var(--color-text)]"
+            >
+              <Logo size={30} showName={true} nameClassName="hidden sm:inline-flex" />
             </Link>
           </div>
 

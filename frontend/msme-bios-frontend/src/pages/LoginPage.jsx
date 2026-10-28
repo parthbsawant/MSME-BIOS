@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext'
 import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { googleErrorKey } from '../lib/googleAuthError'
-import logo from '../assets/logo.png'
+import Logo from '../components/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -86,10 +86,11 @@ export default function LoginPage() {
       {/* Top Navbar */}
       <header className="sticky top-0 z-30 bg-[var(--color-canvas)]/90 backdrop-blur-md border-b border-[var(--color-line)] px-4 sm:px-6 py-3.5">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link to="/" className="flex items-center shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg">
-            <div className="rounded-lg bg-white px-2.5 py-1.5 shadow-xs border border-black/5 shrink-0 transition-transform group-hover:scale-102 flex items-center justify-center">
-              <img src={logo} alt="MSME-BIOS" className="h-7 w-auto min-w-[96px] object-contain block shrink-0" />
-            </div>
+          <Link
+            to="/"
+            className="flex items-center shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] rounded-lg text-[var(--color-ink)] transition-transform group-hover:scale-[1.02]"
+          >
+            <Logo size={34} showName={true} />
           </Link>
 
           <div className="flex items-center gap-3">

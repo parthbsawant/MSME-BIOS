@@ -92,6 +92,11 @@
   --color-highlight: #FF8A1F;
   --color-highlight-text: #14171C;
 
+  /* Brand Logo (Rupee Rise) */
+  --logo-square: #2F5BFF;
+  --logo-glyph: #FFFFFF;
+  --logo-dot: #FF8A1F;
+
   /* Hero & Landing */
   --color-hero-wash: #E9F0FF;
   --color-hero-line: #C8D6F2;
@@ -163,6 +168,11 @@
   /* Highlight: Saffron Dark */
   --color-highlight: #FFA040;
   --color-highlight-text: #14171C;
+
+  /* Brand Logo (Rupee Rise - Dark Mode Opposite) */
+  --logo-square: #FFFFFF;
+  --logo-glyph: #2F5BFF;
+  --logo-dot: #FF8A1F;
 
   /* Hero & Dark Block */
   --color-hero-wash: #10141B;
@@ -258,13 +268,6 @@ body {
 .dark ::selection {
   background-color: var(--color-accent);
   color: #0E1116;
-}
-
-/* Logo chip wrapper styling */
-.logo-chip {
-  background-color: #FFFFFF;
-  border: 1px solid var(--color-hero-line);
-  border-radius: var(--radius-md);
 }
 
 /* ==========================================================================
