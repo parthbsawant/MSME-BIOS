@@ -2,30 +2,50 @@
 
 BE final-year project (owner: Parth Sawant). A multi-tenant business-intelligence platform for Indian MSMEs. Users upload bank statements, invoices and handwritten bills; parsers extract structured data; analytics and decision support come later. All data is synthetic (demo business: "Mauli Traders"). Repo: github.com/parthbsawant/MSME-BIOS
 
-READ FIRST: SPEC.md (final agreed design) and TRACKER.md (tick-box build order) in the repo root. Work on one TRACKER step at a time.
+READ FIRST: SPEC.md (final agreed design) and TRACKER.md (tick-box build order) in the repo root.
 
 ## Layout
 MSME-BIOS/
   SPEC.md  TRACKER.md  SETUP.md  CLAUDE.md  .gitattributes
+  MSME-BIOS_Test_Plan_Tester1.pdf   MSME-BIOS_Test_Plan_Tester2.pdf
+  docs/
+    ui-theme-f1/                 V2 F1 Theme screenshots (Phases 1-5, 360px-1536px, light/dark, en/hi/mr)
+    ui-revamp/                   Phase 1-5 UI overhaul capture archive
   backend/parser-backend/        Python: FastAPI, parsers, Postgres schema
     api.py                       endpoints (see Architecture)
     pipeline.py                  single parser entry point: process(file_path, tenant_id, document_type)
     firebase_auth.py             verifies Firebase ID tokens (Admin SDK)
-    tenant_resolution.py         Firebase UID -> user -> tenant_id
-    db_pool.py                   Postgres connection for app tables
+    tenant_resolution.py         Firebase UID -> user -> tenant_id / membership resolution
+    access.py                    request dependency resolving user, tenant, role, status & guards
+    roles.py                     single source of truth for role permissions, departments, effective features
+    pricing.py                   server-side quote calculation for base tiers, features, extra seats
+    team.py                      team management, invitations, seat limits, member status, audit logs
+    document_store.py            transactional document and line items persistence with department scoping
+    subscriptions.py             database layer for subscriptions & payments
+    payments/                    provider interface (provider.py) & mock provider (mock_provider.py)
+    db_pool.py                   Postgres connection pool for app tables
     bank_parser/ invoice_parser/ handwritten_parser/
-    msme_bios_shared/            base models, config, claude_client, db.py (parser staging, separate concern)
-    schema/001_initial_schema.sql
-    tests/
-  frontend/msme-bios-frontend/   React 19 + Vite + Tailwind v4 + react-router + framer-motion
-    src/pages  src/components  src/context  src/lib  src/locales
+    msme_bios_shared/            base models, config, claude_client, db.py (parser staging)
+    schema/                      001_initial_schema.sql, 002_document_storage.sql, 003_subscriptions_payments.sql, 004_roles_and_invitations.sql
+    scripts/apply_schema.py      schema migration runner
+    tests/                       185 tests (unit, integration, tenant/department isolation)
+  frontend/msme-bios-frontend/   React 19 + Vite 8 + Tailwind v4 + react-router 7 + framer-motion
+    src/pages                    Landing, Auth (Login, Signup, AcceptInvite), MSMEGuide, Onboarding (BusinessSetup, ChoosePlan, CustomBuilder, PlanSummary), Dashboard (FeatureDashboard), Upload, Results, Team, Billing
+    src/components               Logo (dynamic SVG Rupee-Rise), DashboardLayout, Navbar, FeatureFlipCard, PricingTierCard, SeatStepper, OnboardingProgress, ThemeToggle, LanguageSwitcher, AccessStatusScreen, AuthLoadingScreen
+    src/components/ui            UI primitives: Button, Card, Badge, Input, Modal, Skeleton, Stat, index.js
+    src/context                  AuthContext, BusinessContext, PlanContext
+    src/lib                      motion (spring physics), i18n, api, useCatalog, featuresData, googleAuthError, nextPath
+    src/locales                  en, hi, mr translations
+    scripts/                     Playwright capture and verification scripts (capture_phase1-5.js, verify_bento_hover.js)
 
 ## Deployment (live)
 - Backend: Render (Docker, Python 3.12, free tier sleeps; first request can take about a minute). Health check /api/health.
-- Frontend: Vercel. Database: Neon Postgres (production).
+- Frontend: Vercel (https://msme-bios.vercel.app).
+- Database: Neon Postgres (production).
 - Render env FRONTEND_URL is a comma-separated CORS allowlist (Vercel URL plus http://localhost:5173).
 - DATABASE_URL must start exactly with postgresql:// (no "psql '" prefix, no quotes, no spaces) or psycopg2 fails to parse it.
 - A 500 from the backend carries no CORS headers, so the browser reports it as a CORS error. Check the real status first.
+- Firebase Authorized domains must contain BOTH msme-bios.vercel.app and localhost.
 
 ## Run (Windows PowerShell is the current machine; Mac also used)
 - Backend: cd backend\parser-backend; .venv\Scripts\Activate.ps1; uvicorn api:app --reload --port 8000   (Mac: source .venv/bin/activate)
@@ -33,9 +53,10 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 185 passed, 1 skipped; about 16 minutes because the test DB is remote - run it in the background)
-- Roles: roles.py is the only place role rules live (department_for, allowed_features, effective_features = plan ∩ role, can_manage_business, is_member_role). Never write `if role == ...` in endpoints..
-- Prices: backend/parser-backend/pricing.py is the only authority (quote()). featuresData.js mirrors it for display; tests/test_pricing.py fails if they differ, so change both together. tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Mark any new database test the same way. Test users use @test.com emails.
+- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 185 passed, 1 skipped; about 16 minutes because the test DB is remote - run it in the background).
+- Roles: roles.py is the only place role rules live (department_for, allowed_features, effective_features = plan ∩ role, can_manage_business, is_member_role). Never write `if role == ...` in endpoints.
+- Prices: backend/parser-backend/pricing.py is the only authority (quote()). featuresData.js mirrors it for display; tests/test_pricing.py fails if they differ, so change both together.
+- Test DB: tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
 - Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb) all have 001+002+003+004 (003 on production 2026-10-26: 3 existing plans became active 'legacy' subscriptions; 004 on production 2026-10-26: 5 existing owners kept role owner, status active). Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
 - If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
@@ -48,7 +69,7 @@ MSME-BIOS/
 - Endpoints: GET /api/health (public), GET /api/me, POST /api/business, POST /api/plan, POST /api/parse, GET /api/documents, GET /api/documents/{id}, POST /api/checkout/order, POST /api/checkout/mock-pay (mock provider only), POST /api/checkout/verify (all these require a valid token); POST /api/payments/webhook (no token; authenticated by the provider's X-Payment-Signature header). Step 4 team (owner of a paid business): POST/GET /api/team/invites, POST /api/team/invites/{id}/revoke, GET /api/team/members (with seat summary), POST /api/team/members/{user_id}/role|deactivate|reactivate, GET /api/team/audit (owner). Invites: GET /api/invites/{token} (public preview), POST /api/invites/accept (valid token, no business needed).
 - Team (Step 4): team.py holds invites, members, seats, audit. Invite link token returned once (path /invite/<token>), only its sha256 stored, 7-day expiry. Seat rule: active members (owner included) + live pending invites <= subscriptions.seats_purchased (409 seat_limit; reactivating also takes a seat). Accept checks token exists, not revoked (410), not used (409), not expired (410), email matches (403); invitee's own EMPTY business is deleted, a non-empty one -> 409 has_business. Owner cannot be invited, re-roled or deactivated (403 owner_protected).
 - Payments (Step 3): payments/ holds the PaymentProvider interface (create_order, verify_payment, handle_webhook) and MockProvider; PAYMENT_PROVIDER env picks one (default mock). subscriptions.py holds the DB logic. Flow: order (server computes amount via pricing.quote, saves plan + PENDING subscription) -> mock-pay (plays the provider's checkout window, returns payment_id + HMAC signature, changes nothing) -> verify (only path that sets 'active'; bad signature -> 'failed'). Paywall: /api/parse and /api/documents* return 402 payment_required unless subscriptions.status = 'active'. /api/me returns subscription (or null). /api/plan still exists but ignores client price and never activates. New checkout while active -> 409 (upgrades later). Tests needing a paid business use tests/checkout_helpers.buy_plan().
-- GET /api/documents = caller's business's documents, newest first, summaries (item_count, total). GET /api/documents/{id} = one document in the same JSON shape /api/parse returns; another business's id (or a malformed id) gives 404, never 403. All document reads go through document_store._scope(tenant_id, department); department=None (owner) today, Step 4 passes a member's department there. Child rows are ordered by line_no.
+- GET /api/documents = caller's business's documents, newest first, summaries (item_count, total). GET /api/documents/{id} = one document in the same JSON shape /api/parse returns; another business's id (or a malformed id) gives 404, never 403. All document reads go through document_store._scope(tenant_id, department); department=None (owner) today, non-owners pass member's department. Child rows are ordered by line_no.
 - GET /api/me returns firebase_uid, email, tenant_id, business (or null) and plan (or null). Onboarding state (business and plan) is loaded from /api/me; the database is the source of truth. localStorage is only a cache, keyed by UID.
 - Every tenant-owned table carries its own tenant_id column.
 - Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
@@ -62,27 +83,35 @@ MSME-BIOS/
 - Secrets: never commit .env or the Firebase service-account JSON, never print .env values, never ask for keys. .env lines must be KEY=value.
 - Backend .env: DATABASE_URL, TEST_DATABASE_URL, FIREBASE_SERVICE_ACCOUNT_PATH, FRONTEND_URL, ANTHROPIC_API_KEY (placeholder), ENABLE_CLAUDE_VISION_BANK|INVOICE|HANDWRITTEN. Frontend .env: VITE_API_URL and six VITE_FIREBASE_* keys.
 - UI logic files to touch only deliberately: AuthContext, lib/api.js, ProtectedRoute, RequireOnboarded, RequireOwner, RedirectIfAuthenticated, BusinessContext, PlanContext.
-- Frontend roles (Step 5): BusinessContext also exposes role, department, effectiveFeatures, invitePending, isOwner, deactivated, refreshBusiness (from /api/me; cached as msme-access-<uid>; old caches without it wait for the backend once). RequireOwner wraps business setup, plan pages, checkout, billing, team (members -> /dashboard). RequireOnboarded/RequireOwner show AccessStatusScreen for deactivated and invitePending. Sidebar items carry ownerOnly / feature flags. /invite/:token = AcceptInvitePage (public). Login/signup accept ?next= but only /invite/... paths (lib/nextPath.js, prevents open redirects). New namespace: team (roles, team page, invite page, status screens, department).
+- Frontend roles (Step 5): BusinessContext also exposes role, department, effectiveFeatures, invitePending, isOwner, deactivated, refreshBusiness (from /api/me; cached as msme-access-<uid>; old caches without it wait for the backend once). RequireOwner wraps business setup, plan pages, checkout, billing, team (members -> /dashboard). RequireOnboarded/RequireOwner show AccessStatusScreen for deactivated and invitePending. Sidebar items carry ownerOnly / feature flags. /invite/:token = AcceptInvitePage (public). Login/signup accept ?next= but only /invite/... paths (lib/nextPath.js, prevents open redirects). Namespace: team (roles, team page, invite page, status screens, department).
 - In raw JSX text use HTML entities (&mdash;, &rsquo;), not unicode escapes.
 - Do not run npm audit fix --force (would downgrade Firebase).
 - Neon free compute autosuspends; first query can be slow.
 
-## Design system
-Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, accent #E8622C. Dark: page #1A1714, card #242019, text #F5EFE8, accent #F27A4A. Light and dark mode required on every screen. Logo always sits on a white chip.
+## Design system (V2 F1 Theme)
+Modern, high-performance Fintech design system (Cobalt & Saffron):
+- Palette (Light mode): Canvas `--color-canvas: #F7F9FC`, Surface/Card `--color-surface: #FFFFFF`, Secondary Surface `#EEF2F9`, Border `--color-line: #E1E7F0`, Ink/Text `--color-ink: #0D1526`, Muted `--color-muted: #5A667A`.
+- Palette (Dark mode): Canvas `--color-canvas: #0E1116`, Surface/Card `--color-surface: #151A21`, Secondary Surface `#1C222B`, Border `--color-line: #272F3A`, Ink/Text `--color-ink: #ECEFF4`, Muted `--color-muted: #98A2B3`.
+- Brand Accent: Primary Cobalt `--color-accent: #2F5BFF` (hover `#224ADB`, soft `#E9F0FF` / dark `#6C8CFF`), Saffron Highlight `--color-highlight: #FF8A1F` (used strictly for focal items and brand marks).
+- Department Accents: Finance `#1E9E6E`, Sales `#2F6FDE`, HR `#8A5CD6`, Marketing `#E0457B`.
+- Semantic Status: Success `#12A06B` (dark `#34D399`), Warning `#B7791F` (dark `#FBBF24`), Danger `#D92D20` (dark `#F87171`).
+- Logo ("Rupee Rise"): Scalable vector SVG (`Logo.jsx` and `favicon.svg`) reactive to CSS variables (`--logo-square`, `--logo-glyph`, `--logo-dot`). Replaces old raster PNG; eliminates white-chip requirements and renders crisp on all viewports in both light and dark modes.
+- UI Primitives: Reusable tokenized primitives in `src/components/ui/` (`Button`, `Card`, `Badge`, `Input`, `Modal`, `Skeleton`, `Stat`).
+- Motion System: Framer-motion spring physics in `src/lib/motion.js` (`staggerContainer`, `fadeUp`, `scaleIn`, `slideIn`, `cardHover`, `springTransition`, reduced-motion safe).
+- Typography: `Inter Tight` (headings), `Inter` (body), `Noto Sans Devanagari` (Hindi and Marathi). Audited from 360px mobile to 1536px desktop.
 
 ## Internationalisation (react-i18next)
-- Languages: English, Hindi, Marathi. Files in src/locales/{en,hi,mr}/, one JSON per namespace (common, landing, auth, onboarding, catalog, upload, results, guide, dashboard). Setup in src/lib/i18n.js; switcher LanguageSwitcher.jsx; language stored in localStorage key msme-language; <html lang> drives Noto Sans Devanagari.
+- Languages: English, Hindi, Marathi. Files in `src/locales/{en,hi,mr}/`, one JSON per namespace (`common`, `landing`, `auth`, `onboarding`, `catalog`, `upload`, `results`, `guide`, `dashboard`, `team`, `billing`). Setup in `src/lib/i18n.js`; switcher `LanguageSwitcher.jsx`; language stored in localStorage key `msme-language`; `<html lang>` drives Noto Sans Devanagari.
 - Style: translate ordinary UI wording naturally; transliterate financial/technical terms phonetically (Invoice -> इनव्हॉइस). Keep GST, GSTIN, PDF, MSME, OCR in Latin.
 - Dropdown stored values stay English; only labels translated.
-- useCatalog() (src/lib/useCatalog.js) translates feature and tier names/taglines, falling back to featuresData.js.
-- Every NEW screen from Steps 3 to 5 must be translated in all three languages as it is built.
-- Translations are an AI first pass and need native-speaker review (Step 6).
+- `useCatalog()` (`src/lib/useCatalog.js`) translates feature and tier names/taglines, falling back to `featuresData.js`.
+- All screens across Steps 1 to 5 translated in all three languages and verified. Native-speaker polish scheduled in Step 6.
 
 ## Product decisions (locked, details in SPEC.md)
 - Two levels of separation: (1) business to business (done); (2) inside one business, department access. Owner sees everything; department users see only their department, never the reverse.
 - Five fixed roles: owner, finance, sales, hr, marketing. Keep role logic centralised so custom roles can be added later.
 - Department-wide visibility (a Finance user sees all Finance data of that business).
-- Seats per tier: Starter 2, Growth 4, Intelligence 6, Full suite 10, Custom 2. Extra-seat price is a placeholder. Seat count is chosen BEFORE checkout. All numbers are placeholders to confirm.
+- Seats per tier: Starter 2, Growth 4, Intelligence 6, Full suite 10, Custom 2. Extra-seat price is Rs 499 per seat per month (placeholder; at most 20 extra seats). Seat count is chosen BEFORE checkout.
 - Invite by link only. Owner copies the link until a real email service exists.
 - Feature to role: Finance = document parser, cash dashboard, receivables and payables, P&L, aging, cash flow simulator, anomaly detection. Sales = invoice generator, revenue concentration, demand forecasting. HR = document parser limited to HR documents. Marketing = demand forecasting, revenue concentration, WhatsApp alerts. Owner = everything bought plus business health index, team, billing.
 - Effective access = plan features intersect role features.
@@ -90,35 +119,61 @@ Warm palette. Light: page #FBF3EC, card white, text #2A2521, muted #8A7F74, acce
 - Step 4 decisions (2026-10-26): accepting an invite does NOT require a verified email for now (secret link + email match; known limitation, add Firebase email verification next phase). If an invitee already has their own business that is EMPTY (no business details, plan, subscription or documents), it is deleted when they accept and they join the inviter; a business with any data is never deleted and the invite is rejected. An audit_log records team actions (invite, revoke, role change, deactivate/reactivate, join).
 - Step 3 decisions (2026-10-26): extra seat = Rs 499 per seat per month (placeholder); at most 20 extra seats; accounts that had a plan before Step 3 get an active subscription with provider 'legacy' (migration 003), so nobody is locked out; new signups must pay.
 - Build our own document database now (not waiting for the teammate's design).
-- Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Until roles exist, the backend accepts an optional department from the owner and defaults to finance. This stays as the fallback for single-owner businesses; members (Step 4) always get their own department, never a client-supplied one.
+- Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Backend accepts optional department from the owner and defaults to finance; members are strictly locked to their own department.
 
 ## Status
 
-CURRENT POSITION (2026-10-26):
-- Step 5 (team frontend and role-based panels): localhost tests DONE and PASSED (owner + Finance + HR accounts against the live backend: invite, join, department separation, member blocked from owner pages, role change, deactivate/reactivate, wrong-account invite, activity log, hi/mr, light/dark). Complete code is pushed to GitHub (commit c7c5b75) and live on Vercel.
-- Step 5 live-site tests (3-account demo on msme-bios.vercel.app, the last TRACKER box of Step 5) are NOT done yet: ON HOLD for now, at Parth's request. Do not tick that box until he runs them.
-- Step 6 (wrap-up) is NOT started.
-- Step 1 final live language check is also still parked (TRACKER Step 1 boxes unticked).
-DONE: three parsers and pipeline; FastAPI with Firebase-verified tenant-scoped endpoints; Postgres schema and isolation tests; signup, login, Google sign-in (fixed on Vercel 2026-10-23); business and plan persistence; UI revamp; MSME guide page; deployed on Render, Vercel and Neon; onboarding state from /api/me (Step 1b); i18n of all current screens (Step 1, pending final browser verification on the live site); two-machine setup; SPEC.md and TRACKER.md; Step 2 own document database (2026-10-26: migration 002 on dev/test/production, parsed documents saved in one transaction, GET /api/documents and /api/documents/{id}, results page at /results/:documentId reloads the saved document on refresh, dashboard documents count is real); Step 3 mock payments and seats (2026-10-26: pricing.py, migration 003 with legacy backfill, payments/ provider interface + MockProvider, checkout endpoints and paywall, seat stepper, /checkout with success/failure/retry, read-only /billing, billing namespace in en/hi/mr; verified live); Step 4 roles and invitations backend (2026-10-26: migration 004, roles.py, access.py guards, department separation, team.py invites/seats/members/audit, 185 tests; verified live).
+CURRENT POSITION (2026-10-29):
+- **Core Platform & Backend**:
+  - Three parsers (bank statement, invoice, handwritten with local Tesseract) and single pipeline entry point (`pipeline.py`).
+  - FastAPI backend with Firebase-verified token endpoints, server-side tenant resolution, and Postgres connection pooling.
+  - Migrations 001, 002, 003, and 004 applied to dev, test, and production (Neon Postgres).
+  - Own transactional document storage (documents, bank transactions, invoices, handwritten bills) scoped by tenant and department.
+  - Server-side pricing engine (`pricing.py`) and mock payment checkout flow (`payments/`, `subscriptions.py`).
+  - Roles, permissions, access guards (`access.py`, `roles.py`), and team workspace logic (`team.py`) with 185 backend isolation tests passing (1 skipped).
+- **Frontend & Workspaces (Steps 1 to 5 Complete)**:
+  - Full i18n support in English, Hindi, and Marathi across all screens and components (Step 1).
+  - Document viewing and reloadable results at `/results/:documentId` with real document counts on dashboard (Step 2).
+  - Plan selection, custom plan builder, seat stepper, mock checkout, and billing portal (Step 3).
+  - Team management, link-based invitations, role-based permissions, and invite acceptance (Steps 4 & 5).
+  - Role-aware sidebar, menus, feature dashboard widgets, and department-locked document uploads (Step 5).
+- **Frontend UI Revamp V2 (F1 Theme)**:
+  - Phase 1: Design tokens, Cobalt & Saffron palette, typography, motion system (`motion.js`), UI primitives (`Button`, `Card`, `Badge`, `Input`, `Modal`, `Skeleton`, `Stat`).
+  - Phase 2: Modernized public landing page (interactive Bento grid with hover reveal, hero animation), MSME Guide page, Auth pages (Login/Signup).
+  - Phase 3: Modernized onboarding and payments (Business setup, plan selection, custom builder, plan summary, checkout with seat stepper, billing).
+  - Phase 4: App shell redesign (Dark sidebar layout, role-aware FeatureDashboardPage, results viewer with tabs, upload page with department selector, team management).
+  - Phase 5: Responsive audit & Indic typography polish across 6 viewport breakpoints (360px, 390px, 768px, 1024px, 1280px, 1536px), dark & light mode, 3 languages.
+  - Automated Playwright screenshot capture suite (`capture_phase1-5.js`, `verify_bento_hover.js`) in `docs/ui-theme-f1/` and `docs/ui-revamp/`.
+  - Logo Modernization: Pure vector SVG "Rupee Rise" mark (`Logo.jsx`, `favicon.svg`, PWA icon set) with CSS variable reactivity (`--logo-square`, `--logo-glyph`, `--logo-dot`).
+  - Evaluator Test Plans: Two formal test plans produced (`MSME-BIOS_Test_Plan_Tester1.pdf` & `MSME-BIOS_Test_Plan_Tester2.pdf`).
 
-FIXED (2026-10-23, commit 6d19077): Google sign-in failed on Vercel with auth/unauthorized-domain. Fix was adding msme-bios.vercel.app under Firebase Console, Authentication, Settings, Authorized domains. Login and signup pages now show the specific message plus "Error code: auth/..." (mapping in src/lib/googleAuthError.js, en/hi/mr), and firebase.js logs the names of any missing VITE_FIREBASE_* keys. Verified on localhost (new account, existing account, logout/login, cancel popup) and on Vercel. Firebase Authorized domains must contain BOTH msme-bios.vercel.app and localhost (localhost stopped working by default on 2026-10-26 and was added explicitly). Any new frontend domain (custom domain, Vercel preview URL) must be added there too.
+FIXED ISSUES:
+- Logo chip narrow width rendering issue: Fixed with vector SVG component `Logo.jsx` and dynamic CSS custom properties.
+- Bento grid hover effect issue: Fixed in commit 5a1da1f (`FeatureFlipCard.jsx`, `LandingPage.jsx`).
+- Google sign-in auth/unauthorized-domain: Added `msme-bios.vercel.app` and `localhost` to Firebase Authorized Domains; error codes mapped in en/hi/mr.
+- F5 refresh redirect on guarded pages: Fixed via `loadedFor` tracking in BusinessContext and PlanContext.
 
-FIXED (2026-10-26): F5 on any guarded page sent a registered user to /business-setup. Cause: on refresh Firebase restores the user in the same render where BusinessContext/PlanContext still hold signed-out state (their effects run after that render), so RequireOnboarded redirected. Fix: both contexts track loadedFor (the uid their state belongs to) and report loading until it matches the current uid. Keep this if those contexts are ever rewritten.
+OPEN NOTES:
+- UI text still says "AI vision" for handwritten parser (local Tesseract); wording can be adjusted to "Intelligent OCR" if desired.
+- Dashboard stat-card metrics for sales, expenses, and profit are mock numbers; document count is real and live from `/api/documents`.
+- 3-account live-site demo walkthrough ready on msme-bios.vercel.app for final presentation.
 
-OPEN NOTES (not yet scheduled):
-- Logo chip in the in-app top bar renders as an empty white pill at narrow widths (seen on Vercel dashboard at ~800px). Check during Step 1 screen checks.
-- UI text still says "AI vision" for the handwritten parser although it is local Tesseract; decide whether to soften the wording.
-- Dashboard stat-card numbers for sales, expenses and profit are placeholders. Documents count is real (this month's saved documents, from GET /api/documents).
+## Build order
+1. DONE. Language support part 1 (i18n infrastructure, en/hi/mr, Noto Sans Devanagari, catalog translations).
+2. DONE. Own document database: migration 002, transactional multi-table persistence, list/get endpoints, reloadable results page.
+3. DONE. Mock payments and seats: migration 003, server-side pricing, seat stepper, mock checkout, billing page, paywall.
+4. DONE. Roles and invitations backend: migration 004, roles.py, access guards, team endpoints, 185 tests.
+5. DONE. Team frontend and role-based panels: team setup, invite acceptance, role-aware menus/dashboards, department isolation, 3-account testing.
+6. DONE. Frontend UI Revamp V2: Phases 1 to 5 (Tokens, Public pages, Onboarding/Payments, App shell & Dashboard, Responsive audit & Indic typography, Playwright test suite, SVG Logo modernization, Test Plan PDFs).
+7. NEXT (Step 6 Wrap-up): Update presentation slides (language support, roles, payments, seats, UI revamp), native-speaker review of Hindi/Marathi, Mac direnv check, cleanup leftover test accounts.
 
-## Build order (do one at a time, tick TRACKER.md after each verified step; Parth commits and pushes after each)
-1. Language support part 1: finish live verification (F5 stays on dashboard; Incognito login goes to dashboard; mr and hi on dashboard, upload, wrong-file error, real results, guide page, plan pages; dark mode; logout and login), then tick and commit.
-2. DONE. Own document database: migration 002 (department, uploaded_by, line_no); separate dev DB and msme_bios_test DB for pytest; save parser output transactionally; list and get document endpoints; results page reads saved documents.
-3. DONE. Mock payments and seats: provider interface, server-side pricing, seat count before checkout, plan active only after verified payment.
-4. DONE. Roles and invitations backend: invite links, join owner's tenant (change tenant_resolution.py), role checks centralised, isolation tests for business-to-business and department-to-department.
-5. CODE DONE, LIVE-SITE TEST ON HOLD. Team frontend and role-based panels (translated in en, hi, mr). Localhost tests passed, pushed and live; only the live 3-account demo remains.
-6. NOT STARTED. Wrap-up: update this file, update presentation slide that says language support "Planned", native-speaker review of Hindi/Marathi, direnv on Mac, remove leftover test accounts (the @test.com users plus specific accounts Parth lists; check with him before deleting).
-
-NEXT PHASE (after the six steps): real Razorpay, real invite emails, actual dashboard features (cash dashboard, invoice generator, receivables and payables, anomaly detection, business health index and so on), custom roles, Claude Vision for the handwritten parser (local Tesseract read only 4 of 10 items on a real bill), the skipped Firebase-token test.
+NEXT PHASE (after Wrap-up):
+- Real Razorpay integration (test mode, then live) behind the same payment provider interface.
+- Real invite emails (email delivery service).
+- Actual dashboard feature implementations: cash dashboard, invoice generator, receivables/payables, P&L, aging, anomaly detection, business health index.
+- Custom roles and role-specific permissions.
+- Enable Claude Vision for handwritten parser (local Tesseract OCR reads only clean text).
+- Run skipped Firebase-token test with live credentials.
 
 ## How to work with Parth
 - Step by step. Say what you will change and why before changing it. Keep changes small. Move fast, ship fast.
