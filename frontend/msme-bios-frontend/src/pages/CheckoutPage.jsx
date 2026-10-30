@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, Info } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import OnboardingProgress from '../components/OnboardingProgress'
 import AuthLoadingScreen from '../components/AuthLoadingScreen'
@@ -215,11 +215,6 @@ export default function CheckoutPage() {
                 </dd>
               </div>
             </dl>
-
-            <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-[var(--color-warning-soft)] border border-[var(--color-warning)]/30 px-3.5 py-2.5 text-[11px] font-semibold text-[var(--color-warning)]">
-              <Info className="h-4 w-4 shrink-0 mt-0.5" strokeWidth={2} />
-              <span>{t('checkout.mockNotice')}</span>
-            </div>
 
             {error && (
               <p className="mt-4 text-xs font-semibold text-[var(--color-danger)]">{t(error)}</p>
