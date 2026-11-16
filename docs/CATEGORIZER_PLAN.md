@@ -58,7 +58,6 @@ File `schema/006_categorization.sql`, safe to run twice:
 - Apply to dev and test. Add a small DB test (`pytest.mark.db`) that inserts one link and checks the unique constraint and tenant filter.
 - Done when: apply runs on dev and test, the test passes.
 - Commit: `Migration 006: categories, invoice_payments, data_source`
-- After this push: tell the receivables and payables teammate to read `invoice_payments` and `invoices.paid_at`.
 
 ## Step 2 - The categorizer (pure Python, no database)
 
