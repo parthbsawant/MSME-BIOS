@@ -96,6 +96,7 @@ def parse(file_path: str, tenant_id: str) -> InvoiceResult:
         cgst_amount=totals.get("cgst_amount", 0.0),
         sgst_amount=totals.get("sgst_amount", 0.0),
         total=totals.get("total", 0.0),
+        raw_text=raw.get("raw_text"),
     )
 
     return validate_all(result)

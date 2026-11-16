@@ -109,3 +109,4 @@ Spec: SPEC.md
   - [x] Step 0: plan, fixtures (tests/fixtures/categorizer/), migration 005 applied to dev and test
   - [x] Step 1: migration 006 (categories, invoice_payments, data_source) applied to dev and test
   - [x] Step 2: categorizer (rules + local Naive Bayes), test accuracy clean 99.9%, messy 99.9%
+  - [x] Step 3: invoice enrichment (direction, party, payment mode, due date, paid_at); 6 fixture invoices exact
