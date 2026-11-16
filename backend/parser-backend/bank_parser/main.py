@@ -24,6 +24,22 @@ def _clean_amount(raw: Union[str, float, None]) -> float:
     return float(cleaned) if cleaned else 0.0
 
 
+def _clean_balance(raw: Union[str, float, None]) -> float:
+    """Like _clean_amount, but keeps the sign: an overdraft balance is printed
+    as '-9,917.19' or '9,917.19 Dr' (a trailing 'Cr' means positive)."""
+
+    if raw is None or isinstance(raw, (int, float)):
+        return _clean_amount(raw)
+
+    text = str(raw).strip()
+    marker = re.search(r"\s*\b(dr|cr)\.?$", text, re.IGNORECASE)
+    negative = text.startswith("-") or text.startswith("(") or bool(marker and marker.group(1).lower() == "dr")
+    if marker:
+        text = text[:marker.start()]
+    value = _clean_amount(text)
+    return -value if negative and value else value
+
+
 def _parse_date(raw: Union[str, date]) -> date:
     """Parse common Indian bank statement date formats."""
 
@@ -86,7 +102,7 @@ def parse(file_path: str, tenant_id: str) -> BankStatementResult:
 
         # Detect OPENING BALANCE row
         if "OPENING BALANCE" in description:
-            opening_balance = _clean_amount(row.get("balance"))
+            opening_balance = _clean_balance(row.get("balance"))
             continue
 
         # Detect CLOSING BALANCE row
@@ -121,7 +137,7 @@ def parse(file_path: str, tenant_id: str) -> BankStatementResult:
                     description=" ".join((row["description"] or "").split()),
                     debit=_clean_amount(row["debit"]),
                     credit=_clean_amount(row["credit"]),
-                    balance=_clean_amount(row["balance"]),
+                    balance=_clean_balance(row["balance"]),
                 )
             )
 

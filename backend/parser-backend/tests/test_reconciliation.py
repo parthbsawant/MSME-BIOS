@@ -167,17 +167,57 @@ def test_one_transfer_pays_two_invoices(db):
     assert t.category(r) == "collection"
 
 
-def test_larger_amount_fifo_surplus_ignored(db):
+def test_larger_amount_that_fits_nothing_is_not_linked(db):
     conn, new = db
     t = new()
     a = t.invoice("INV-1", date(2026, 1, 1), "300.00", "Chavan Traders")
-    b = t.invoice("INV-2", date(2026, 1, 2), "500.00", "Chavan Traders")
-    t.receipt(date(2026, 1, 10), "CHAVAN TRADERS", "1000.00")  # 200 more than everything open
+    t.invoice("INV-2", date(2026, 1, 2), "500.00", "Chavan Traders")
+    r = t.receipt(date(2026, 1, 10), "CHAVAN TRADERS", "1000.00")  # no invoice or 2-4 sum equals 1000
     _run(conn, t)
 
-    got = {l["invoice_id"]: (l["amount"], l["status"]) for l in t.links()}
-    assert got == {a: (Decimal("300.00"), "matched"), b: (Decimal("500.00"), "matched")}
-    assert sum(v[0] for v in got.values()) == Decimal("800.00")  # surplus not invented
+    assert t.links() == []  # no guessing, surplus never invented
+    assert t.category(r) == "sales_upi"
+    assert t.paid_at(a) is None
+
+
+# ---------------------------------------------------------------- UPI shop sales (April 2025 proof run)
+
+def test_upi_sale_with_its_own_invoice_does_not_touch_credit_invoices(db):
+    """A regular customer pays today's UPI sale while owing a larger credit
+    invoice: the receipt belongs to the UPI invoice, not part of the credit one."""
+    conn, new = db
+    t = new()
+    credit = t.invoice("INV-1", date(2026, 1, 2), "1200.00", "Sharma Caterers")
+    upi = t.invoice("INV-2", date(2026, 1, 10), "450.00", "Sharma Caterers", mode="upi")
+    r = t.receipt(date(2026, 1, 10), "SHARMA CATERERS", "450.00")
+    _run(conn, t)
+
+    [link] = t.links()
+    assert (link["invoice_id"], link["bank_transaction_id"], link["status"]) == (upi, r, "matched")
+    assert t.category(r) == "sales_upi"
+    assert t.paid_at(credit) is None  # untouched
+
+
+def test_each_upi_invoice_is_claimed_once(db):
+    conn, new = db
+    t = new()
+    upi = t.invoice("INV-1", date(2026, 1, 10), "120.00", "Amit Tea Point", mode="upi")
+    first = t.receipt(date(2026, 1, 10), "AMIT TEA POINT", "120.00")
+    second = t.receipt(date(2026, 1, 10), "AMIT TEA POINT", "120.00")  # no second invoice
+    _run(conn, t)
+
+    assert [(l["invoice_id"], l["bank_transaction_id"]) for l in t.links()] == [(upi, first)]
+    assert t.category(first) == "sales_upi" and t.category(second) == "sales_upi"
+
+
+def test_upi_invoice_dated_too_early_is_not_a_match(db):
+    conn, new = db
+    t = new()
+    t.invoice("INV-1", date(2026, 1, 1), "120.00", "Amit Tea Point", mode="upi")
+    r = t.receipt(date(2026, 1, 10), "AMIT TEA POINT", "120.00")
+    _run(conn, t)
+    assert t.links() == []
+    assert t.category(r) == "sales_upi"
 
 
 def test_possible_match_and_unmatched_becomes_sales_upi(db):
@@ -291,6 +331,7 @@ def test_second_run_changes_nothing(db):
     t.invoice("INV-2", date(2026, 1, 3), "500.00", "Shree Sai Hotel")
     t.invoice("INV-3", date(2026, 1, 5), "1000.00", "Highway Chaha Kendra")
     t.invoice("INV-4", date(2026, 1, 6), "650.00", "Kulkarni General Store")
+    t.invoice("INV-5", date(2026, 1, 13), "55.00", "Walk-in Customer", mode="upi")
     t.invoice("PO-2026-01-0004", date(2026, 1, 2), "5000.00", "Amul Rural Distributor", direction="purchase")
     t.receipt(date(2026, 1, 10), "SHREE SAI HOTEL", "800.00")
     t.receipt(date(2026, 1, 11), "HIGHWAY CHAHA KENDRA", "400.00")
@@ -304,7 +345,7 @@ def test_second_run_changes_nothing(db):
     after_first = t.snapshot()
 
     second = _run(conn, t)
-    assert second == {"links": 0, "collection": 0, "sales_upi": 0, "possible": 0,
+    assert second == {"links": 0, "collection": 0, "sales_upi": 0, "possible": 0, "upi_links": 0,
                       "supplier_links": 0, "invoices_paid": 0}
     assert t.snapshot() == after_first
 

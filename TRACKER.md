@@ -113,3 +113,5 @@ Spec: SPEC.md
   - [x] Step 4: reconciliation (receipts and supplier payments linked to invoices, paid_at), idempotent, tenant-scoped
   - [x] Step 5: categorize, enrich and reconcile run after every upload (savepoint; failure flags the document); scripts/reprocess_tenant.py
   - [ ] Apply 005 and 006 to production BEFORE pushing Step 5 (upload path now writes the new columns)
+  - [x] April 2025 proof run (scripts/proof_run.py, report in docs/proof_runs/PROOF_RUN_2025-04.md): 244 bank rows + 428 invoices through the real upload path, every layer 100% against the dataset truth. Found and fixed: overdraft balance sign in the bank parser; UPI sales wrongly applied to credit invoices
+  - [ ] Proof run on a held-out month (e.g. 2026-01) to confirm the reconciliation fix is not tuned to April

@@ -5,22 +5,29 @@ Links bank transactions to invoices in invoice_payments, for ONE tenant.
 Every query filters on tenant_id. Money is Decimal. The caller commits
 (so Step 5 can run this inside the upload's transaction).
 
-SALES (credit invoices we issued, still open)
-  For each unlinked 'customer_receipt' bank row, oldest first:
-    party = open sale invoices whose party_name is similar to the receipt's
-            counterparty (difflib ratio >= 0.80), dated on/before the receipt,
-            oldest first.
+SALES
+  For each unlinked 'customer_receipt' (or still unlinked 'sales_upi') bank
+  row, oldest first:
+    0. UPI shop sale: the amount equals an unclaimed UPI-mode sale invoice
+       dated the same day or the day before (best name match wins)
+       -> linked to that UPI invoice, category 'sales_upi'.
+       (April 2025 proof run: every UPI sale has such an invoice, and
+       without this check UPI sales from customers who also buy on credit
+       were wrongly applied to their credit invoices.)
+    Otherwise, against open CREDIT sale invoices:
+    party = open credit invoices whose party_name is similar to the
+            receipt's counterparty (difflib ratio >= 0.80), dated on/before
+            the receipt, oldest first.
     a. amount equals one party invoice (within Rs 1)       -> matched
     b. amount equals the sum of the 2-4 oldest              -> all matched
-    c. amount smaller than the oldest                       -> partial (FIFO)
-    d. amount larger (none of the above)                    -> FIFO across the
-       oldest: fully covered ones matched, the last partial; surplus ignored
-    e. no party invoice: amount equals exactly ONE open sale invoice
+    c. amount smaller than the oldest                       -> partial
+    d. no party invoice: amount equals exactly ONE open credit invoice
        (within Rs 1) dated 0-60 days before                 -> possible
-  Linked receipt -> category 'collection'; nothing to link -> 'sales_upi'.
-  So every dated receipt is resolved in one run. Unlinked 'sales_upi' rows
-  are candidates again on later runs, so a statement uploaded before its
-  invoices still gets matched when the invoices arrive.
+    A larger amount that fits none of these is not linked (surplus is never
+    invented).
+  Linked to a credit invoice -> 'collection'; otherwise -> 'sales_upi'.
+  Unlinked 'sales_upi' rows are candidates again on later runs, so a
+  statement uploaded before its invoices still gets matched later.
 
 PURCHASES (supplier bills, still open)
   Pass 1: a 'supplier_payment' whose narration contains an open purchase
@@ -53,6 +60,7 @@ AMOUNT_TOLERANCE = Decimal("1.00")
 PAID_THRESHOLD = Decimal("0.50")
 POSSIBLE_WINDOW_DAYS = 60
 MAX_SUM_INVOICES = 4
+UPI_SETTLE_DAYS = 1
 
 _NOISE = {"m", "s", "ms", "pvt", "private", "ltd", "limited", "llp", "co", "the"}
 _THOUSANDTH = Decimal("0.001")
@@ -141,16 +149,39 @@ def _unlinked_bank_rows(cur, tenant_id, categories: tuple, amount_col: str):
     return cur.fetchall()
 
 
-def _fifo(invoices: List[_Invoice], amount: Decimal) -> List[_Link]:
-    links, left = [], amount
-    for inv in invoices:
-        if left <= 0:
-            break
-        take = min(left, inv.outstanding)
-        status = "matched" if inv.outstanding - take <= PAID_THRESHOLD else "partial"
-        links.append(_Link(inv, take, status))
-        left -= take
-    return links
+def _unclaimed_upi_invoices(cur, tenant_id) -> List[_Invoice]:
+    """UPI-mode sale invoices no bank row has claimed yet (outstanding = total)."""
+    cur.execute(
+        """
+        SELECT i.id, i.invoice_number, i.invoice_date, i.party_name, i.total
+          FROM invoices i
+         WHERE i.tenant_id = %s
+           AND i.direction = 'sale'
+           AND i.payment_mode = 'upi'
+           AND i.total IS NOT NULL
+           AND i.invoice_date IS NOT NULL
+           AND NOT EXISTS (SELECT 1 FROM invoice_payments ip
+                            WHERE ip.invoice_id = i.id AND ip.tenant_id = i.tenant_id)
+         ORDER BY i.invoice_date, i.invoice_number, i.id
+        """,
+        (tenant_id,),
+    )
+    return [_Invoice(str(r["id"]), r["invoice_number"], r["invoice_date"], r["party_name"], Decimal(r["total"]))
+            for r in cur.fetchall()]
+
+
+def _match_upi_sale(amount: Decimal, txn_date: date, who: Optional[str], upi: List[_Invoice]):
+    """Best unclaimed UPI invoice of the same amount dated the same day or the
+    day before (UPI settles at once). Returns (invoice, name score) or None."""
+    best = None
+    for inv in upi:
+        if inv.outstanding <= PAID_THRESHOLD:
+            continue  # claimed earlier in this run
+        if 0 <= (txn_date - inv.date).days <= UPI_SETTLE_DAYS and abs(inv.outstanding - amount) <= PAID_THRESHOLD:
+            s = name_similarity(inv.party, who)
+            if best is None or s > best[1]:
+                best = (inv, s)
+    return best
 
 
 def _match_receipt(amount: Decimal, party: List[_Invoice]) -> List[_Link]:
@@ -164,8 +195,11 @@ def _match_receipt(amount: Decimal, party: List[_Invoice]) -> List[_Link]:
             return [_Link(i, i.outstanding, "matched") for i in party[:k - 1]] + [
                 _Link(party[k - 1], min(party[k - 1].outstanding, amount - sum(i.outstanding for i in party[:k - 1])), "matched")
             ]
-    # c / d. FIFO from the oldest (partial if smaller, surplus ignored if larger)
-    return _fifo(party, amount)
+    # c. smaller than the oldest -> part-payment of the oldest
+    if party and amount < party[0].outstanding:
+        return [_Link(party[0], amount, "partial")]
+    # Larger and fits nothing: do not guess (surplus is never invented).
+    return []
 
 
 def _insert_link(cur, tenant_id, link: _Link, bank_id, score: Decimal) -> bool:
@@ -187,7 +221,7 @@ def _insert_link(cur, tenant_id, link: _Link, bank_id, score: Decimal) -> bool:
 
 def reconcile(conn, tenant_id) -> Dict[str, int]:
     tenant_id = str(tenant_id)
-    summary = {"links": 0, "collection": 0, "sales_upi": 0, "possible": 0,
+    summary = {"links": 0, "collection": 0, "sales_upi": 0, "possible": 0, "upi_links": 0,
                "supplier_links": 0, "invoices_paid": 0}
 
     with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -196,6 +230,7 @@ def reconcile(conn, tenant_id) -> Dict[str, int]:
 
         # ---------------- sales ----------------
         sales = _open_invoices(cur, tenant_id, "sale")
+        upi_invoices = _unclaimed_upi_invoices(cur, tenant_id)
         # 'sales_upi' rows are looked at again: a statement uploaded BEFORE its
         # invoices must still match once the invoices arrive.
         for row in _unlinked_bank_rows(cur, tenant_id, ("customer_receipt", "sales_upi"), "credit"):
@@ -204,6 +239,21 @@ def reconcile(conn, tenant_id) -> Dict[str, int]:
                 continue  # cannot apply the date rules; left for review
             amount = Decimal(row["amount"])
             who = row["counterparty"] or extract_counterparty(row["description"])
+
+            # 0. a UPI shop sale with its own same-day UPI invoice
+            upi = _match_upi_sale(amount, txn_date, who, upi_invoices)
+            if upi is not None:
+                inv, s = upi
+                if _insert_link(cur, tenant_id, _Link(inv, amount, "matched"), row["id"], _score(s)):
+                    summary["links"] += 1
+                    summary["upi_links"] += 1
+                if row["category"] != "sales_upi":
+                    cur.execute(
+                        "UPDATE bank_transactions SET category = 'sales_upi' WHERE id = %s AND tenant_id = %s",
+                        (row["id"], tenant_id),
+                    )
+                    summary["sales_upi"] += 1
+                continue
 
             open_now = [i for i in sales if i.outstanding > PAID_THRESHOLD]
             scored = [(i, name_similarity(i.party, who)) for i in open_now
