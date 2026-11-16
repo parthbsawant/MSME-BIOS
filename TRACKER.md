@@ -105,3 +105,6 @@ Spec: SPEC.md
 - [ ] Custom roles and role-specific features
 - [ ] Enable Claude Vision for handwritten parser (once approved)
 - [ ] Run the skipped Firebase token test with real credentials
+- [ ] Categorizer and reconciliation (no Claude API): follow docs/CATEGORIZER_PLAN.md, one step per session
+  - [x] Step 0: plan, fixtures (tests/fixtures/categorizer/), migration 005 applied to dev and test
+  - [x] Step 1: migration 006 (categories, invoice_payments, data_source) applied to dev and test

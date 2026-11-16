@@ -1,0 +1,80 @@
+[
+ {
+  "file": "INV-2026-03-00330.pdf",
+  "invoice_number": "INV-2026-03-00330",
+  "invoice_date": "2026-03-25",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Balaji Chaha Center",
+  "payment_mode": "cash",
+  "due_date": null,
+  "subtotal": 88.0,
+  "total": 90.0,
+  "customer_gstin": null
+ },
+ {
+  "file": "INV-2025-11-00479.pdf",
+  "invoice_number": "INV-2025-11-00479",
+  "invoice_date": "2025-11-27",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Khandoba Devasthan Trust",
+  "payment_mode": "cash",
+  "due_date": null,
+  "subtotal": 740.0,
+  "total": 767.0,
+  "customer_gstin": null
+ },
+ {
+  "file": "INV-2025-11-00440.pdf",
+  "invoice_number": "INV-2025-11-00440",
+  "invoice_date": "2025-11-25",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Vithoba Vitthal Sawant",
+  "payment_mode": "upi",
+  "due_date": null,
+  "subtotal": 128.0,
+  "total": 134.4,
+  "customer_gstin": null
+ },
+ {
+  "file": "INV-2025-11-00138.pdf",
+  "invoice_number": "INV-2025-11-00138",
+  "invoice_date": "2025-11-08",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Highway Chaha Kendra",
+  "payment_mode": "credit",
+  "due_date": "2025-11-15",
+  "subtotal": 200.0,
+  "total": 210.0,
+  "customer_gstin": null
+ },
+ {
+  "file": "INV-2025-10-00584.pdf",
+  "invoice_number": "INV-2025-10-00584",
+  "invoice_date": "2025-10-29",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Annapurna Upahar Kendra",
+  "payment_mode": "credit",
+  "due_date": "2025-11-13",
+  "subtotal": 586.0,
+  "total": 614.3,
+  "customer_gstin": "27BZPCD0618D1ZY"
+ },
+ {
+  "file": "INV-2025-04-00032.pdf",
+  "invoice_number": "INV-2025-04-00032",
+  "invoice_date": "2025-04-02",
+  "vendor_name": "MAULI TRADERS",
+  "direction": "sale",
+  "party_name": "Annapurna Upahar Kendra",
+  "payment_mode": "credit",
+  "due_date": "2025-04-17",
+  "subtotal": 588.0,
+  "total": 603.15,
+  "customer_gstin": "27BZPCD0618D1ZY"
+ }
+]
