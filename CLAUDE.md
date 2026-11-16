@@ -9,6 +9,8 @@ MSME-BIOS/
   SPEC.md  TRACKER.md  SETUP.md  CLAUDE.md  .gitattributes
   MSME-BIOS_Test_Plan_Tester1.pdf   MSME-BIOS_Test_Plan_Tester2.pdf
   docs/
+    CATEGORIZER_PLAN.md          categorizer + reconciliation build plan (Steps 0-5 done, then proof runs, seeding, features)
+    proof_runs/                  PROOF_RUN_<month>.md accuracy reports written by scripts/proof_run.py
     ui-theme-f1/                 V2 F1 Theme screenshots (Phases 1-5, 360px-1536px, light/dark, en/hi/mr)
     ui-revamp/                   Phase 1-5 UI overhaul capture archive
   backend/parser-backend/        Python: FastAPI, parsers, Postgres schema
@@ -25,10 +27,17 @@ MSME-BIOS/
     payments/                    provider interface (provider.py) & mock provider (mock_provider.py)
     db_pool.py                   Postgres connection pool for app tables
     bank_parser/ invoice_parser/ handwritten_parser/
+    categorizer/                 bank-row categories: taxonomy.py, rules.py (regex), model.py (local Naive Bayes), model.json, categorize.py, train.py, evaluate.py
+    enrichment/                  invoice.py (direction, party, payment mode, due date, paid_at); post_save.py (runs the layers after each save)
+    reconciliation/matcher.py    reconcile(conn, tenant_id): links bank rows to invoices in invoice_payments, sets paid_at
     msme_bios_shared/            base models, config, claude_client, db.py (parser staging)
-    schema/                      001_initial_schema.sql, 002_document_storage.sql, 003_subscriptions_payments.sql, 004_roles_and_invitations.sql
+    schema/                      001_initial_schema.sql, 002_department_uploaded_by.sql, 003_subscriptions_payments.sql, 004_roles_invitations.sql, 005_invoice_party_fields.sql, 006_categorization.sql
     scripts/apply_schema.py      schema migration runner
-    tests/                       185 tests (unit, integration, tenant/department isolation)
+    scripts/reprocess_tenant.py  re-run categorize, enrich, reconcile on one tenant's existing rows (--env/--expect-db guarded)
+    scripts/proof_run.py         one dataset month through the real upload path, scored against the CSV truth (dev only)
+    scripts/seed_demo.py         older demo seeder (untracked, not part of the categorizer plan)
+    tests/                       239 tests (unit, integration, tenant/department isolation, categorizer, enrichment, reconciliation)
+    tests/fixtures/categorizer/  bank_labeled.csv (labelled narrations, train/test, clean/messy) and 6 invoice PDFs + expected.json
   frontend/msme-bios-frontend/   React 19 + Vite 8 + Tailwind v4 + react-router 7 + framer-motion
     src/pages                    Landing, Auth (Login, Signup, AcceptInvite), MSMEGuide, Onboarding (BusinessSetup, ChoosePlan, CustomBuilder, PlanSummary), Dashboard (FeatureDashboard), Upload, Results, Team, Billing
     src/components               Logo (dynamic SVG Rupee-Rise), DashboardLayout, Navbar, FeatureFlipCard, PricingTierCard, SeatStepper, OnboardingProgress, ThemeToggle, LanguageSwitcher, AccessStatusScreen, AuthLoadingScreen
@@ -53,12 +62,14 @@ MSME-BIOS/
 - PowerShell: chain with ; not &&. curl is an alias, use curl.exe.
 - Always activate .venv first.
 - Tesseract OCR binary must be installed locally for the handwritten parser (installed on Windows at C:\Program Files\Tesseract-OCR, on PATH).
-- Tests: python -m pytest tests/ -q from backend/parser-backend (expected 185 passed, 1 skipped; about 16 minutes because the test DB is remote - run it in the background).
+- Tests: python -m pytest tests/ -q from backend/parser-backend (239 collected; expected 238 passed, 1 skipped, but the full suite has NOT been re-run since the categorizer work - every new and touched file was run on its own; about 16+ minutes because the test DB is remote - run it in the background). Prefer running only the relevant files.
+- Categorizer: python -m categorizer.train rewrites categorizer/model.json; python -m categorizer.evaluate prints the accuracy table (run both from backend/parser-backend).
+- Proof run: python scripts/proof_run.py --env DATABASE_URL --expect-db msme_bios_dev --dataset "<...>/MSME_BIOS_Research/MSME_BIOS_Research/05_Transaction_Data/Synthetic_FY2025-26" --month 2025-04 --workdir <temp folder>   (about 13 minutes; creates and deletes a throwaway tenant; refuses neondb).
 - Roles: roles.py is the only place role rules live (department_for, allowed_features, effective_features = plan ∩ role, can_manage_business, is_member_role). Never write `if role == ...` in endpoints.
 - Prices: backend/parser-backend/pricing.py is the only authority (quote()). featuresData.js mirrors it for display; tests/test_pricing.py fails if they differ, so change both together.
 - Test DB: tests/conftest.py points every test at TEST_DATABASE_URL (Neon msme_bios_test); tests marked `pytestmark = pytest.mark.db` are SKIPPED if it is missing, unreachable, equal to DATABASE_URL, or its database name lacks "test". Test users use @test.com emails.
 - Databases (one Neon project, branch main): production DB = live Render only; msme_bios_dev = DATABASE_URL in each laptop's backend .env; msme_bios_test = TEST_DATABASE_URL, pytest only.
-- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb) all have 001+002+003+004 (003 on production 2026-10-26: 3 existing plans became active 'legacy' subscriptions; 004 on production 2026-10-26: 5 existing owners kept role owner, status active). Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
+- Schema changes: python scripts/apply_schema.py --env <VAR> --expect-db <name> schema/<file>.sql (aborts if the URL's database is not <name>; all files in one transaction). Applied so far: dev, test and production (neondb) all have 001+002+003+004 (003 on production 2026-10-26: 3 existing plans became active 'legacy' subscriptions; 004 on production 2026-10-26: 5 existing owners kept role owner, status active). 005+006 applied to dev and test 2026-11-16 (006 run twice on dev to prove it is re-runnable); production: Parth reported everything pushed and up to date on 2026-11-16 - the upload path needs 005+006 on production, so if live uploads fail, check this first. Production URL is never kept in a laptop .env; add PROD_DATABASE_URL temporarily only to apply a migration, then remove it.
 - If Tesseract tests fail with TesseractNotFoundError in VS Code, restart VS Code (it was opened before Tesseract was added to PATH).
 - Two-machine setup is in SETUP.md. Gitignored files (.env, Firebase service-account JSON, node_modules, .venv) do not travel between machines.
 - .gitattributes forces LF. CRLF conversion corrupts the sample PDFs and breaks the bank-parser tests.
@@ -72,7 +83,13 @@ MSME-BIOS/
 - GET /api/documents = caller's business's documents, newest first, summaries (item_count, total). GET /api/documents/{id} = one document in the same JSON shape /api/parse returns; another business's id (or a malformed id) gives 404, never 403. All document reads go through document_store._scope(tenant_id, department); department=None (owner) today, non-owners pass member's department. Child rows are ordered by line_no.
 - GET /api/me returns firebase_uid, email, tenant_id, business (or null) and plan (or null). Onboarding state (business and plan) is loaded from /api/me; the database is the source of truth. localStorage is only a cache, keyed by UID.
 - Every tenant-owned table carries its own tenant_id column.
-- Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need.
+- Parsers share one ParserResult contract. Do not rewrite parser logic without a proven need. Two small proven changes so far: InvoiceResult.raw_text (full PDF text, Field(exclude=True) so /api/parse output is unchanged) for enrichment; bank_parser/main.py _clean_balance keeps the sign of overdraft balances ('-9,917.19', '9,917.19 Dr', '(1,000.00)').
+- Categorize / enrich / reconcile (docs/CATEGORIZER_PLAN.md): after save_parser_result inserts a document it calls enrichment/post_save.analyze_safely() in the SAME transaction under SAVEPOINT post_save_analysis. Bank statement -> categorize each row; invoice -> enrich_invoice (business name from businesses); then reconcile(conn, tenant_id). If any layer fails, only that work is rolled back, the error is logged, the document gets needs_review ("Automatic categorization failed; please review") and is still saved. Handwritten bills are skipped.
+- No Claude API, Anthropic SDK or claude_client in categorizer/, enrichment/ or reconciliation/ (guard tests enforce it). Standard library only in the server path (no pandas, scikit-learn, rapidfuzz).
+- Categories (bank_transactions.category): stage 1 customer_receipt, supplier_payment, cash_deposit, emi, salary, electricity, internet, transport, packaging, repairs, bank_charges, misc_expense, od_interest, gst_payment, owner_capital, owner_drawing, other. Reconciliation turns customer_receipt into collection (paid a credit invoice) or sales_upi. Order: rules (source 'rule', confidence 1.000; a rule on the wrong debit/credit side is ignored) -> Naive Bayes (source 'model', only if p >= 0.80 and most content words were seen in training) -> 'other' with needs_review ("Category not recognised"). 'other' rows are never trained on. counterparty = name after UPI/CR/<ref>/, UPI/DR/<ref>, or supplier text after a PO number. Only rows with no category are categorized (reprocess --recategorize skips 'manual' and linked rows).
+- Invoice enrichment fills invoices.direction/party_name/payment_mode/due_date/paid_at only where NULL: sale if vendor_name matches the business name (token overlap >= 0.8, punctuation and Pvt/Ltd/M/s ignored), party = 'Name:' under Billing Details (sale) or vendor (purchase); payment_mode from 'Payment Mode :' or 'Settled by:'; due_date only for credit; paid_at = invoice_date for cash/upi, set by reconciliation for credit. Never raises.
+- Reconciliation (reconciliation/matcher.py), per tenant, under pg_advisory_xact_lock, caller commits. Receipts (unlinked customer_receipt or sales_upi rows), oldest first: (0) equals an unclaimed same-day or previous-day UPI-mode sale invoice -> linked to it, category sales_upi (added after the April proof run: UPI sales of customers who also buy on credit were being applied to credit invoices); else against open CREDIT invoices of the same party (difflib >= 0.80, dated on/before): exact amount within Rs 1 -> matched; sum of 2-4 oldest -> matched; smaller than the oldest -> partial; no party invoice but exactly one open credit invoice of that amount within 60 days -> possible; anything else is not linked (no oldest-first guessing, surplus never invented). Linked to a credit invoice -> collection, else sales_upi. Supplier payments: PO/invoice number in the narration first, then name + exact amount; category stays supplier_payment. paid_at = date of the last linked bank row once outstanding <= 0.50. Idempotent: a second run changes nothing. Unlinked sales_upi rows are re-checked on later runs so upload order does not matter.
+- invoice_payments (migration 006): tenant_id, invoice_id, bank_transaction_id, amount NUMERIC(12,2), match_score NUMERIC(4,3), status matched|partial|possible, UNIQUE(invoice_id, bank_transaction_id). documents.data_source 'parsed' (default) or 'seeded'.
 - Handwritten parser is local Tesseract only. ENABLE_CLAUDE_VISION_* flags are false. Do not enable them.
 - Parsed results are saved by document_store.save_parser_result() (one transaction: documents row + bank_transactions / invoices + invoice_line_items / handwritten_bills + handwritten_line_items, each row stamped with tenant_id, department, uploaded_by). /api/parse takes optional department (default finance) and returns document_id and department. Parsers are unchanged. Rule for future migrations: apply to production BEFORE pushing backend code that needs them (Render autoDeploy is on), or live requests fail.
 - Access (Step 4): access.py resolves a Context (user_id, tenant_id, role, status, department) from the verified token via tenant_resolution.resolve_membership. Endpoints declare what they need: access.current_context (any active member), access.require_owner (business, plan, checkout, team), access.require_paid (documents; 402 if unpaid), access.feature_access("document_parser") (upload; 402 then 403 if not in plan ∩ role). Errors are access.ApiError -> {"error","message"}: owner_only, deactivated, invite_pending, feature_not_available, payment_required. Members' uploads are forced to their own department; owner may choose. A user with a pending, unexpired invitation gets NO business of their own (/api/me returns invite_pending: true); others still get a new business as owner on first sign-in. /api/me also returns role, department, status, effective_features; members get plan without price/seats and subscription with status only.
@@ -119,15 +136,24 @@ Modern, high-performance Fintech design system (Cobalt & Saffron):
 - Step 4 decisions (2026-10-26): accepting an invite does NOT require a verified email for now (secret link + email match; known limitation, add Firebase email verification next phase). If an invitee already has their own business that is EMPTY (no business details, plan, subscription or documents), it is deleted when they accept and they join the inviter; a business with any data is never deleted and the invite is rejected. An audit_log records team actions (invite, revoke, role change, deactivate/reactivate, join).
 - Step 3 decisions (2026-10-26): extra seat = Rs 499 per seat per month (placeholder); at most 20 extra seats; accounts that had a plan before Step 3 get an active subscription with provider 'legacy' (migration 003), so nobody is locked out; new signups must pay.
 - Build our own document database now (not waiting for the teammate's design).
+- 2026-11-16: we build everything ourselves (categorizer, reconciliation, receivables/payables, P&L, aging, all features). Teammates' work is not used or waited on; ignore any "tell the teammate" notes.
+- Business meaning comes from local rules + a small local model, never the Claude API. Features (P&L, cash, receivables, aging, concentration, anomalies) must read only the normalized columns and tables (category, counterparty, direction, party_name, payment_mode, due_date, paid_at, invoice_payments), never raw parser output.
 - Department at upload: departments are finance, sales, hr, marketing ("owner" is a role, not a department). Backend accepts optional department from the owner and defaults to finance; members are strictly locked to their own department.
 
 ## Status
 
-CURRENT POSITION (2026-10-29):
+CURRENT POSITION (2026-11-16):
+- **Categorizer and reconciliation (branch feature/categorizer, docs/CATEGORIZER_PLAN.md Steps 0-5 done, pushed)**:
+  - Migrations 005 (invoice party fields) and 006 (bank categories, invoice_payments, documents.data_source).
+  - Categorizer: 16 ordered rules + local Naive Bayes (model.json 35 KB). Held-out test split: clean 99.9%, messy 99.9%; the only misses are an unseen one-off ("ENGINE OVERHAUL") correctly sent to review.
+  - Invoice enrichment: the 6 fixture invoices match expected.json exactly.
+  - Reconciliation: links receipts and supplier payments to invoices, sets paid_at, idempotent, tenant-scoped.
+  - Wired into every upload (save_parser_result -> post_save.analyze_safely); scripts/reprocess_tenant.py for existing rows.
+  - April 2025 proof run (docs/proof_runs/PROOF_RUN_2025-04.md): 244 bank rows rendered as a statement PDF + 428 real invoice PDFs through the real upload path on dev. Final result: bank parser 244/244 rows exact, categories 244/244, invoice fields 428/428, collection links precision 100% / recall 100% (48/48), UPI sales matched to their own invoice 108/108, credit paid_at 164/164. Caveats: the reconciliation fix was designed after seeing April, April was in the categorizer's training split, data is synthetic, supplier payments are not linked (no purchase bill PDFs in the dataset), cash receipts are invisible to the bank so those invoices correctly stay open.
 - **Core Platform & Backend**:
   - Three parsers (bank statement, invoice, handwritten with local Tesseract) and single pipeline entry point (`pipeline.py`).
   - FastAPI backend with Firebase-verified token endpoints, server-side tenant resolution, and Postgres connection pooling.
-  - Migrations 001, 002, 003, and 004 applied to dev, test, and production (Neon Postgres).
+  - Migrations 001 to 004 applied to dev, test, and production; 005 and 006 on dev and test (production: see Schema changes above).
   - Own transactional document storage (documents, bank transactions, invoices, handwritten bills) scoped by tenant and department.
   - Server-side pricing engine (`pricing.py`) and mock payment checkout flow (`payments/`, `subscriptions.py`).
   - Roles, permissions, access guards (`access.py`, `roles.py`), and team workspace logic (`team.py`) with 185 backend isolation tests passing (1 skipped).
@@ -152,10 +178,16 @@ FIXED ISSUES:
 - Bento grid hover effect issue: Fixed in commit 5a1da1f (`FeatureFlipCard.jsx`, `LandingPage.jsx`).
 - Google sign-in auth/unauthorized-domain: Added `msme-bios.vercel.app` and `localhost` to Firebase Authorized Domains; error codes mapped in en/hi/mr.
 - F5 refresh redirect on guarded pages: Fixed via `loadedFor` tracking in BusinessContext and PlanContext.
+- Bank parser dropped the minus sign of overdraft balances (every row after the account went negative failed the balance check): fixed with _clean_balance (April 2025 proof run).
+- Reconciliation applied UPI shop sales to the same customer's credit invoices (precision 22%, recall 54% in the first April run): fixed by matching a receipt to its own same-day UPI invoice first and dropping oldest-first guessing for larger amounts.
+- A statement uploaded before its invoices left receipts as sales_upi forever: unlinked sales_upi rows are now re-checked on later reconciles.
 
 OPEN NOTES:
 - UI text still says "AI vision" for handwritten parser (local Tesseract); wording can be adjusted to "Intelligent OCR" if desired.
-- Dashboard stat-card metrics for sales, expenses, and profit are mock numbers; document count is real and live from `/api/documents`.
+- Dashboard stat-card metrics for sales, expenses, and profit are mock numbers; document count is real and live from `/api/documents`. Categories, links and paid_at are stored but not shown anywhere in the frontend yet.
+- docs/CATEGORIZER_PLAN.md Step 4 text still describes the original rules (oldest-first partials, no UPI-invoice check); the code and this file describe the current rules.
+- The full test suite has not been re-run since the categorizer work (239 collected).
+- On dev, information_schema queries that do not filter on schema show a second bank_transactions table with extra columns (txn_no, narration, statement_month). Probably the `mauli_synth` schema written by the research dataset loader (phase5_load_postgres.py); not verified. Harmless, but filter on table_schema = 'public' when inspecting.
 - 3-account live-site demo walkthrough ready on msme-bios.vercel.app for final presentation.
 
 ## Build order
@@ -165,12 +197,18 @@ OPEN NOTES:
 4. DONE. Roles and invitations backend: migration 004, roles.py, access guards, team endpoints, 185 tests.
 5. DONE. Team frontend and role-based panels: team setup, invite acceptance, role-aware menus/dashboards, department isolation, 3-account testing.
 6. DONE. Frontend UI Revamp V2: Phases 1 to 5 (Tokens, Public pages, Onboarding/Payments, App shell & Dashboard, Responsive audit & Indic typography, Playwright test suite, SVG Logo modernization, Test Plan PDFs).
-7. NEXT (Step 6 Wrap-up): Update presentation slides (language support, roles, payments, seats, UI revamp), native-speaker review of Hindi/Marathi, Mac direnv check, cleanup leftover test accounts.
+7. OPEN (Step 6 Wrap-up): Update presentation slides (language support, roles, payments, seats, UI revamp, categorizer), native-speaker review of Hindi/Marathi, Mac direnv check, cleanup leftover test accounts.
+8. DONE. Categorizer and reconciliation, docs/CATEGORIZER_PLAN.md Steps 0-5 (migrations 005/006, categorizer, invoice enrichment, reconciliation, wired into uploads) and the April 2025 proof run.
+9. NEXT (categorizer plan, after step 5):
+   a. Proof run on a held-out month (e.g. 2026-01) to confirm the reconciliation fix is not tuned to April.
+   b. Seed the rest of the year into the same tables with data_source='seeded', then scripts/reprocess_tenant.py.
+   c. Features on the normalized data, one per session: P&L, cash dashboard, receivables and payables, aging, revenue concentration, anomaly detection.
 
 NEXT PHASE (after Wrap-up):
 - Real Razorpay integration (test mode, then live) behind the same payment provider interface.
 - Real invite emails (email delivery service).
-- Actual dashboard feature implementations: cash dashboard, invoice generator, receivables/payables, P&L, aging, anomaly detection, business health index.
+- Remaining feature implementations beyond 9c: invoice generator, business health index, cash flow simulator, demand forecasting.
+- Purchase bills: upload/parse supplier invoices so supplier payments can be linked (reconciliation already supports it).
 - Custom roles and role-specific permissions.
 - Enable Claude Vision for handwritten parser (local Tesseract OCR reads only clean text).
 - Run skipped Firebase-token test with live credentials.
