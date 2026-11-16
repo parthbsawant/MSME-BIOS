@@ -23,6 +23,8 @@ Rules every save follows:
 from decimal import Decimal
 from typing import Optional
 
+from enrichment import post_save
+
 # Departments a document can belong to. "owner" is a role, not a
 # department. Step 4 moves this into the central role module.
 DEPARTMENTS = ("finance", "sales", "hr", "marketing")
@@ -133,6 +135,10 @@ def save_parser_result(conn, result, tenant_id: str, user_id: str, department: s
         with conn.cursor() as cur:
             document_id = _insert_document(cur, result, tenant_id, user_id, department)
             write_children(cur, result, document_id, tenant_id, user_id, department)
+        # Categorize / enrich / reconcile in the same transaction. A failure
+        # there is rolled back to a savepoint and flags the document; it
+        # never loses the saved document (enrichment/post_save.py).
+        post_save.analyze_safely(conn, tenant_id, document_id, result)
         conn.commit()
         return document_id
     except Exception:

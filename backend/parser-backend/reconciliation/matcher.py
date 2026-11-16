@@ -18,7 +18,9 @@ SALES (credit invoices we issued, still open)
     e. no party invoice: amount equals exactly ONE open sale invoice
        (within Rs 1) dated 0-60 days before                 -> possible
   Linked receipt -> category 'collection'; nothing to link -> 'sales_upi'.
-  So every dated receipt is resolved in one run.
+  So every dated receipt is resolved in one run. Unlinked 'sales_upi' rows
+  are candidates again on later runs, so a statement uploaded before its
+  invoices still gets matched when the invoices arrive.
 
 PURCHASES (supplier bills, still open)
   Pass 1: a 'supplier_payment' whose narration contains an open purchase
@@ -121,20 +123,20 @@ def _open_invoices(cur, tenant_id, direction: str) -> List[_Invoice]:
     return out
 
 
-def _unlinked_bank_rows(cur, tenant_id, category: str, amount_col: str):
+def _unlinked_bank_rows(cur, tenant_id, categories: tuple, amount_col: str):
     cur.execute(
         f"""
-        SELECT bt.id, bt.txn_date, bt.description, bt.counterparty, bt.{amount_col} AS amount
+        SELECT bt.id, bt.txn_date, bt.description, bt.counterparty, bt.category, bt.{amount_col} AS amount
           FROM bank_transactions bt
          WHERE bt.tenant_id = %s
-           AND bt.category = %s
+           AND bt.category = ANY(%s)
            AND bt.{amount_col} > 0
            AND NOT EXISTS (
                  SELECT 1 FROM invoice_payments ip
                   WHERE ip.bank_transaction_id = bt.id AND ip.tenant_id = %s)
          ORDER BY bt.txn_date NULLS LAST, bt.line_no, bt.id
         """,
-        (tenant_id, category, tenant_id),
+        (tenant_id, list(categories), tenant_id),
     )
     return cur.fetchall()
 
@@ -194,7 +196,9 @@ def reconcile(conn, tenant_id) -> Dict[str, int]:
 
         # ---------------- sales ----------------
         sales = _open_invoices(cur, tenant_id, "sale")
-        for row in _unlinked_bank_rows(cur, tenant_id, "customer_receipt", "credit"):
+        # 'sales_upi' rows are looked at again: a statement uploaded BEFORE its
+        # invoices must still match once the invoices arrive.
+        for row in _unlinked_bank_rows(cur, tenant_id, ("customer_receipt", "sales_upi"), "credit"):
             txn_date = row["txn_date"]
             if txn_date is None:
                 continue  # cannot apply the date rules; left for review
@@ -225,15 +229,16 @@ def reconcile(conn, tenant_id) -> Dict[str, int]:
                     summary["possible"] += link.status == "possible"
 
             new_category = "collection" if made else "sales_upi"
-            cur.execute(
-                "UPDATE bank_transactions SET category = %s WHERE id = %s AND tenant_id = %s",
-                (new_category, row["id"], tenant_id),
-            )
-            summary[new_category] += 1
+            if new_category != row["category"]:
+                cur.execute(
+                    "UPDATE bank_transactions SET category = %s WHERE id = %s AND tenant_id = %s",
+                    (new_category, row["id"], tenant_id),
+                )
+                summary[new_category] += 1
 
         # ---------------- purchases ----------------
         purchases = _open_invoices(cur, tenant_id, "purchase")
-        payments = _unlinked_bank_rows(cur, tenant_id, "supplier_payment", "debit")
+        payments = _unlinked_bank_rows(cur, tenant_id, ("supplier_payment",), "debit")
         linked = set()
 
         # pass 1: invoice / PO number written in the narration

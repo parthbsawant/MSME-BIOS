@@ -111,3 +111,5 @@ Spec: SPEC.md
   - [x] Step 2: categorizer (rules + local Naive Bayes), test accuracy clean 99.9%, messy 99.9%
   - [x] Step 3: invoice enrichment (direction, party, payment mode, due date, paid_at); 6 fixture invoices exact
   - [x] Step 4: reconciliation (receipts and supplier payments linked to invoices, paid_at), idempotent, tenant-scoped
+  - [x] Step 5: categorize, enrich and reconcile run after every upload (savepoint; failure flags the document); scripts/reprocess_tenant.py
+  - [ ] Apply 005 and 006 to production BEFORE pushing Step 5 (upload path now writes the new columns)
