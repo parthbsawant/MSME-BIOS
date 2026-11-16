@@ -110,3 +110,4 @@ Spec: SPEC.md
   - [x] Step 1: migration 006 (categories, invoice_payments, data_source) applied to dev and test
   - [x] Step 2: categorizer (rules + local Naive Bayes), test accuracy clean 99.9%, messy 99.9%
   - [x] Step 3: invoice enrichment (direction, party, payment mode, due date, paid_at); 6 fixture invoices exact
+  - [x] Step 4: reconciliation (receipts and supplier payments linked to invoices, paid_at), idempotent, tenant-scoped
