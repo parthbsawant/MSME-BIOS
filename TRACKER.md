@@ -108,3 +108,4 @@ Spec: SPEC.md
 - [ ] Categorizer and reconciliation (no Claude API): follow docs/CATEGORIZER_PLAN.md, one step per session
   - [x] Step 0: plan, fixtures (tests/fixtures/categorizer/), migration 005 applied to dev and test
   - [x] Step 1: migration 006 (categories, invoice_payments, data_source) applied to dev and test
+  - [x] Step 2: categorizer (rules + local Naive Bayes), test accuracy clean 99.9%, messy 99.9%
