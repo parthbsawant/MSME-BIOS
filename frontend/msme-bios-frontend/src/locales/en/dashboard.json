@@ -8,6 +8,7 @@
       "dashboard": "Dashboard",
       "upload": "Upload Document",
       "documents": "Documents",
+      "receivablesPayables": "Receivables & Payables",
       "invoices": "Invoices",
       "cashFlow": "Cash Flow",
       "reports": "Reports",
@@ -51,6 +52,33 @@
       "useNow": "Use Now",
       "openTool": "Open Tool",
       "locked": "Locked"
-    }
+        }
+  },
+  "receivablesPayables": {
+    "title": "Receivables & Payables",
+    "subtitle": "Track outstanding payments from customers and payments due to suppliers.",
+    "receivables": "Receivables",
+    "payables": "Payables",
+    "totalReceivables": "Total Receivables",
+    "totalPayables": "Total Payables",
+    "netPosition": "Net Position",
+    "outstanding": "Outstanding",
+    "overdue": "Overdue",
+    "dueNext7Days": "Due in Next 7 Days",
+    "openInvoices": "Open Invoices",
+    "parties": "Customers / Suppliers",
+    "invoiceDetails": "Invoice Details",
+    "invoiceNumber": "Invoice Number",
+    "invoiceDate": "Invoice Date",
+    "dueDate": "Due Date",
+    "amount": "Amount",
+    "oldestDue": "Oldest Due Date",
+    "noRecords": "No outstanding invoices found.",
+    "loading": "Loading receivables and payables...",
+    "error": "Unable to load receivables and payables.",
+    "retry": "Try Again",
+    "asOf": "As of",
+    "expand": "View invoices",
+    "collapse": "Hide invoices"
   }
 }

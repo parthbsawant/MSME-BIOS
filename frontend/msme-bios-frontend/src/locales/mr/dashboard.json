@@ -8,6 +8,7 @@
       "dashboard": "डॅशबोर्ड",
       "upload": "दस्तऐवज अपलोड करा",
       "documents": "दस्तऐवज",
+      "receivablesPayables": "येणे आणि देणे",
       "invoices": "इनव्हॉइस",
       "cashFlow": "कॅश फ्लो",
       "reports": "रिपोर्ट",
@@ -51,6 +52,33 @@
       "useNow": "आता वापरा",
       "openTool": "टूल उघडा",
       "locked": "लॉक"
-    }
+        }
+  },
+  "receivablesPayables": {
+    "title": "येणे आणि देणे",
+    "subtitle": "ग्राहकांकडून येणारी आणि पुरवठादारांना द्यायची बाकी रक्कम ट्रॅक करा.",
+    "receivables": "येणे",
+    "payables": "देणे",
+    "totalReceivables": "एकूण येणे",
+    "totalPayables": "एकूण देणे",
+    "netPosition": "निव्वळ स्थिती",
+    "outstanding": "बाकी रक्कम",
+    "overdue": "मुदत संपलेली",
+    "dueNext7Days": "पुढील ७ दिवसांत देय",
+    "openInvoices": "प्रलंबित चलने",
+    "parties": "ग्राहक / पुरवठादार",
+    "invoiceDetails": "चलन तपशील",
+    "invoiceNumber": "चलन क्रमांक",
+    "invoiceDate": "चलनाची तारीख",
+    "dueDate": "देय तारीख",
+    "amount": "रक्कम",
+    "oldestDue": "सर्वात जुनी देय तारीख",
+    "noRecords": "कोणतीही बाकी चलने आढळली नाहीत.",
+    "loading": "येणे आणि देणे यांची माहिती लोड होत आहे...",
+    "error": "येणे आणि देणे यांची माहिती लोड करता आली नाही.",
+    "retry": "पुन्हा प्रयत्न करा",
+    "asOf": "या तारखेपर्यंत",
+    "expand": "चलने पहा",
+    "collapse": "चलने लपवा"
   }
 }

@@ -482,52 +482,39 @@ export default function FeatureDashboardPage() {
                     <div className="flex items-center justify-between">
                       <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)]">
                         {featureName(feature.id)}
-                      </h3>
-                      {isEnabled ? (
-                        <span className="rounded-full bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-2.5 py-0.5 text-[10px] font-bold text-[var(--color-success)] border border-[var(--color-line)] dark:border-[#272F3A]">
-                          {t('page.tools.active')}
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-[var(--color-surface-2)] dark:bg-[#1C222B] px-2.5 py-0.5 text-[10px] font-bold text-[var(--color-muted)] border border-[var(--color-line)] dark:border-[#272F3A]">
-                          {t('page.tools.comingSoon')}
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-2.5 text-xs text-[var(--color-muted)] leading-relaxed">
-                      {featureDescription(feature.id)}
-                    </p>
+                      </h3>{isEnabled ? (
+  isParser ? (
+    <button
+      onClick={() => navigate('/upload')}
+      className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-xs font-bold text-white shadow-xs hover:brightness-110 transition-all duration-300 ease-out cursor-pointer"
+    >
+      {t('page.tools.useNow')}
+    </button>
+  ) : (
+    <button
+      onClick={() =>
+        navigate(
+          feature.id === 'receivables_payables'
+            ? '/receivables-payables'
+            : '/upload'
+        )
+      }
+      className="rounded-xl border border-[var(--color-accent)] px-4 py-2 text-xs font-bold text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition-all duration-300 ease-out cursor-pointer"
+    >
+      {t('page.tools.openTool')}
+    </button>
+  )
+) : (
+  <button
+    disabled
+    className="flex items-center gap-1.5 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] px-3 py-1.5 text-xs font-semibold text-[var(--color-muted)]/60 cursor-not-allowed"
+  >
+    <Lock className="h-3 w-3" strokeWidth={2} />
+    <span>{t('page.tools.locked')}</span>
+  </button>
+)}
+
                   </div>
-
-                  <div className="mt-6 pt-4 border-t border-[var(--color-line)] dark:border-[#272F3A] flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-[var(--color-muted)] truncate max-w-[150px]">
-                      {featureTagline(feature.id)}
-                    </span>
-
-                    {isEnabled ? (
-                      isParser ? (
-                        <button
-                          onClick={() => navigate('/upload')}
-                          className="rounded-xl bg-[var(--color-accent)] px-4 py-2 text-xs font-bold text-white shadow-xs hover:brightness-110 transition-all duration-300 ease-out cursor-pointer"
-                        >
-                          {t('page.tools.useNow')}
-                        </button>
-                      ) : (
-                        <button
-                          onClick={() => navigate('/upload')}
-                          className="rounded-xl border border-[var(--color-accent)] px-4 py-2 text-xs font-bold text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white transition-all duration-300 ease-out cursor-pointer"
-                        >
-                          {t('page.tools.openTool')}
-                        </button>
-                      )
-                    ) : (
-                      <button
-                        disabled
-                        className="flex items-center gap-1.5 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] px-3 py-1.5 text-xs font-semibold text-[var(--color-muted)]/60 cursor-not-allowed"
-                      >
-                        <Lock className="h-3 w-3" strokeWidth={2} />
-                        <span>{t('page.tools.locked')}</span>
-                      </button>
-                    )}
                   </div>
                 </motion.div>
               )

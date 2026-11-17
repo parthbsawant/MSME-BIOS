@@ -18,7 +18,8 @@ import os
 import tempfile
 import uuid
 
-from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
+from datetime import date
+from fastapi import Depends, FastAPI, File, Form, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -27,6 +28,7 @@ from msme_bios_shared import config
 from firebase_auth import verify_firebase_token
 from db_pool import get_connection
 import document_store as ds
+import analytics_receivables as ar
 import payments
 import pricing
 import roles
@@ -639,3 +641,23 @@ async def accept_invite(token: str = Form(...), decoded_token: dict = Depends(ve
         user_id = tr.get_or_create_user(conn, decoded_token["uid"], decoded_token.get("email", ""), decoded_token.get("name"))
         return team.accept_invite(conn, user_id, decoded_token.get("email", ""), token)
     return {"status": "joined", **_with_conn(run)}
+
+
+@app.get("/api/analytics/receivables-payables")
+async def get_receivables_payables(
+    as_of: date = Query(default=None),
+    ctx: Context = Depends(access.feature_access("receivables_payables")),
+):
+    """Return receivables and payables for the signed-in business."""
+
+    effective_date = as_of or date.today()
+
+    def run(conn):
+        rows = ar.fetch_invoice_rows(
+            conn,
+            ctx.tenant_id,
+            department=ctx.department,
+        )
+        return ar.calculate_receivables_payables(rows, effective_date)
+
+    return _with_conn(run)

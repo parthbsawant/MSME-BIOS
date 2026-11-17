@@ -76,6 +76,14 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       icon: <FileText className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
+    id: 'Receivables & Payables',
+    label: t('layout.items.receivablesPayables'),
+    path: '/receivables-payables',
+    feature: 'receivables_payables',
+    deptColor: DEPARTMENT_COLORS.finance,
+    icon: <Receipt className="h-4 w-4 shrink-0" strokeWidth={2} />,
+    },
+    {
       id: 'Invoices',
       label: t('layout.items.invoices'),
       comingSoon: true,

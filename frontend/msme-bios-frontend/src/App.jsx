@@ -9,6 +9,7 @@ import ChoosePlanPage from './pages/ChoosePlanPage'
 import PlanSummaryPage from './pages/PlanSummaryPage'
 import CustomBuilderPage from './pages/CustomBuilderPage'
 import FeatureDashboardPage from './pages/FeatureDashboardPage'
+import ReceivablesPayablesPage from './pages/ReceivablesPayablesPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -47,6 +48,14 @@ export default function App() {
       <Route path="/custom-plan" element={<RequireOwner><CustomBuilderPage /></RequireOwner>} />
       <Route path="/dashboard" element={<RequireOnboarded><FeatureDashboardPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
+      <Route
+  path="/receivables-payables"
+  element={
+    <RequireOnboarded>
+      <ReceivablesPayablesPage />
+    </RequireOnboarded>
+  }
+/>
       <Route path="/checkout" element={<RequireOwner><CheckoutPage /></RequireOwner>} />
       <Route path="/billing" element={<RequireOnboarded><RequireOwner><BillingPage /></RequireOwner></RequireOnboarded>} />
       <Route path="/team" element={<RequireOnboarded><RequireOwner><TeamPage /></RequireOwner></RequireOnboarded>} />

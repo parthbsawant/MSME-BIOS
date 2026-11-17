@@ -9,6 +9,7 @@ backend/parser-backend/venv/
 # Frontend
 frontend/msme-bios-frontend/node_modules/
 frontend/msme-bios-frontend/dist/
+frontend/msme-bios-frontend/.env.development.local
 
 .DS_Store
 

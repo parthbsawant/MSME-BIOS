@@ -158,6 +158,12 @@ async function getJson(path, { auth = true } = {}) {
 
 // ---- STEP 4/5: team (owner only) ----
 
+// ---- Receivables and Payables ----
+
+/** Fetch receivables and payables for the signed-in business. */
+export const getReceivablesPayables = () =>
+  getJson('/api/analytics/receivables-payables')
+
 /** Members (owner first) and seats: { members, seats: { purchased, active_members, pending_invites, in_use } }. */
 export const getTeam = () => getJson('/api/team/members')
 export const listInvites = () => getJson('/api/team/invites').then((b) => b.invites)
