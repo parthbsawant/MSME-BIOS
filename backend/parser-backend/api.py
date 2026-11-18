@@ -639,3 +639,68 @@ async def accept_invite(token: str = Form(...), decoded_token: dict = Depends(ve
         user_id = tr.get_or_create_user(conn, decoded_token["uid"], decoded_token.get("email", ""), decoded_token.get("name"))
         return team.accept_invite(conn, user_id, decoded_token.get("email", ""), token)
     return {"status": "joined", **_with_conn(run)}
+
+# Added import for datetime needed by aging report endpoint
+import datetime
+
+# ---------------------------------------------------------------------------
+# New Aging Analytics endpoint (GET /api/analytics/aging)
+# ---------------------------------------------------------------------------
+@app.get("/api/analytics/aging")
+async def get_aging_report_endpoint(
+    kind: str,
+    as_of: str,
+    ctx: Context = Depends(access.require_paid),
+):
+    """Return aging buckets for the tenant's invoices.
+    Query parameters:
+      kind – "receivables" or "payables"
+      as_of – ISO date (YYYY-MM-DD) to calculate aging against
+    """
+    # Validate kind
+    if kind not in {"receivables", "payables"}:
+        return JSONResponse(status_code=400, content={"error": "bad_request", "message": "kind must be 'receivables' or 'payables'"})
+    # Parse date
+    try:
+        as_of_date = datetime.date.fromisoformat(as_of)
+    except Exception:
+        return JSONResponse(status_code=400, content={"error": "bad_request", "message": "as_of must be a date in YYYY-MM-DD format"})
+
+    tenant_id = ctx.tenant_id
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT total AS amount,
+                       due_date,
+                       invoice_date,
+                       payment_mode,
+                       paid_at,
+                       direction,
+                       party_name
+                FROM invoices
+                WHERE tenant_id = %s
+                """,
+                (tenant_id,)
+            )
+            rows = cur.fetchall()
+    finally:
+        conn.close()
+
+    # Convert rows to list of dicts expected by analytics_aging
+    invoices = []
+    for r in rows:
+        invoices.append({
+            "amount": r["amount"],
+            "due_date": r["due_date"],
+            "invoice_date": r["invoice_date"],
+            "payment_mode": r["payment_mode"],
+            "paid_at": r["paid_at"],
+            "direction": r["direction"],
+            "party": r["party_name"],
+        })
+
+    # Compute report using existing function
+    report = get_aging_report(invoices, kind, as_of_date)
+    return report
