@@ -100,6 +100,7 @@ export const FEATURE_ROUTES = {
   aging_reports: '/receivables?view=aging',
   revenue_concentration: '/concentration',
   anomaly_detection: '/anomalies',
+  business_health_index: '/health',
 }
 
 export const TIERS = [

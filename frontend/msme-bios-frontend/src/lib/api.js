@@ -215,6 +215,14 @@ export const getAnomalies = (asOf) => {
 }
 
 /**
+ * GET /api/health-index - business health score, bands, and component drivers.
+ */
+export const getHealthIndex = (asOf) => {
+  const query = asOf ? `?as_of=${encodeURIComponent(asOf)}` : ''
+  return getJson(`/api/health-index${query}`)
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

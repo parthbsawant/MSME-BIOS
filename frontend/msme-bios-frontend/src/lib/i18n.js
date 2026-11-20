@@ -60,6 +60,10 @@ import enAnomalies from '../locales/en/anomalies.json'
 import hiAnomalies from '../locales/hi/anomalies.json'
 import mrAnomalies from '../locales/mr/anomalies.json'
 
+import enHealth from '../locales/en/health.json'
+import hiHealth from '../locales/hi/health.json'
+import mrHealth from '../locales/mr/health.json'
+
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'hi', label: 'हिन्दी' },
@@ -76,9 +80,9 @@ function getStoredLanguage() {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard, billing: enBilling, team: enTeam, receivables: enReceivables, concentration: enConcentration, anomalies: enAnomalies },
-    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard, billing: hiBilling, team: hiTeam, receivables: hiReceivables, concentration: hiConcentration, anomalies: hiAnomalies },
-    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard, billing: mrBilling, team: mrTeam, receivables: mrReceivables, concentration: mrConcentration, anomalies: mrAnomalies },
+    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard, billing: enBilling, team: enTeam, receivables: enReceivables, concentration: enConcentration, anomalies: enAnomalies, health: enHealth },
+    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard, billing: hiBilling, team: hiTeam, receivables: hiReceivables, concentration: hiConcentration, anomalies: hiAnomalies, health: hiHealth },
+    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard, billing: mrBilling, team: mrTeam, receivables: mrReceivables, concentration: mrConcentration, anomalies: mrAnomalies, health: mrHealth },
   },
   lng: getStoredLanguage(),
   fallbackLng: 'en',
