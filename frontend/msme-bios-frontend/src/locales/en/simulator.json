@@ -1,0 +1,71 @@
+{
+  "title": "Cash Flow Simulator",
+  "subtitle": "Model the future cash impact of sales changes, cost adjustments, collecting overdue dues, and one-off purchases before making decisions.",
+  "department": "Finance",
+  "asOf": "Historical data as of {{date}}",
+  "controls": {
+    "title": "What if...",
+    "subtitle": "Adjust business levers to forecast your cash balance",
+    "monthsHorizon": "Forecast Horizon",
+    "monthsOption": "{{count}} Months",
+    "salesChange": "Sales change",
+    "expensesChange": "Expenses change",
+    "collectOverdue": "Collect overdue customer dues",
+    "collectOverMonths": "Spread over",
+    "overdueAvailable": "Overdue dues available: {{amount}}",
+    "oneTimeTitle": "One-time Items",
+    "oneTimeSubtitle": "Add lump-sum inflows or major equipment/capex purchases",
+    "addItem": "Add item",
+    "month": "Month",
+    "amount": "Amount (₹)",
+    "label": "Item description",
+    "moneyIn": "Money in",
+    "moneyOut": "Money out",
+    "remove": "Remove",
+    "maxItemsReached": "Maximum 10 items reached",
+    "quickScenarios": "Quick Scenarios",
+    "scenarioSlowMonth": "Slow month: sales -20%",
+    "scenarioCollectHalf": "Collect half of overdue dues over 3 months",
+    "scenarioBigPurchase": "Big purchase: Rs 50,000 in month 2",
+    "reset": "Reset to Baseline"
+  },
+  "results": {
+    "title": "Simulation Forecast",
+    "chartTitle": "Closing Balance Trajectory",
+    "baselineLabel": "Baseline (as-is)",
+    "scenarioLabel": "Scenario projection",
+    "stats": {
+      "endBalance": "End Balance",
+      "deltaBetter": "+{{amount}} vs baseline",
+      "deltaWorse": "-{{amount}} vs baseline",
+      "deltaEqual": "Same as baseline",
+      "lowestBalance": "Lowest Balance",
+      "inMonth": "in {{month}}",
+      "monthsBelowZero": "Months Below Zero",
+      "baselineVsScenario": "Baseline: {{base}} mo · Scenario: {{scen}} mo"
+    },
+    "table": {
+      "title": "Monthly Scenario Detail",
+      "month": "Month",
+      "moneyIn": "Money In",
+      "moneyOut": "Money Out",
+      "net": "Net Flow",
+      "closing": "Closing Balance"
+    },
+    "basisNote": "Based on your average of the last {{months}} months: {{in}} in and {{out}} out a month."
+  },
+  "empty": {
+    "title": "Upload a bank statement to run the simulator",
+    "description": "The cash simulator requires historical bank transactions to project your baseline cash trajectory and test what-if decisions.",
+    "uploadBtn": "Upload Bank Statement"
+  },
+  "locked": {
+    "title": "Cash Flow Simulator Locked",
+    "description": "The Cash Flow Simulator is an executive modeling feature available to Finance and Owner roles on the Full Suite plan.",
+    "upgradeBtn": "Upgrade Plan"
+  },
+  "error": {
+    "title": "Failed to run simulation",
+    "retry": "Try again"
+  }
+}

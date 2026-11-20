@@ -18,11 +18,12 @@ import os
 import tempfile
 import uuid
 from datetime import date
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from pipeline import process, DocumentType
 from msme_bios_shared import config
@@ -42,6 +43,7 @@ from aging import build_aging, build_supplier_paid
 from concentration import build_concentration
 from anomalies import build_anomalies
 import health
+import simulator
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -735,6 +737,61 @@ async def get_health_index(
                 "anomaly_total": anoms_res["total"],
             },
         }
+    finally:
+        conn.close()
+
+
+class CashSimulatorRequest(BaseModel):
+    months: Optional[Any] = 6
+    sales_change_pct: Optional[Any] = 0.0
+    expense_change_pct: Optional[Any] = 0.0
+    collect_overdue_pct: Optional[Any] = 0.0
+    collect_over_months: Optional[Any] = 3
+    one_time: Optional[Any] = None
+
+
+@app.post("/api/cash-simulator")
+async def cash_simulator(
+    body: Optional[CashSimulatorRequest] = None,
+    ctx: Context = Depends(access.feature_access("cash_flow_simulator")),
+):
+    """
+    Cash Flow What-If Simulator.
+    Pure calculation based on historical cash summary (last 3 months) and overdue receivables.
+    Nothing saved to DB.
+    """
+    req = body or CashSimulatorRequest()
+    conn = get_connection()
+    try:
+        ref_date = ds.get_data_as_of(conn, ctx.tenant_id, department=ctx.department) or date.today()
+        bank_rows = ds.list_bank_rows_for_cash(conn, ctx.tenant_id, department=ctx.department)
+        cash = build_cash_summary(bank_rows)
+
+        sale_invoices = ds.list_invoices_for_aging(conn, ctx.tenant_id, ctx.department, direction="sale")
+        aging_res = build_aging(sale_invoices, ref_date) if sale_invoices else None
+        overdue = aging_res["overdue_amount"] if aging_res else 0.0
+
+        kwargs = {}
+        if req.months is not None:
+            kwargs["months"] = req.months
+        if req.sales_change_pct is not None:
+            kwargs["sales_change_pct"] = req.sales_change_pct
+        if req.expense_change_pct is not None:
+            kwargs["expense_change_pct"] = req.expense_change_pct
+        if req.collect_overdue_pct is not None:
+            kwargs["collect_overdue_pct"] = req.collect_overdue_pct
+        if req.collect_over_months is not None:
+            kwargs["collect_over_months"] = req.collect_over_months
+        if req.one_time is not None:
+            kwargs["one_time"] = req.one_time
+
+        try:
+            return simulator.simulate(cash, overdue_amount=overdue, **kwargs)
+        except (ValueError, TypeError) as e:
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_input", "message": str(e)},
+            )
     finally:
         conn.close()
 

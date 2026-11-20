@@ -118,9 +118,10 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       icon: <Receipt className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
-      id: 'Cash Flow',
-      label: t('layout.items.cashFlow'),
-      comingSoon: true,
+      id: 'Cash Simulator',
+      label: t('layout.items.simulator', 'Cash Simulator'),
+      path: '/simulator',
+      feature: 'cash_flow_simulator',
       deptColor: DEPARTMENT_COLORS.finance,
       icon: <DollarSign className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
