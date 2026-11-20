@@ -474,8 +474,9 @@ def update_business_profile(conn, tenant_id: str, data: dict) -> None:
     with conn.cursor() as cur:
         cur.execute(
             """
-            INSERT INTO businesses (tenant_id, address, phone, tagline, upi_id, bank_name, bank_branch, terms, invoice_prefix)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO businesses (tenant_id, business_name, owner_name, address, phone, tagline, upi_id,
+                                    bank_name, bank_branch, terms, invoice_prefix)
+            VALUES (%s, 'My Business', 'Owner', %s, %s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (tenant_id) DO UPDATE
             SET address = EXCLUDED.address,
                 phone = EXCLUDED.phone,
