@@ -17,6 +17,8 @@ only where tenant_id comes from has changed.
 import os
 import tempfile
 import uuid
+from datetime import date
+from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -36,6 +38,7 @@ import tenant_resolution as tr
 import access
 from access import Context
 from cash_summary import build_cash_summary
+from aging import build_aging, build_supplier_paid
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -546,6 +549,51 @@ async def get_cash_dashboard(ctx: Context = Depends(access.feature_access("cash_
         summary = build_cash_summary(rows)
         summary["documents_count"] = doc_count
         return summary
+    finally:
+        conn.close()
+
+
+@app.get("/api/receivables-payables")
+async def get_receivables_payables(
+    as_of: Optional[str] = None,
+    ctx: Context = Depends(access.feature_access("receivables_payables")),
+):
+    """
+    Returns receivables and payables aging plus supplier payments.
+    Scoped by tenant_id and department (via access.feature_access("receivables_payables")).
+    Optional as_of query param (YYYY-MM-DD); invalid format returns 422.
+    """
+    ref_date = None
+    if as_of:
+        try:
+            ref_date = date.fromisoformat(as_of)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "as_of must be in YYYY-MM-DD format"},
+            )
+
+    conn = get_connection()
+    try:
+        if ref_date is None:
+            ref_date = ds.get_data_as_of(conn, ctx.tenant_id, department=ctx.department) or date.today()
+
+        sale_rows = ds.list_invoices_for_aging(conn, ctx.tenant_id, ctx.department, direction="sale")
+        purchase_rows = ds.list_invoices_for_aging(conn, ctx.tenant_id, ctx.department, direction="purchase")
+        supplier_rows = ds.list_supplier_rows(conn, ctx.tenant_id, ctx.department)
+
+        has_data = bool(sale_rows or purchase_rows or supplier_rows)
+        receivables = build_aging(sale_rows, ref_date)
+        payables = build_aging(purchase_rows, ref_date)
+        suppliers_paid = build_supplier_paid(supplier_rows)
+
+        return {
+            "as_of": ref_date.isoformat(),
+            "has_data": has_data,
+            "receivables": receivables,
+            "payables": payables,
+            "suppliers_paid": suppliers_paid,
+        }
     finally:
         conn.close()
 

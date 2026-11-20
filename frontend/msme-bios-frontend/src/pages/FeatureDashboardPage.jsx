@@ -500,7 +500,9 @@ export default function FeatureDashboardPage() {
                   <div className="flex items-center gap-2.5 rounded-xl border border-[#FDE1C3] dark:border-[#523A20] bg-[#FFF1E0]/80 dark:bg-[#3A2A18]/80 px-4 py-2.5 text-xs text-[#B7791F] dark:text-[#FBBF24] font-semibold">
                     <AlertCircle className="h-4 w-4 shrink-0" />
                     <span>
-                      {t('page.cash.rowsNeedReview', { count: cashData.uncategorized_rows })}
+                      {cashData.uncategorized_rows === 1
+                        ? t('page.cash.rowsNeedReview_one', { count: 1 })
+                        : t('page.cash.rowsNeedReview_other', { count: cashData.uncategorized_rows })}
                     </span>
                   </div>
                 )}

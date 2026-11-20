@@ -188,6 +188,14 @@ export async function acceptInvite(token) {
 export const getCashSummary = () => getJson('/api/dashboard/cash')
 
 /**
+ * GET /api/receivables-payables - receivables & payables aging summary.
+ */
+export const getReceivablesPayables = (asOf) => {
+  const query = asOf ? `?as_of=${encodeURIComponent(asOf)}` : ''
+  return getJson(`/api/receivables-payables${query}`)
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

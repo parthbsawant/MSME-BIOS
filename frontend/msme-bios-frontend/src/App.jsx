@@ -9,6 +9,7 @@ import ChoosePlanPage from './pages/ChoosePlanPage'
 import PlanSummaryPage from './pages/PlanSummaryPage'
 import CustomBuilderPage from './pages/CustomBuilderPage'
 import FeatureDashboardPage from './pages/FeatureDashboardPage'
+import ReceivablesPage from './pages/ReceivablesPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -46,6 +47,7 @@ export default function App() {
       <Route path="/plan-summary/:tierId" element={<RequireOwner><PlanSummaryPage /></RequireOwner>} />
       <Route path="/custom-plan" element={<RequireOwner><CustomBuilderPage /></RequireOwner>} />
       <Route path="/dashboard" element={<RequireOnboarded><FeatureDashboardPage /></RequireOnboarded>} />
+      <Route path="/receivables" element={<RequireOnboarded><ReceivablesPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
       <Route path="/checkout" element={<RequireOwner><CheckoutPage /></RequireOwner>} />
       <Route path="/billing" element={<RequireOnboarded><RequireOwner><BillingPage /></RequireOwner></RequireOnboarded>} />
