@@ -5,6 +5,7 @@ backend/parser-backend/venv/
 *.egg-info/
 .pytest_cache/
 .env
+.env.*.local
 
 # Frontend
 frontend/msme-bios-frontend/node_modules/

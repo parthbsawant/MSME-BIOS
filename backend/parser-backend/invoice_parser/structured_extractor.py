@@ -614,4 +614,7 @@ def extract_raw_invoice(file_path: str) -> dict:
             "header_fields": header_fields,
             "line_items": raw_line_items,
             "totals": totals,
+            # Kept for invoice enrichment (enrichment/invoice.py): customer
+            # name, payment mode and due date are read from this text.
+            "raw_text": full_text,
         }

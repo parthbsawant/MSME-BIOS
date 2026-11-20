@@ -7,7 +7,7 @@ msme-bios-parser-shared - see docs/MASTER_REFERENCE.md Section 4.
 
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from msme_bios_shared import ParserResult
 
 
@@ -31,6 +31,9 @@ class InvoiceResult(ParserResult):
     cgst_amount: float = 0.0
     sgst_amount: float = 0.0
     total: float = 0.0
+    # Full PDF text, for invoice enrichment only. exclude=True keeps it out
+    # of model_dump(), so the /api/parse response is unchanged.
+    raw_text: Optional[str] = Field(default=None, exclude=True)
 
     def __init__(self, **data):
         data.setdefault("source_type", "invoice_bill")

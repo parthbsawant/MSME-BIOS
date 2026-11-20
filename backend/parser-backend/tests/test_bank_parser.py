@@ -106,3 +106,17 @@ def test_parse_date_multiple_formats():
 def test_parse_date_raises_on_unrecognized_format():
     with pytest.raises(ValueError):
         _parse_date("not a date at all")
+
+
+# ---- overdraft balances keep their sign (found in the April 2025 proof run) ----
+
+def test_clean_balance_keeps_overdraft_sign():
+    from bank_parser.main import _clean_balance
+    assert _clean_balance("-9,917.19") == -9917.19
+    assert _clean_balance("9,917.19 Dr") == -9917.19
+    assert _clean_balance("9,917.19 DR.") == -9917.19
+    assert _clean_balance("(1,000.00)") == -1000.0
+    assert _clean_balance("57,258.10") == 57258.10
+    assert _clean_balance("57,258.10 Cr") == 57258.10
+    assert _clean_balance("") == 0.0
+    assert _clean_balance(None) == 0.0

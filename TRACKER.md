@@ -105,3 +105,13 @@ Spec: SPEC.md
 - [ ] Custom roles and role-specific features
 - [ ] Enable Claude Vision for handwritten parser (once approved)
 - [ ] Run the skipped Firebase token test with real credentials
+- [ ] Categorizer and reconciliation (no Claude API): follow docs/CATEGORIZER_PLAN.md, one step per session
+  - [x] Step 0: plan, fixtures (tests/fixtures/categorizer/), migration 005 applied to dev and test
+  - [x] Step 1: migration 006 (categories, invoice_payments, data_source) applied to dev and test
+  - [x] Step 2: categorizer (rules + local Naive Bayes), test accuracy clean 99.9%, messy 99.9%
+  - [x] Step 3: invoice enrichment (direction, party, payment mode, due date, paid_at); 6 fixture invoices exact
+  - [x] Step 4: reconciliation (receipts and supplier payments linked to invoices, paid_at), idempotent, tenant-scoped
+  - [x] Step 5: categorize, enrich and reconcile run after every upload (savepoint; failure flags the document); scripts/reprocess_tenant.py
+  - [ ] Apply 005 and 006 to production BEFORE pushing Step 5 (upload path now writes the new columns)
+  - [x] April 2025 proof run (scripts/proof_run.py, report in docs/proof_runs/PROOF_RUN_2025-04.md): 244 bank rows + 428 invoices through the real upload path, every layer 100% against the dataset truth. Found and fixed: overdraft balance sign in the bank parser; UPI sales wrongly applied to credit invoices
+  - [ ] Proof run on a held-out month (e.g. 2026-01) to confirm the reconciliation fix is not tuned to April
