@@ -101,6 +101,7 @@ export const FEATURE_ROUTES = {
   revenue_concentration: '/concentration',
   anomaly_detection: '/anomalies',
   business_health_index: '/health',
+  cash_flow_simulator: '/simulator',
 }
 
 export const TIERS = [

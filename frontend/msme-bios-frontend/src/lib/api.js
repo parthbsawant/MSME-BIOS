@@ -222,6 +222,31 @@ export const getHealthIndex = (asOf) => {
   return getJson(`/api/health-index${query}`)
 }
 
+async function postJson(path, payload, { auth = true } = {}) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(auth ? await authHeader() : {}),
+  }
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload ?? {}),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const error = new Error(body.message || `Request failed (${res.status})`)
+    error.status = res.status
+    error.code = body.error
+    throw error
+  }
+  return body
+}
+
+/**
+ * POST /api/cash-simulator - cash flow what-if scenario simulation.
+ */
+export const simulateCash = (params) => postJson('/api/cash-simulator', params)
+
 /**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
