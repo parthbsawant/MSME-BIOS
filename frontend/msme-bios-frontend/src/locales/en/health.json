@@ -1,0 +1,62 @@
+{
+  "title": "Business Health Index",
+  "subtitle": "Holistic financial health score combining liquidity, cash trend, customer dues, concentration risk, and internal controls.",
+  "department": "Finance",
+  "asOf": "Data as of {{date}}",
+  "scoreOutOf": "/ 100",
+  "bands": {
+    "healthy": "Healthy",
+    "watch": "Watch",
+    "at_risk": "At Risk"
+  },
+  "bandDescriptions": {
+    "healthy": "Your business financial indicators are strong and stable.",
+    "watch": "Certain areas require monitoring to prevent cash flow strain.",
+    "at_risk": "Critical financial metrics need immediate operational attention."
+  },
+  "drivers": {
+    "title": "What is pulling the score down",
+    "subtitle": "Key areas having the largest negative impact on your health index",
+    "pointsLost": "-{{points}} pts",
+    "empty": "Nothing is pulling your score down. All monitored components are in good health!"
+  },
+  "components": {
+    "title": "How the score is built",
+    "subtitle": "Transparent weighted breakdown of every indicator that determines your overall score",
+    "weight": "Weight: {{weight}}%",
+    "scoreLabel": "Score",
+    "labels": {
+      "liquidity": "Cash Runway",
+      "cash_trend": "Cash Trend",
+      "receivables": "Customer Dues",
+      "concentration": "Customer Concentration",
+      "controls": "Unusual Activity"
+    }
+  },
+  "coverage": {
+    "title": "Check Coverage",
+    "note": "Based on {{coverage}}% of checks. Upload missing statements or invoices to complete the score.",
+    "complete": "100% of health indicators evaluated"
+  },
+  "stats": {
+    "closingBalance": "Cash Cushion",
+    "overdraft": "Overdraft in use",
+    "overdrawnBy": "{{amount}} overdrawn",
+    "anomaliesFlagged": "Flagged Alerts",
+    "coverage": "Coverage"
+  },
+  "empty": {
+    "title": "No business health data available",
+    "description": "Upload bank statements and sales invoices to automatically calculate your Business Health Index.",
+    "uploadBtn": "Upload Documents"
+  },
+  "locked": {
+    "title": "Business Health Index Locked",
+    "description": "The Business Health Index is an owner-level executive intelligence feature available on the Intelligence and Full Suite plans.",
+    "upgradeBtn": "Upgrade Plan"
+  },
+  "error": {
+    "title": "Failed to load business health index",
+    "retry": "Try again"
+  }
+}

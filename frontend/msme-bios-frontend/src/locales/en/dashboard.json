@@ -10,6 +10,7 @@
       "documents": "Documents",
       "receivables": "Receivables",
       "anomalies": "Anomalies",
+      "health": "Business Health",
       "customers": "Customers",
       "invoices": "Invoices",
       "cashFlow": "Cash Flow",

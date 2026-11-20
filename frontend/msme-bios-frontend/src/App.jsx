@@ -12,6 +12,7 @@ import FeatureDashboardPage from './pages/FeatureDashboardPage'
 import ReceivablesPage from './pages/ReceivablesPage'
 import ConcentrationPage from './pages/ConcentrationPage'
 import AnomaliesPage from './pages/AnomaliesPage'
+import HealthPage from './pages/HealthPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -51,6 +52,7 @@ export default function App() {
       <Route path="/dashboard" element={<RequireOnboarded><FeatureDashboardPage /></RequireOnboarded>} />
       <Route path="/receivables" element={<RequireOnboarded><ReceivablesPage /></RequireOnboarded>} />
       <Route path="/anomalies" element={<RequireOnboarded><AnomaliesPage /></RequireOnboarded>} />
+      <Route path="/health" element={<RequireOnboarded><HealthPage /></RequireOnboarded>} />
       <Route path="/concentration" element={<RequireOnboarded><ConcentrationPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
       <Route path="/checkout" element={<RequireOwner><CheckoutPage /></RequireOwner>} />

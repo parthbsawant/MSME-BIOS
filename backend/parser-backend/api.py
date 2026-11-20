@@ -41,6 +41,7 @@ from cash_summary import build_cash_summary
 from aging import build_aging, build_supplier_paid
 from concentration import build_concentration
 from anomalies import build_anomalies
+import health
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -686,6 +687,57 @@ async def get_anomalies(
         }
     finally:
         conn.close()
+
+
+@app.get("/api/health-index")
+async def get_health_index(
+    as_of: Optional[str] = None,
+    ctx: Context = Depends(access.feature_access("business_health_index")),
+):
+    """
+    Returns the Business Health Index (0-100 score, component breakdown, drivers).
+    Scoped by tenant_id and department (via access.feature_access("business_health_index")).
+    Optional as_of query param (YYYY-MM-DD); invalid format returns 422.
+    """
+    ref_date = None
+    if as_of:
+        try:
+            ref_date = date.fromisoformat(as_of)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "as_of must be in YYYY-MM-DD format"},
+            )
+
+    conn = get_connection()
+    try:
+        if ref_date is None:
+            ref_date = ds.get_data_as_of(conn, ctx.tenant_id, department=ctx.department) or date.today()
+
+        bank_rows = ds.list_bank_rows_for_cash(conn, ctx.tenant_id, department=ctx.department)
+        cash_res = build_cash_summary(bank_rows)
+
+        sale_invoices = ds.list_invoices_for_aging(conn, ctx.tenant_id, ctx.department, direction="sale")
+        aging_res = build_aging(sale_invoices, ref_date) if sale_invoices else None
+
+        sale_rows_conc = ds.list_sale_invoices_for_concentration(conn, ctx.tenant_id, department=ctx.department)
+        conc_res = build_concentration(sale_rows_conc)
+
+        anoms_res = build_anomalies(bank_rows, aging_res)
+
+        health_res = health.build_health(cash_res, aging_res, conc_res, anoms_res)
+
+        return {
+            **health_res,
+            "as_of": ref_date.isoformat(),
+            "inputs": {
+                "closing_balance": cash_res["closing_balance"],
+                "anomaly_total": anoms_res["total"],
+            },
+        }
+    finally:
+        conn.close()
+
 
 
 
