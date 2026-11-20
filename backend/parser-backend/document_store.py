@@ -22,8 +22,11 @@ Rules every save follows:
 
 from datetime import date
 from decimal import Decimal
-from typing import Optional
+import json
+from typing import Any, Dict, List, Optional, Tuple
 
+import invoice_gen
+import invoice_pdf
 from enrichment import post_save
 
 # Departments a document can belong to. "owner" is a role, not a
@@ -435,5 +438,251 @@ def get_sales_date_range(conn, tenant_id: str, department: Optional[str] = None)
         if not row:
             return None, None
         return row["min_date"], row["max_date"]
+
+
+def next_invoice_number(conn, tenant_id: str, fy: str) -> int:
+    """Atomic, gapless per-tenant invoice sequence counter inside the caller's transaction."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO invoice_sequences (tenant_id, fy, last_number)
+            VALUES (%s, %s, 1)
+            ON CONFLICT (tenant_id, fy) DO UPDATE SET last_number = invoice_sequences.last_number + 1
+            RETURNING last_number
+            """,
+            (tenant_id, fy),
+        )
+        row = cur.fetchone()
+        return int(row["last_number"])
+
+
+def get_business_profile(conn, tenant_id: str) -> Optional[dict]:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT business_name, owner_name, business_type, annual_turnover, city, gstin,
+                   address, phone, tagline, upi_id, bank_name, bank_branch, terms, invoice_prefix
+            FROM businesses
+            WHERE tenant_id = %s
+            """,
+            (tenant_id,),
+        )
+        return cur.fetchone()
+
+
+def update_business_profile(conn, tenant_id: str, data: dict) -> None:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO businesses (tenant_id, address, phone, tagline, upi_id, bank_name, bank_branch, terms, invoice_prefix)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (tenant_id) DO UPDATE
+            SET address = EXCLUDED.address,
+                phone = EXCLUDED.phone,
+                tagline = EXCLUDED.tagline,
+                upi_id = EXCLUDED.upi_id,
+                bank_name = EXCLUDED.bank_name,
+                bank_branch = EXCLUDED.bank_branch,
+                terms = EXCLUDED.terms,
+                invoice_prefix = EXCLUDED.invoice_prefix,
+                updated_at = now()
+            """,
+            (
+                tenant_id,
+                data.get("address"), data.get("phone"), data.get("tagline"), data.get("upi_id"),
+                data.get("bank_name"), data.get("bank_branch"), data.get("terms"), data.get("invoice_prefix") or "",
+            ),
+        )
+
+
+def list_customer_names(conn, tenant_id: str, department: Optional[str] = None, q: Optional[str] = None) -> list:
+    where, params = _scope("i", tenant_id, department)
+    sql = f"""
+        SELECT DISTINCT i.party_name
+        FROM invoices i
+        WHERE {where} AND i.direction = 'sale' AND i.party_name IS NOT NULL AND i.party_name != ''
+    """
+    if q and q.strip():
+        sql += " AND i.party_name ILIKE %s"
+        params.append(f"%{q.strip()}%")
+    sql += " ORDER BY i.party_name ASC LIMIT 20"
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return [row["party_name"] for row in cur.fetchall()]
+
+
+def save_generated_invoice(conn, tenant_id: str, user_id: Optional[str], department: str,
+                           built: dict, header: dict, biz_name: str, gstin: Optional[str]) -> str:
+    """Saves a generated invoice, document, and line items in the caller's transaction. Returns invoice_id."""
+    meta = json.dumps({
+        "customer_address": header.get("customer_address", "") or "",
+        "customer_gstin": header.get("customer_gstin", "") or "",
+    })
+    filename = f"Invoice_{built['invoice_number'].replace('/', '_')}.pdf"
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO documents (tenant_id, source_type, source_file, extraction_method,
+                                   needs_review, review_reason, extracted_at, department, uploaded_by)
+            VALUES (%s, 'invoice_bill', %s, 'generated', false, %s, now(), %s, %s)
+            RETURNING id
+            """,
+            (tenant_id, filename, meta, department, user_id),
+        )
+        doc_id = str(cur.fetchone()["id"])
+
+        cur.execute(
+            """
+            INSERT INTO invoices (document_id, tenant_id, vendor_name, invoice_number, invoice_date, gstin,
+                                  subtotal, cgst_amount, sgst_amount, total, department, uploaded_by,
+                                  direction, party_name, payment_mode, due_date, paid_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'sale', %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                doc_id, tenant_id, biz_name, built["invoice_number"], built["invoice_date"], gstin,
+                _money(built["totals"]["subtotal"]), _money(built["totals"]["cgst_total"]),
+                _money(built["totals"]["sgst_total"]), _money(built["totals"]["grand_total"]),
+                department, user_id, header["customer_name"], built["payment_mode"],
+                built["due_date"], built["paid_at"],
+            ),
+        )
+        invoice_id = str(cur.fetchone()["id"])
+
+        for line_no, item in enumerate(built["lines"], start=1):
+            cur.execute(
+                """
+                INSERT INTO invoice_line_items (invoice_id, tenant_id, line_no, description, qty, rate, amount, gst_pct,
+                                                department, uploaded_by)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    invoice_id, tenant_id, line_no, item["name"], _money(item["qty"]),
+                    _money(item["rate"]), _money(item["taxable_value"]), _money(item["gst_pct"]),
+                    department, user_id,
+                ),
+            )
+        return invoice_id
+
+
+def list_generated_invoices(conn, tenant_id: str, department: Optional[str] = None, limit: int = 50) -> list:
+    where, params = _scope("i", tenant_id, department)
+    sql = f"""
+        SELECT i.id, i.invoice_number, i.invoice_date, i.due_date, i.party_name,
+               i.payment_mode, i.total, i.paid_at, d.created_at
+        FROM invoices i
+        JOIN documents d ON d.id = i.document_id
+        WHERE {where} AND d.extraction_method = 'generated'
+        ORDER BY d.created_at DESC, i.invoice_date DESC
+        LIMIT %s
+    """
+    params.append(limit)
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchall()
+
+
+def get_invoice_for_pdf(conn, invoice_id: str, tenant_id: str, department: Optional[str] = None) -> Optional[dict]:
+    where, params = _scope("i", tenant_id, department)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT i.id, i.document_id, i.tenant_id, i.vendor_name, i.invoice_number, i.invoice_date,
+                   i.due_date, i.party_name, i.payment_mode, i.subtotal, i.cgst_amount, i.sgst_amount,
+                   i.total, i.paid_at, d.review_reason,
+                   b.business_name, b.address, b.phone, b.gstin, b.tagline, b.upi_id,
+                   b.bank_name, b.bank_branch, b.terms, b.invoice_prefix
+            FROM invoices i
+            JOIN documents d ON d.id = i.document_id
+            LEFT JOIN businesses b ON b.tenant_id = i.tenant_id
+            WHERE {where} AND i.id = %s
+            """,
+            params + [invoice_id],
+        )
+        inv = cur.fetchone()
+        if not inv:
+            return None
+
+        cur.execute(
+            """
+            SELECT line_no, description, qty, rate, amount, gst_pct
+            FROM invoice_line_items
+            WHERE invoice_id = %s AND tenant_id = %s
+            ORDER BY line_no ASC
+            """,
+            (invoice_id, tenant_id),
+        )
+        items = cur.fetchall()
+        return {"invoice": inv, "items": items}
+
+
+def render_pdf_from_invoice_data(inv_data: dict) -> bytes:
+    inv = inv_data["invoice"]
+    items = inv_data["items"]
+
+    lines = [
+        {
+            "name": it["description"] or "Item",
+            "qty": it["qty"] if it["qty"] is not None else Decimal(1),
+            "rate": it["rate"] if it["rate"] is not None else Decimal(0),
+            "gst_pct": it["gst_pct"] if it["gst_pct"] is not None else Decimal(0),
+        }
+        for it in items
+    ]
+    if not lines:
+        lines = [{"name": "Item", "qty": Decimal(1), "rate": Decimal(0), "gst_pct": Decimal(0)}]
+
+    enriched_lines, totals = invoice_gen.compute_totals(lines)
+    days = (inv["due_date"] - inv["invoice_date"]).days if (inv["due_date"] and inv["invoice_date"] and inv["payment_mode"] == "credit") else 0
+    payment_label = (
+        f"Credit ({days} days)"
+        if inv["payment_mode"] == "credit"
+        else inv["payment_mode"].upper() if inv["payment_mode"] == "upi" else "Cash"
+    )
+
+    built = {
+        "invoice_number": inv["invoice_number"],
+        "invoice_date": inv["invoice_date"],
+        "due_date": inv["due_date"] or inv["invoice_date"],
+        "payment_mode": inv["payment_mode"],
+        "payment_label": payment_label,
+        "paid_at": inv["paid_at"],
+        "lines": enriched_lines,
+        "totals": totals,
+    }
+
+    terms_raw = inv.get("terms") or ""
+    terms_list = [t.strip() for t in terms_raw.splitlines() if t.strip()] if isinstance(terms_raw, str) else (terms_raw or [])
+
+    biz_dict = {
+        "business_name": inv.get("business_name") or inv.get("vendor_name") or "My Business",
+        "address": inv.get("address") or "",
+        "phone": inv.get("phone") or "",
+        "gstin": inv.get("gstin") or "",
+        "tagline": inv.get("tagline") or "",
+        "upi_id": inv.get("upi_id") or "",
+        "bank_name": inv.get("bank_name") or "",
+        "bank_branch": inv.get("bank_branch") or "",
+        "terms": terms_list,
+    }
+
+    cust_addr = ""
+    cust_gstin = ""
+    if inv.get("review_reason"):
+        try:
+            m = json.loads(inv["review_reason"])
+            if isinstance(m, dict):
+                cust_addr = m.get("customer_address", "") or ""
+                cust_gstin = m.get("customer_gstin", "") or ""
+        except Exception:
+            pass
+
+    header_dict = {
+        "customer_name": inv["party_name"] or "Customer",
+        "customer_address": cust_addr,
+        "customer_gstin": cust_gstin,
+    }
+
+    return invoice_pdf.render_invoice_pdf(biz_dict, header_dict, built)
 
 

@@ -14,13 +14,14 @@ tenant_resolution.py. The parser itself (pipeline.process) is unchanged;
 only where tenant_id comes from has changed.
 """
 
+import base64
 import os
 import tempfile
 import uuid
-from datetime import date
-from typing import Any, Optional
+from datetime import date, timedelta
+from typing import Any, Dict, List, Optional
 
-from fastapi import Depends, FastAPI, File, Form, Request, UploadFile, Query
+from fastapi import Depends, FastAPI, File, Form, Request, UploadFile, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
@@ -30,6 +31,8 @@ from msme_bios_shared import config
 from firebase_auth import verify_firebase_token
 from db_pool import get_connection
 import document_store as ds
+import invoice_gen
+import invoice_pdf
 import payments
 import pricing
 import roles
@@ -560,6 +563,7 @@ async def get_cash_dashboard(ctx: Context = Depends(access.feature_access("cash_
 
 
 @app.get("/api/receivables-payables")
+@app.get("/api/receivables", include_in_schema=False)
 async def get_receivables_payables(
     as_of: Optional[str] = None,
     ctx: Context = Depends(access.feature_access("receivables_payables")),
@@ -962,3 +966,258 @@ async def accept_invite(token: str = Form(...), decoded_token: dict = Depends(ve
         user_id = tr.get_or_create_user(conn, decoded_token["uid"], decoded_token.get("email", ""), decoded_token.get("name"))
         return team.accept_invite(conn, user_id, decoded_token.get("email", ""), token)
     return {"status": "joined", **_with_conn(run)}
+
+
+# ============================================================
+# INVOICE GENERATOR
+# ============================================================
+
+class InvoiceProfileUpdate(BaseModel):
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    tagline: Optional[str] = None
+    upi_id: Optional[str] = None
+    bank_name: Optional[str] = None
+    bank_branch: Optional[str] = None
+    terms: Optional[str] = None
+    invoice_prefix: Optional[str] = None
+
+
+class CreateInvoiceRequest(BaseModel):
+    customer_name: str
+    customer_address: Optional[str] = ""
+    customer_gstin: Optional[str] = ""
+    invoice_date: Optional[str] = None
+    payment_mode: str = "cash"
+    credit_days: Optional[int] = None
+    lines: List[Dict[str, Any]]
+
+
+@app.get("/api/invoice-generator/profile")
+async def get_invoice_profile(ctx: Context = Depends(access.feature_access("invoice_generator"))):
+    conn = get_connection()
+    try:
+        prof = ds.get_business_profile(conn, ctx.tenant_id) or {}
+        return {
+            "business_name": prof.get("business_name") or "",
+            "address": prof.get("address") or "",
+            "phone": prof.get("phone") or "",
+            "gstin": prof.get("gstin") or "",
+            "tagline": prof.get("tagline") or "",
+            "upi_id": prof.get("upi_id") or "",
+            "bank_name": prof.get("bank_name") or "",
+            "bank_branch": prof.get("bank_branch") or "",
+            "terms": prof.get("terms") or "",
+            "invoice_prefix": prof.get("invoice_prefix") or "",
+        }
+    finally:
+        conn.close()
+
+
+@app.put("/api/invoice-generator/profile")
+async def update_invoice_profile(
+    body: InvoiceProfileUpdate,
+    ctx: Context = Depends(access.feature_access("invoice_generator")),
+):
+    if not ctx.is_owner:
+        return JSONResponse(status_code=403, content={"error": "owner_only", "message": "Only the business owner can update the profile."})
+
+    if body.address and len(body.address) > 200:
+        return JSONResponse(status_code=422, content={"error": "validation_error", "message": "Address must be at most 200 characters"})
+    if body.phone and len(body.phone) > 20:
+        return JSONResponse(status_code=422, content={"error": "validation_error", "message": "Phone must be at most 20 characters"})
+    if body.upi_id and len(body.upi_id) > 60:
+        return JSONResponse(status_code=422, content={"error": "validation_error", "message": "UPI ID must be at most 60 characters"})
+    if body.terms and len(body.terms) > 600:
+        return JSONResponse(status_code=422, content={"error": "validation_error", "message": "Terms must be at most 600 characters"})
+
+    conn = get_connection()
+    try:
+        ds.update_business_profile(conn, ctx.tenant_id, body.dict())
+        conn.commit()
+        prof = ds.get_business_profile(conn, ctx.tenant_id)
+        return {
+            "business_name": prof.get("business_name") or "",
+            "address": prof.get("address") or "",
+            "phone": prof.get("phone") or "",
+            "gstin": prof.get("gstin") or "",
+            "tagline": prof.get("tagline") or "",
+            "upi_id": prof.get("upi_id") or "",
+            "bank_name": prof.get("bank_name") or "",
+            "bank_branch": prof.get("bank_branch") or "",
+            "terms": prof.get("terms") or "",
+            "invoice_prefix": prof.get("invoice_prefix") or "",
+        }
+    finally:
+        conn.close()
+
+
+@app.get("/api/invoice-generator/customers")
+async def get_invoice_customers(
+    q: Optional[str] = Query(None),
+    ctx: Context = Depends(access.feature_access("invoice_generator")),
+):
+    conn = get_connection()
+    try:
+        customers = ds.list_customer_names(conn, ctx.tenant_id, ctx.department, q)
+        return {"customers": customers}
+    finally:
+        conn.close()
+
+
+@app.post("/api/invoice-generator/invoices")
+async def create_invoice(
+    req: CreateInvoiceRequest,
+    ctx: Context = Depends(access.feature_access("invoice_generator")),
+):
+    cust_name = (req.customer_name or "").strip()
+    if not cust_name:
+        return JSONResponse(status_code=422, content={"error": "missing_customer", "message": "Customer name is required"})
+    if len(cust_name) > 120:
+        return JSONResponse(status_code=422, content={"error": "invalid_customer", "message": "Customer name must be at most 120 characters"})
+
+    if req.invoice_date:
+        try:
+            inv_date = date.fromisoformat(req.invoice_date)
+        except (ValueError, TypeError):
+            return JSONResponse(status_code=422, content={"error": "invalid_date", "message": "Invalid date format. Use YYYY-MM-DD"})
+    else:
+        inv_date = date.today()
+
+    if inv_date > date.today() + timedelta(days=1):
+        return JSONResponse(status_code=422, content={"error": "invalid_date", "message": "Invoice date cannot be more than 1 day in the future"})
+
+    mode = (req.payment_mode or "").strip().lower()
+    if mode not in invoice_gen.PAYMENT_MODES:
+        return JSONResponse(status_code=422, content={"error": "invalid_payment_mode", "message": f"payment_mode must be one of {', '.join(invoice_gen.PAYMENT_MODES)}"})
+
+    if mode == "credit":
+        if req.credit_days is None or req.credit_days < 1 or req.credit_days > invoice_gen.MAX_CREDIT_DAYS:
+            return JSONResponse(status_code=422, content={"error": "invalid_credit_days", "message": f"credit_days must be between 1 and {invoice_gen.MAX_CREDIT_DAYS}"})
+
+    # Validate lines before allocating sequence
+    try:
+        invoice_gen.validate_lines(req.lines)
+    except ValueError as e:
+        return JSONResponse(status_code=422, content={"error": "validation_error", "message": str(e)})
+
+    conn = get_connection()
+    try:
+        prof = ds.get_business_profile(conn, ctx.tenant_id) or {}
+        prefix = prof.get("invoice_prefix") or ""
+        fy = invoice_gen.financial_year(inv_date)
+
+        # Allocate next number inside transaction
+        seq = ds.next_invoice_number(conn, ctx.tenant_id, fy)
+
+        try:
+            built = invoice_gen.build_invoice(
+                invoice_date=inv_date,
+                payment_mode=mode,
+                credit_days=req.credit_days,
+                lines=req.lines,
+                seq=seq,
+                prefix=prefix,
+            )
+        except ValueError as e:
+            conn.rollback()
+            return JSONResponse(status_code=422, content={"error": "validation_error", "message": str(e)})
+
+        terms_raw = prof.get("terms") or ""
+        terms_list = [t.strip() for t in terms_raw.splitlines() if t.strip()] if isinstance(terms_raw, str) else (terms_raw or [])
+
+        biz_dict = {
+            "business_name": prof.get("business_name") or "My Business",
+            "address": prof.get("address") or "",
+            "phone": prof.get("phone") or "",
+            "gstin": prof.get("gstin") or "",
+            "tagline": prof.get("tagline") or "",
+            "upi_id": prof.get("upi_id") or "",
+            "bank_name": prof.get("bank_name") or "",
+            "bank_branch": prof.get("bank_branch") or "",
+            "terms": terms_list,
+        }
+        header_dict = {
+            "customer_name": cust_name,
+            "customer_address": (req.customer_address or "").strip(),
+            "customer_gstin": (req.customer_gstin or "").strip(),
+        }
+
+        # Render PDF (if this fails, transaction rolls back so sequence is not skipped)
+        pdf_bytes = invoice_pdf.render_invoice_pdf(biz_dict, header_dict, built)
+
+        dept = ctx.department or "sales"
+        invoice_id = ds.save_generated_invoice(
+            conn,
+            tenant_id=ctx.tenant_id,
+            user_id=ctx.user_id,
+            department=dept,
+            built=built,
+            header=header_dict,
+            biz_name=biz_dict["business_name"],
+            gstin=biz_dict["gstin"],
+        )
+        conn.commit()
+
+        pdf_b64 = base64.b64encode(pdf_bytes).decode("ascii")
+        return {
+            "invoice_id": invoice_id,
+            "invoice_number": built["invoice_number"],
+            "total": float(built["totals"]["grand_total"]),
+            "pdf_base64": pdf_b64,
+        }
+    except Exception as e:
+        conn.rollback()
+        raise e
+    finally:
+        conn.close()
+
+
+@app.get("/api/invoice-generator/invoices/{invoice_id}/pdf")
+async def get_invoice_pdf(
+    invoice_id: str,
+    ctx: Context = Depends(access.feature_access("invoice_generator")),
+):
+    conn = get_connection()
+    try:
+        inv_data = ds.get_invoice_for_pdf(conn, invoice_id, ctx.tenant_id, ctx.department)
+        if not inv_data:
+            return JSONResponse(status_code=404, content={"error": "not_found", "message": "Invoice not found"})
+        pdf_bytes = ds.render_pdf_from_invoice_data(inv_data)
+        inv_num = inv_data["invoice"]["invoice_number"].replace("/", "_")
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'inline; filename="{inv_num}.pdf"'},
+        )
+    finally:
+        conn.close()
+
+
+@app.get("/api/invoice-generator/invoices")
+async def list_generated_invoices(
+    limit: int = Query(50, ge=1, le=100),
+    ctx: Context = Depends(access.feature_access("invoice_generator")),
+):
+    conn = get_connection()
+    try:
+        invoices = ds.list_generated_invoices(conn, ctx.tenant_id, ctx.department, limit)
+        return {
+            "invoices": [
+                {
+                    "id": str(r["id"]),
+                    "invoice_number": r["invoice_number"],
+                    "invoice_date": r["invoice_date"].isoformat() if r["invoice_date"] else None,
+                    "due_date": r["due_date"].isoformat() if r["due_date"] else None,
+                    "party_name": r["party_name"],
+                    "payment_mode": r["payment_mode"],
+                    "total": float(r["total"]) if r["total"] is not None else 0.0,
+                    "paid_at": r["paid_at"].isoformat() if r["paid_at"] else None,
+                    "created_at": r["created_at"].isoformat() if r["created_at"] else None,
+                }
+                for r in invoices
+            ]
+        }
+    finally:
+        conn.close()
+

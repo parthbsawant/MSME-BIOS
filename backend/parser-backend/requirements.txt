@@ -12,3 +12,5 @@ uvicorn>=0.32
 python-multipart>=0.0.12
 firebase-admin>=6.5
 httpx>=0.27
+
+reportlab>=4.0

@@ -111,10 +111,11 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       icon: <Users className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
-      id: 'Invoices',
-      label: t('layout.items.invoices'),
-      comingSoon: true,
-      deptColor: DEPARTMENT_COLORS.finance,
+      id: 'Invoice Generator',
+      label: t('layout.items.invoiceGenerator', 'Invoice Generator'),
+      path: '/invoices',
+      feature: 'invoice_generator',
+      deptColor: DEPARTMENT_COLORS.sales,
       icon: <Receipt className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {

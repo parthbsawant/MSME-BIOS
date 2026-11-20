@@ -96,6 +96,7 @@ export const featureById = (id) => FEATURES.find((f) => f.id === id)
 export const FEATURE_ROUTES = {
   document_parser: '/upload',
   cash_dashboard: '/dashboard',
+  invoice_generator: '/invoices',
   receivables_payables: '/receivables',
   aging_reports: '/receivables?view=aging',
   revenue_concentration: '/concentration',

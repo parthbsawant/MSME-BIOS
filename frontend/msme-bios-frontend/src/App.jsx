@@ -15,6 +15,7 @@ import AnomaliesPage from './pages/AnomaliesPage'
 import HealthPage from './pages/HealthPage'
 import SimulatorPage from './pages/SimulatorPage'
 import PnlPage from './pages/PnlPage'
+import InvoiceGeneratorPage from './pages/InvoiceGeneratorPage'
 import UploadPage from './pages/UploadPage'
 import ResultsPage from './pages/ResultsPage'
 import CheckoutPage from './pages/CheckoutPage'
@@ -57,6 +58,7 @@ export default function App() {
       <Route path="/health" element={<RequireOnboarded><HealthPage /></RequireOnboarded>} />
       <Route path="/simulator" element={<RequireOnboarded><SimulatorPage /></RequireOnboarded>} />
       <Route path="/pnl" element={<RequireOnboarded><PnlPage /></RequireOnboarded>} />
+      <Route path="/invoices" element={<RequireOnboarded><InvoiceGeneratorPage /></RequireOnboarded>} />
       <Route path="/concentration" element={<RequireOnboarded><ConcentrationPage /></RequireOnboarded>} />
       <Route path="/upload" element={<RequireOnboarded><UploadPage /></RequireOnboarded>} />
       <Route path="/checkout" element={<RequireOwner><CheckoutPage /></RequireOwner>} />

@@ -72,6 +72,10 @@ import enPnl from '../locales/en/pnl.json'
 import hiPnl from '../locales/hi/pnl.json'
 import mrPnl from '../locales/mr/pnl.json'
 
+import enInvoiceGen from '../locales/en/invoicegen.json'
+import hiInvoiceGen from '../locales/hi/invoicegen.json'
+import mrInvoiceGen from '../locales/mr/invoicegen.json'
+
 export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English' },
   { code: 'hi', label: 'हिन्दी' },
@@ -88,9 +92,9 @@ function getStoredLanguage() {
 
 i18n.use(initReactI18next).init({
   resources: {
-    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard, billing: enBilling, team: enTeam, receivables: enReceivables, concentration: enConcentration, anomalies: enAnomalies, health: enHealth, simulator: enSimulator, pnl: enPnl },
-    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard, billing: hiBilling, team: hiTeam, receivables: hiReceivables, concentration: hiConcentration, anomalies: hiAnomalies, health: hiHealth, simulator: hiSimulator, pnl: hiPnl },
-    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard, billing: mrBilling, team: mrTeam, receivables: mrReceivables, concentration: mrConcentration, anomalies: mrAnomalies, health: mrHealth, simulator: mrSimulator, pnl: mrPnl },
+    en: { common: enCommon, landing: enLanding, auth: enAuth, onboarding: enOnboarding, catalog: enCatalog, upload: enUpload, results: enResults, guide: enGuide, dashboard: enDashboard, billing: enBilling, team: enTeam, receivables: enReceivables, concentration: enConcentration, anomalies: enAnomalies, health: enHealth, simulator: enSimulator, pnl: enPnl, invoicegen: enInvoiceGen },
+    hi: { common: hiCommon, landing: hiLanding, auth: hiAuth, onboarding: hiOnboarding, catalog: hiCatalog, upload: hiUpload, results: hiResults, guide: hiGuide, dashboard: hiDashboard, billing: hiBilling, team: hiTeam, receivables: hiReceivables, concentration: hiConcentration, anomalies: hiAnomalies, health: hiHealth, simulator: hiSimulator, pnl: hiPnl, invoicegen: hiInvoiceGen },
+    mr: { common: mrCommon, landing: mrLanding, auth: mrAuth, onboarding: mrOnboarding, catalog: mrCatalog, upload: mrUpload, results: mrResults, guide: mrGuide, dashboard: mrDashboard, billing: mrBilling, team: mrTeam, receivables: mrReceivables, concentration: mrConcentration, anomalies: mrAnomalies, health: mrHealth, simulator: mrSimulator, pnl: mrPnl, invoicegen: mrInvoiceGen },
   },
   lng: getStoredLanguage(),
   fallbackLng: 'en',

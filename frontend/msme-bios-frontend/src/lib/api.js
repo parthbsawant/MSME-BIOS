@@ -259,6 +259,69 @@ export const getPnl = (from, to) => {
 }
 
 /**
+ * Invoice Generator endpoints
+ */
+export async function getInvoiceProfile() {
+  return getJson('/api/invoice-generator/profile')
+}
+
+export async function updateInvoiceProfile(data) {
+  const headers = await authHeader()
+  const res = await fetch(`${API_URL}/api/invoice-generator/profile`, {
+    method: 'PUT',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const error = new Error(body.message || `Failed to update profile (${res.status})`)
+    error.status = res.status
+    error.code = body.error
+    throw error
+  }
+  return body
+}
+
+export async function searchCustomers(q) {
+  const params = new URLSearchParams()
+  if (q) params.set('q', q)
+  const qs = params.toString()
+  return getJson(`/api/invoice-generator/customers${qs ? `?${qs}` : ''}`)
+}
+
+export async function createInvoice(data) {
+  const headers = await authHeader()
+  const res = await fetch(`${API_URL}/api/invoice-generator/invoices`, {
+    method: 'POST',
+    headers: { ...headers, 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  const body = await res.json().catch(() => ({}))
+  if (!res.ok) {
+    const error = new Error(body.message || `Failed to create invoice (${res.status})`)
+    error.status = res.status
+    error.code = body.error
+    throw error
+  }
+  return body
+}
+
+export async function listGeneratedInvoices(limit = 50) {
+  return getJson(`/api/invoice-generator/invoices?limit=${limit}`)
+}
+
+export async function getInvoicePdfBlob(invoiceId) {
+  const headers = await authHeader()
+  const res = await fetch(`${API_URL}/api/invoice-generator/invoices/${encodeURIComponent(invoiceId)}/pdf`, {
+    headers,
+  })
+  if (!res.ok) {
+    throw new Error(`Failed to download PDF (${res.status})`)
+  }
+  return res.blob()
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */
