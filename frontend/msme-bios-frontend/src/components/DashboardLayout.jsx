@@ -17,6 +17,7 @@ import {
   Menu,
   X,
   LogOut,
+  Scale,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useBusiness } from '../context/BusinessContext'
@@ -74,6 +75,14 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       path: '/results',
       deptColor: DEPARTMENT_COLORS.finance,
       icon: <FileText className="h-4 w-4 shrink-0" strokeWidth={2} />,
+    },
+    {
+      id: 'Receivables',
+      label: t('layout.items.receivables', 'Receivables'),
+      path: '/receivables',
+      feature: 'receivables_payables',
+      deptColor: DEPARTMENT_COLORS.finance,
+      icon: <Scale className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Invoices',

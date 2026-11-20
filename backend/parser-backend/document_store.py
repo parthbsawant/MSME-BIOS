@@ -337,3 +337,62 @@ def count_documents(conn, tenant_id: str, department: Optional[str] = None) -> i
         row = cur.fetchone()
         return row["count"] if row else 0
 
+
+def list_invoices_for_aging(conn, tenant_id: str, department: Optional[str], direction: str) -> list:
+    """
+    Returns invoice rows for aging calculation (direction = 'sale' or 'purchase').
+    For 'sale', only credit payment_mode is included.
+    Paid amounts from matched/partial status in invoice_payments are summed,
+    and count of possible status links is returned.
+    """
+    where, params = _scope("i", tenant_id, department)
+    sql = f"""
+        SELECT i.id, i.party_name, i.invoice_number, i.invoice_date, i.due_date, i.total,
+               COALESCE(SUM(p.amount) FILTER (WHERE p.status IN ('matched', 'partial')), 0) AS paid,
+               COUNT(p.id) FILTER (WHERE p.status = 'possible') AS possible
+        FROM invoices i
+        LEFT JOIN invoice_payments p ON p.invoice_id = i.id AND p.tenant_id = i.tenant_id
+        WHERE {where} AND i.direction = %s
+    """
+    params.append(direction)
+    if direction == "sale":
+        sql += " AND i.payment_mode = 'credit'"
+    sql += " GROUP BY i.id"
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchall()
+
+
+def list_supplier_rows(conn, tenant_id: str, department: Optional[str] = None) -> list:
+    """Returns bank transaction rows for supplier payments."""
+    where, params = _scope("b", tenant_id, department)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT b.txn_date, b.debit, b.category, b.counterparty
+            FROM bank_transactions b
+            WHERE {where} AND b.category = 'supplier_payment'
+            ORDER BY b.txn_date DESC
+            """,
+            params,
+        )
+        return cur.fetchall()
+
+
+def get_data_as_of(conn, tenant_id: str, department: Optional[str] = None):
+    """The latest of max(bank txn_date) and max(invoice_date); None if neither exists."""
+    where_b, params_b = _scope("b", tenant_id, department)
+    where_i, params_i = _scope("i", tenant_id, department)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT GREATEST(
+                (SELECT MAX(b.txn_date) FROM bank_transactions b WHERE {where_b}),
+                (SELECT MAX(i.invoice_date) FROM invoices i WHERE {where_i})
+            ) AS as_of
+            """,
+            params_b + params_i,
+        )
+        row = cur.fetchone()
+        return row["as_of"] if row else None
+
