@@ -1,6 +1,7 @@
 {
   "title": "Receivables & Payables",
   "subtitle": "Track outstanding invoices, dues, and aging breakdown",
+  "cashInvoiceNote": "Invoices paid in cash do not appear in bank statements, so they may show as outstanding here.",
   "asOf": "As of {{date}} (latest date in your data)",
   "toCollect": "To collect",
   "toCollectSub": "{{invoices}} from {{parties}}",

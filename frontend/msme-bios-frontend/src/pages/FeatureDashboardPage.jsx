@@ -182,15 +182,32 @@ export default function FeatureDashboardPage() {
     return months.map((m) => m.money_out ?? 0)
   }, [months])
 
-  // Max value calculation for the SVG chart
-  const maxChartVal = useMemo(() => {
-    if (!months.length) return 1
-    const vals = months.flatMap((m) => [
-      m.money_in || 0,
-      m.money_out || 0,
-      Math.abs(m.closing_balance || 0),
-    ])
-    return Math.max(1, ...vals)
+  // Unified vertical scale for the SVG chart (handling negative closing balances & zero line)
+  const { minVal, maxVal, yZero, getY } = useMemo(() => {
+    if (!months.length) {
+      return { minVal: 0, maxVal: 1, yZero: 190, getY: () => 190 }
+    }
+    const minBal = Math.min(0, ...months.map((m) => m.closing_balance ?? 0))
+    const maxBar = Math.max(
+      1,
+      ...months.flatMap((m) => [
+        m.money_in || 0,
+        m.money_out || 0,
+        m.closing_balance || 0,
+      ])
+    )
+    const range = maxBar - minBal || 1
+    const yTop = 30
+    const yBottom = 190
+    const chartH = yBottom - yTop
+
+    const getYPos = (val) => {
+      const v = typeof val === 'number' ? val : 0
+      return yBottom - ((v - minBal) / range) * chartH
+    }
+
+    const zeroY = getYPos(0)
+    return { minVal: minBal, maxVal: maxBar, yZero: zeroY, getY: getYPos }
   }, [months])
 
   return (
@@ -584,7 +601,11 @@ export default function FeatureDashboardPage() {
                       <line x1="40" y1="40" x2="680" y2="40" stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeDasharray="4 4" strokeWidth="1" />
                       <line x1="40" y1="90" x2="680" y2="90" stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeDasharray="4 4" strokeWidth="1" />
                       <line x1="40" y1="140" x2="680" y2="140" stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeDasharray="4 4" strokeWidth="1" />
-                      <line x1="40" y1="190" x2="680" y2="190" stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeWidth="1.2" />
+                      {yZero < 180 && (
+                        <line x1="40" y1="190" x2="680" y2="190" stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeDasharray="4 4" strokeWidth="1" />
+                      )}
+                      {/* Visible Zero Line */}
+                      <line x1="40" y1={yZero} x2="680" y2={yZero} stroke="currentColor" className="text-[var(--color-line)] dark:text-[#272F3A]" strokeWidth="1.5" />
 
                       {/* Grouped Bars for Months */}
                       {months.map((m, idx) => {
@@ -593,13 +614,13 @@ export default function FeatureDashboardPage() {
                         const groupWidth = Math.min(56, Math.max(16, totalColWidth * 0.55))
                         const barWidth = groupWidth / 2 - 2
 
-                        const inHeight = Math.max(3, ((m.money_in || 0) / maxChartVal) * 150)
-                        const outHeight = Math.max(3, ((m.money_out || 0) / maxChartVal) * 150)
+                        const inY = getY(m.money_in || 0)
+                        const inHeight = Math.max(2, yZero - inY)
+                        const outY = getY(m.money_out || 0)
+                        const outHeight = Math.max(2, yZero - outY)
 
                         const inX = centerX - barWidth - 1
                         const outX = centerX + 1
-                        const inY = 190 - inHeight
-                        const outY = 190 - outHeight
 
                         const isHovered = hoveredMonthIdx === idx
 
@@ -679,7 +700,7 @@ export default function FeatureDashboardPage() {
                                 const totalColWidth = 640 / months.length
                                 const cx = 40 + (idx + 0.5) * totalColWidth
                                 const bal = m.closing_balance ?? 0
-                                const cy = Math.max(25, Math.min(190, 190 - (bal / maxChartVal) * 150))
+                                const cy = getY(bal)
                                 return `${idx === 0 ? 'M' : 'L'} ${cx.toFixed(1)} ${cy.toFixed(1)}`
                               })
                               .join(' ')}
@@ -698,7 +719,7 @@ export default function FeatureDashboardPage() {
                             const totalColWidth = 640 / months.length
                             const cx = 40 + (idx + 0.5) * totalColWidth
                             const bal = m.closing_balance ?? 0
-                            const cy = Math.max(25, Math.min(190, 190 - (bal / maxChartVal) * 150))
+                            const cy = getY(bal)
                             const isHovered = hoveredMonthIdx === idx
                             return (
                               <circle

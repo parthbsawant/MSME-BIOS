@@ -20,11 +20,15 @@ import {
   Clock,
   HelpCircle,
   CheckCircle2,
+  Info,
+  X,
 } from 'lucide-react'
 import DashboardLayout from '../components/DashboardLayout'
 import { Skeleton } from '../components/ui'
 import { getReceivablesPayables } from '../lib/api'
 import { useBusiness } from '../context/BusinessContext'
+
+const STORAGE_KEY_CASH_NOTE = 'msme_dismiss_cash_invoice_note'
 
 const BUCKET_COLORS = {
   current: {
@@ -55,12 +59,13 @@ const BUCKET_COLORS = {
 }
 
 function formatIndianRupees(val) {
-  if (val === null || val === undefined || isNaN(val)) return '₹0'
-  const isNegative = val < 0
-  const abs = Math.abs(val)
+  if (val === null || val === undefined || isNaN(val)) return '₹0.00'
+  const num = Number(val)
+  const isNegative = num < 0
+  const abs = Math.abs(num)
   const formatted = abs.toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    minimumFractionDigits: 0,
   })
   return isNegative ? `-₹${formatted}` : `₹${formatted}`
 }
@@ -96,6 +101,24 @@ export default function ReceivablesPage() {
   const [sortField, setSortField] = useState('days_overdue')
   const [sortAsc, setSortAsc] = useState(false)
   const [displayCount, setDisplayCount] = useState(50)
+
+  // Cash invoices notice dismissal state (remembered in localStorage)
+  const [showCashNote, setShowCashNote] = useState(() => {
+    try {
+      return localStorage.getItem(STORAGE_KEY_CASH_NOTE) !== 'true'
+    } catch {
+      return true
+    }
+  })
+
+  const handleDismissCashNote = () => {
+    setShowCashNote(false)
+    try {
+      localStorage.setItem(STORAGE_KEY_CASH_NOTE, 'true')
+    } catch {
+      // ignore if localStorage is blocked
+    }
+  }
 
   const loadData = () => {
     setLoading(true)
@@ -186,7 +209,7 @@ export default function ReceivablesPage() {
 
   return (
     <DashboardLayout activeItem="Receivables">
-      <div className="space-y-8 max-w-7xl mx-auto">
+      <div className="space-y-8 max-w-7xl mx-auto min-w-0">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -440,6 +463,24 @@ export default function ReceivablesPage() {
                 {/* TAB 1: RECEIVABLES */}
                 {activeTab === 'receivables' && (
                   <div className="space-y-6">
+                    {/* Info Note: Invoices paid in cash */}
+                    {showCashNote && (
+                      <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)]/60 dark:bg-[#161C25]/60 px-4 py-3 text-xs text-[var(--color-muted)]">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Info className="h-4 w-4 shrink-0 text-[var(--color-accent)]" />
+                          <span>{t('cashInvoiceNote')}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleDismissCashNote}
+                          className="shrink-0 text-[var(--color-muted)] hover:text-[var(--color-text)] transition-colors p-1 rounded-lg cursor-pointer"
+                          aria-label="Dismiss note"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    )}
+
                     {/* Horizontal Stacked Bar of 5 Buckets */}
                     <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 sm:p-7 shadow-[var(--shadow-cool-md)]">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A] gap-2">
@@ -542,7 +583,7 @@ export default function ReceivablesPage() {
                     )}
 
                     {/* Invoices Table */}
-                    <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-[var(--shadow-cool-md)]">
+                    <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-[var(--shadow-cool-md)] min-w-0 max-w-full">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                         <div>
                           <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)]">
@@ -558,14 +599,14 @@ export default function ReceivablesPage() {
 
                         {/* Search & Bucket Filter */}
                         <div className="flex flex-wrap items-center gap-2">
-                          <div className="relative">
+                          <div className="relative w-full sm:w-auto">
                             <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]" />
                             <input
                               type="text"
                               value={searchTerm}
                               onChange={(e) => setSearchTerm(e.target.value)}
                               placeholder={t('searchPlaceholder')}
-                              className="pl-8 pr-3 py-1.5 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#161C25] text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-accent)] w-52 sm:w-64"
+                              className="pl-8 pr-3 py-1.5 rounded-xl border border-[var(--color-line)] dark:border-[#272F3A] bg-[var(--color-surface-2)] dark:bg-[#161C25] text-xs text-[var(--color-text)] focus:outline-hidden focus:border-[var(--color-accent)] w-full sm:w-64"
                             />
                           </div>
 
@@ -581,8 +622,8 @@ export default function ReceivablesPage() {
                       </div>
 
                       {/* Responsive Table */}
-                      <div className="mt-4 overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
+                      <div className="mt-4 overflow-x-auto w-full">
+                        <table className="w-full text-left border-collapse text-xs min-w-[700px]">
                           <thead>
                             <tr className="border-b border-[var(--color-line)] dark:border-[#272F3A] text-[var(--color-muted)] font-semibold">
                               <th
@@ -631,7 +672,7 @@ export default function ReceivablesPage() {
                               <th className="pb-3 text-center">{t('bucket')}</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[var(--color-line)]/60 dark:divide-[#272F3A]/60">
+                          <tbody className="divide-y divide-[var(--color-line)] dark:divide-[#272F3A]">
                             {sortedInvoices.slice(0, displayCount).map((inv) => (
                               <tr
                                 key={inv.invoice_number || inv.party_name + inv.invoice_date}
@@ -918,7 +959,7 @@ export default function ReceivablesPage() {
                             {receivables?.buckets.map((b) => (
                               <div
                                 key={b.bucket}
-                                className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--color-line)]/40 dark:border-[#272F3A]/40 last:border-none"
+                                className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--color-line)] dark:border-[#272F3A] last:border-none"
                               >
                                 <div className="flex items-center gap-2">
                                   <span
@@ -972,7 +1013,7 @@ export default function ReceivablesPage() {
                             {payables?.buckets.map((b) => (
                               <div
                                 key={b.bucket}
-                                className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--color-line)]/40 dark:border-[#272F3A]/40 last:border-none"
+                                className="flex items-center justify-between text-xs py-1.5 border-b border-[var(--color-line)] dark:border-[#272F3A] last:border-none"
                               >
                                 <div className="flex items-center gap-2">
                                   <span
@@ -999,7 +1040,7 @@ export default function ReceivablesPage() {
                     </div>
 
                     {/* Top 10 Most Overdue Receivable Invoices */}
-                    <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-[var(--shadow-cool-md)]">
+                    <div className="rounded-3xl border border-[var(--color-line)] dark:border-[#272F3A] bg-white dark:bg-[#151A21] p-6 shadow-[var(--shadow-cool-md)] min-w-0 max-w-full">
                       <div className="pb-4 border-b border-[var(--color-line)] dark:border-[#272F3A]">
                         <h3 className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-text)]">
                           {t('mostOverdueTitle')}
@@ -1009,8 +1050,8 @@ export default function ReceivablesPage() {
                         </p>
                       </div>
 
-                      <div className="mt-4 overflow-x-auto">
-                        <table className="w-full text-left border-collapse text-xs">
+                      <div className="mt-4 overflow-x-auto w-full">
+                        <table className="w-full text-left border-collapse text-xs min-w-[640px]">
                           <thead>
                             <tr className="border-b border-[var(--color-line)] dark:border-[#272F3A] text-[var(--color-muted)] font-semibold">
                               <th className="pb-3 pr-4">{t('party')}</th>
@@ -1021,7 +1062,7 @@ export default function ReceivablesPage() {
                               <th className="pb-3 text-center">{t('bucket')}</th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[var(--color-line)]/60 dark:divide-[#272F3A]/60">
+                          <tbody className="divide-y divide-[var(--color-line)] dark:divide-[#272F3A]">
                             {(receivables?.invoices || []).slice(0, 10).map((inv) => (
                               <tr
                                 key={inv.invoice_number || inv.party_name + inv.invoice_date}
