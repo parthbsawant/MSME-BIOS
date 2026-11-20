@@ -161,7 +161,7 @@ def extract_header_fields(text: str) -> dict:
     # that section. This meant vendor_name was silently being filled with
     # the customer's name instead - confirmed on a real invoice where
     # "Zilla Parishad School Mess" (the customer) showed up as the vendor
-    # instead of "Mauli Traders" (the actual vendor).
+    # instead of the actual vendor ("a sample village kirana store").
     #
     # Fix: restrict the vendor-name search to the text BEFORE "Billing
     # Details" starts, where the real invoice always puts the vendor's own

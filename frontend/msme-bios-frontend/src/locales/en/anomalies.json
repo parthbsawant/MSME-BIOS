@@ -12,6 +12,7 @@
     "monitorRegularly": "Review and verify",
     "activeMonitor": "System active and analyzing"
   },
+  "all": "All",
   "rules": {
     "all": "All Rules",
     "large_owner_withdrawal": "Owner Withdrawal",

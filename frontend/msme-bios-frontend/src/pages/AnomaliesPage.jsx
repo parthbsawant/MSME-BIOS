@@ -118,7 +118,7 @@ export default function AnomaliesPage() {
   const rulesWithCounts = useMemo(() => {
     const byRule = data?.by_rule || {}
     return [
-      { id: 'all', label: t('rules.all'), count: data?.total ?? 0 },
+      { id: 'all', label: t('all', 'All'), count: data?.total ?? 0 },
       { id: 'large_owner_withdrawal', label: t('rules.large_owner_withdrawal'), count: byRule.large_owner_withdrawal ?? 0 },
       { id: 'unusual_expense', label: t('rules.unusual_expense'), count: byRule.unusual_expense ?? 0 },
       { id: 'duplicate_payment', label: t('rules.duplicate_payment'), count: byRule.duplicate_payment ?? 0 },
@@ -374,7 +374,7 @@ export default function AnomaliesPage() {
             )}
 
             {/* FILTER CHIPS ROW */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-themed">
               {rulesWithCounts.map((chip) => {
                 const isActive = selectedRule === chip.id
                 return (

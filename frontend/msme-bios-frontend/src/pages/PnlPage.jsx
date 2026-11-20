@@ -528,12 +528,12 @@ export default function PnlPage() {
 
                 {/* UNCLASSIFIED NOTE (if unclassified_rows > 0) */}
                 {data.unclassified_rows > 0 && (
-                  <div className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50 dark:bg-amber-950/20 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+                  <div className="rounded-2xl border border-amber-200 dark:border-amber-800/60 bg-amber-50 dark:bg-amber-950/30 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300">
+                      <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300">
                         <AlertTriangle className="h-4 w-4 shrink-0" />
                       </div>
-                      <p className="text-xs sm:text-sm font-semibold text-amber-950 dark:text-amber-100">
+                      <p className="text-xs sm:text-sm font-semibold text-amber-950 dark:text-amber-200">
                         {data.unclassified_rows === 1
                           ? t('unclassifiedNote', { count: data.unclassified_rows })
                           : t('unclassifiedNote_plural', { count: data.unclassified_rows })}
@@ -541,7 +541,7 @@ export default function PnlPage() {
                     </div>
                     <button
                       onClick={() => navigate('/results')}
-                      className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-amber-950 px-3.5 py-1.5 text-xs font-bold shadow-xs transition-all cursor-pointer shrink-0"
                     >
                       <span>Review in Documents</span>
                       <ArrowUpRight className="h-3.5 w-3.5" />

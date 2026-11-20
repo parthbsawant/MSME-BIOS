@@ -12,6 +12,7 @@
     "monitorRegularly": "समीक्षा और सत्यापन करें",
     "activeMonitor": "प्रणाली सक्रिय और कार्यरत"
   },
+  "all": "सभी",
   "rules": {
     "all": "सभी नियम",
     "large_owner_withdrawal": "मालिक द्वारा निकासी",

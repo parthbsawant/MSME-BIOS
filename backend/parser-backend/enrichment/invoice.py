@@ -20,7 +20,7 @@ from typing import Optional
 
 NAME_MATCH_THRESHOLD = 0.8
 
-# Words that do not identify a business ("Mauli Traders Pvt Ltd" == "Mauli Traders").
+# Words that do not identify a business ("Sample Store Pvt Ltd" == "Sample Store").
 _NAME_NOISE = {"m", "s", "ms", "pvt", "private", "ltd", "limited", "llp", "co", "the", "and"}
 
 _PAYMENT_MODE = re.compile(r"Payment\s*Mode\s*:\s*(Cash|UPI|Credit)\b", re.IGNORECASE)

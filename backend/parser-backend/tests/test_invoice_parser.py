@@ -39,7 +39,7 @@ def test_extract_header_fields_gets_real_vendor_not_customer():
     searched the whole document for any "Name:" match, so it silently
     returned the customer's name as the vendor. Confirmed on a real
     invoice where "Zilla Parishad School Mess" (customer) showed up
-    instead of "Mauli Traders" (the actual vendor).
+    instead of the actual vendor ("a sample village kirana store").
     """
     text = (
         "TAX INVOICE\nMAULI TRADERS\n"

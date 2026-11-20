@@ -1,5 +1,5 @@
 """
-seed_year.py - loads the Mauli Traders FY2025-26 dataset into ONE tenant
+seed_year.py - loads a sample village kirana store FY2025-26 dataset into ONE tenant
 through the REAL upload path (parsers -> categorize -> enrich -> reconcile).
 Replaces the old seed_demo.py, which bypassed the pipeline.
 
@@ -57,7 +57,7 @@ def mark_seeded(conn, document_id):
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Load the Mauli Traders year through the real upload path.")
+    ap = argparse.ArgumentParser(description="Load a sample village kirana store year through the real upload path.")
     ap.add_argument("--env", required=True)
     ap.add_argument("--expect-db", required=True)
     ap.add_argument("--dataset", required=True)

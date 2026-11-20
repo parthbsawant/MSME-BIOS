@@ -12,6 +12,7 @@
     "monitorRegularly": "पडताळणी करा",
     "activeMonitor": "प्रणाली कार्यरत आहे"
   },
+  "all": "सर्व",
   "rules": {
     "all": "सर्व नियम",
     "large_owner_withdrawal": "मालकाकडून उचल",

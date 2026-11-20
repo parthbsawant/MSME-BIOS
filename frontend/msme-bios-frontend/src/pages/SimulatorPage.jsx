@@ -46,8 +46,39 @@ function formatDate(isoStr) {
   }
 }
 
+const MONTH_NAMES_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function formatChartMonth(monthStr, i18nLang = 'en') {
+  if (!monthStr || monthStr.length < 7) return monthStr
+  try {
+    const [y, m] = monthStr.split('-')
+    const shortYear = y.slice(2)
+    const d = new Date(Number(y), Number(m) - 1, 1)
+    const locale = i18nLang === 'hi' ? 'hi-IN' : i18nLang === 'mr' ? 'mr-IN' : 'en-IN'
+    const monthName = d.toLocaleDateString(locale, { month: 'short' })
+    return `${monthName} ${shortYear}`
+  } catch {
+    const [y, m] = monthStr.split('-')
+    return `${MONTH_NAMES_EN[Number(m) - 1] || m} ${y.slice(2)}`
+  }
+}
+
+function formatTableMonth(monthStr, i18nLang = 'en') {
+  if (!monthStr || monthStr.length < 7) return monthStr
+  try {
+    const [y, m] = monthStr.split('-')
+    const d = new Date(Number(y), Number(m) - 1, 1)
+    const locale = i18nLang === 'hi' ? 'hi-IN' : i18nLang === 'mr' ? 'mr-IN' : 'en-IN'
+    const monthName = d.toLocaleDateString(locale, { month: 'short' })
+    return `${monthName} ${y}`
+  } catch {
+    const [y, m] = monthStr.split('-')
+    return `${MONTH_NAMES_EN[Number(m) - 1] || m} ${y}`
+  }
+}
+
 export default function SimulatorPage() {
-  const { t } = useTranslation('simulator')
+  const { t, i18n } = useTranslation('simulator')
   const navigate = useNavigate()
   const { isOwner } = useBusiness()
 
@@ -481,7 +512,7 @@ export default function SimulatorPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-[var(--color-text)]">{t('controls.salesChange')}</span>
-                      <span className={`font-extrabold ${salesChangePct > 0 ? 'text-emerald-600' : salesChangePct < 0 ? 'text-rose-600' : 'text-[var(--color-muted)]'}`}>
+                      <span className={`font-extrabold ${salesChangePct > 0 ? 'text-emerald-600 dark:text-emerald-400' : salesChangePct < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--color-muted)]'}`}>
                         {salesChangePct > 0 ? `+${salesChangePct}%` : `${salesChangePct}%`}
                       </span>
                     </div>
@@ -505,7 +536,7 @@ export default function SimulatorPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-bold text-[var(--color-text)]">{t('controls.expensesChange')}</span>
-                      <span className={`font-extrabold ${expenseChangePct > 0 ? 'text-rose-600' : expenseChangePct < 0 ? 'text-emerald-600' : 'text-[var(--color-muted)]'}`}>
+                      <span className={`font-extrabold ${expenseChangePct > 0 ? 'text-rose-600 dark:text-rose-400' : expenseChangePct < 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-[var(--color-muted)]'}`}>
                         {expenseChangePct > 0 ? `+${expenseChangePct}%` : `${expenseChangePct}%`}
                       </span>
                     </div>
@@ -682,7 +713,7 @@ export default function SimulatorPage() {
                             </div>
                             <div className="flex items-center gap-2 shrink-0">
                               <span
-                                className={`font-bold ${item.amount < 0 ? 'text-rose-600' : 'text-emerald-600'}`}
+                                className={`font-bold ${item.amount < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}
                               >
                                 {item.amount < 0 ? '-' : '+'}
                                 {formatIndianRupees(Math.abs(item.amount))}
@@ -839,15 +870,17 @@ export default function SimulatorPage() {
                                   strokeWidth="2"
                                 />
 
-                                {/* X-axis month label */}
-                                <text
-                                  x={pt.x}
-                                  y={chartData.padTop + chartData.plotHeight + 20}
-                                  textAnchor="middle"
-                                  className="text-[10px] fill-[var(--color-muted)] font-medium"
-                                >
-                                  {pt.row.month.slice(5)}
-                                </text>
+                                {/* X-axis month label (skip alternate labels if > 6 points to prevent overlap at 375px) */}
+                                {(!chartData || chartData.scenarioPoints.length <= 6 || i % 2 === 0) && (
+                                  <text
+                                    x={pt.x}
+                                    y={chartData.padTop + chartData.plotHeight + 20}
+                                    textAnchor="middle"
+                                    className="text-[10px] fill-[var(--color-muted)] font-medium"
+                                  >
+                                    {formatChartMonth(pt.row.month, i18n.language)}
+                                  </text>
+                                )}
                               </g>
                             )
                           })}
@@ -858,7 +891,7 @@ export default function SimulatorPage() {
                           <div className="mt-2 p-3 rounded-xl bg-gray-900 text-white text-xs shadow-lg flex flex-wrap items-center justify-between gap-3">
                             <div>
                               <span className="font-bold text-gray-300">
-                                {data.scenario[hoveredIndex].month}
+                                {formatTableMonth(data.scenario[hoveredIndex].month, i18n.language)}
                               </span>
                             </div>
                             <div className="flex items-center gap-4">
@@ -919,14 +952,16 @@ export default function SimulatorPage() {
                       </span>
                       <div
                         className={`mt-1 font-[family-name:var(--font-display)] text-xl font-extrabold ${
-                          data.scenario_summary?.lowest_balance < 0 ? 'text-rose-600' : 'text-[var(--color-text)]'
+                          data.scenario_summary?.lowest_balance < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-[var(--color-text)]'
                         }`}
                       >
                         {formatIndianRupees(data.scenario_summary?.lowest_balance)}
                       </div>
                       <p className="text-xs text-[var(--color-muted)] mt-1">
                         {t('results.stats.inMonth', {
-                          month: data.scenario_summary?.lowest_month || '–',
+                          month: data.scenario_summary?.lowest_month
+                            ? formatTableMonth(data.scenario_summary.lowest_month, i18n.language)
+                            : '–',
                         })}
                       </p>
                     </div>
@@ -938,7 +973,7 @@ export default function SimulatorPage() {
                       </span>
                       <div
                         className={`mt-1 font-[family-name:var(--font-display)] text-xl font-extrabold ${
-                          data.scenario_summary?.months_negative > 0 ? 'text-rose-600' : 'text-emerald-600'
+                          data.scenario_summary?.months_negative > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'
                         }`}
                       >
                         {data.scenario_summary?.months_negative}
@@ -977,7 +1012,7 @@ export default function SimulatorPage() {
                               className="hover:bg-[var(--color-surface-2)]/50 transition-colors"
                             >
                               <td className="py-2.5 pr-4 font-bold text-[var(--color-text)]">
-                                {row.month}
+                                {formatTableMonth(row.month, i18n.language)}
                               </td>
                               <td className="py-2.5 px-3 text-right font-medium text-emerald-600 dark:text-emerald-400">
                                 {formatIndianRupees(row.money_in)}

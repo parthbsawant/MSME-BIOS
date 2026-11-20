@@ -27,7 +27,7 @@ INVOICES = os.path.join(os.path.dirname(__file__), "fixtures", "categorizer", "i
 
 @pytest.fixture
 def ctx():
-    """A throwaway tenant whose business is Mauli Traders. Deleted afterwards."""
+    """A throwaway tenant whose business is a sample village kirana store. Deleted afterwards."""
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("INSERT INTO tenants DEFAULT VALUES RETURNING id")
