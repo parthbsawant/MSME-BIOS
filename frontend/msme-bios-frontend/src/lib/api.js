@@ -207,6 +207,14 @@ export const getRevenueConcentration = (from, to) => {
 }
 
 /**
+ * GET /api/anomalies - financial anomalies and warnings summary.
+ */
+export const getAnomalies = (asOf) => {
+  const query = asOf ? `?as_of=${encodeURIComponent(asOf)}` : ''
+  return getJson(`/api/anomalies${query}`)
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

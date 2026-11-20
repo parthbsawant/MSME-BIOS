@@ -1,0 +1,45 @@
+{
+  "title": "विसंगति पहचान (Anomaly Detection)",
+  "subtitle": "अनियमित निकासी, असामान्य खर्च, दोहरे भुगतान और पुराने बकाया भुगतानों की स्वचालित पहचान।",
+  "department": "वित्त",
+  "asOf": "डेटा स्थिति: {{date}}",
+  "cards": {
+    "totalFlagged": "कुल चिह्नित मामले",
+    "highSeverity": "गंभीर जोखिम",
+    "mediumSeverity": "मध्यम जोखिम",
+    "asOfDate": "डेटा की तारीख",
+    "actionRequired": "त्वरित समीक्षा आवश्यक",
+    "monitorRegularly": "समीक्षा और सत्यापन करें",
+    "activeMonitor": "प्रणाली सक्रिय और कार्यरत"
+  },
+  "rules": {
+    "all": "सभी नियम",
+    "large_owner_withdrawal": "मालिक द्वारा निकासी",
+    "unusual_expense": "असामान्य खर्च",
+    "duplicate_payment": "दोहरा भुगतान",
+    "overdue_customer": "अतिदेय ग्राहक"
+  },
+  "chart": {
+    "title": "नियम अनुसार विसंगतियाँ",
+    "count": "{{count}} मामले"
+  },
+  "card": {
+    "high": "गंभीर",
+    "medium": "मध्यम",
+    "reference": "संदर्भ"
+  },
+  "empty": {
+    "title": "No unusual activity found in your data",
+    "description": "सभी बैंक निकासी, खर्च, भुगतान और प्राप्य सामान्य व्यावसायिक कार्यों के अनुरूप हैं।",
+    "uploadBtn": "दस्तावेज़ अपलोड करें"
+  },
+  "locked": {
+    "title": "विसंगति पहचान लॉक है",
+    "description": "दोहरे भुगतान, असामान्य खर्च और जोखिम भरी निकासी की स्वचालित पहचान के लिए इंटेलिजेंस या फुल सुइट प्लान में अपग्रेड करें।",
+    "upgradeBtn": "प्लान अपग्रेड करें"
+  },
+  "error": {
+    "title": "विसंगति डेटा लोड करने में विफल",
+    "retry": "पुनः प्रयास करें"
+  }
+}

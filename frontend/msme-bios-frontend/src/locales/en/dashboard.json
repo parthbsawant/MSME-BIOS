@@ -9,6 +9,7 @@
       "upload": "Upload Document",
       "documents": "Documents",
       "receivables": "Receivables",
+      "anomalies": "Anomalies",
       "customers": "Customers",
       "invoices": "Invoices",
       "cashFlow": "Cash Flow",

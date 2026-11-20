@@ -320,7 +320,7 @@ def list_bank_rows_for_cash(conn, tenant_id: str, department: Optional[str] = No
     with conn.cursor() as cur:
         cur.execute(
             f"""
-            SELECT b.txn_date, b.line_no, b.debit, b.credit, b.balance, b.category
+            SELECT b.txn_date, b.line_no, b.description, b.debit, b.credit, b.balance, b.category
             FROM bank_transactions b
             WHERE {where}
             ORDER BY b.txn_date, b.line_no

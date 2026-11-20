@@ -40,6 +40,7 @@ from access import Context
 from cash_summary import build_cash_summary
 from aging import build_aging, build_supplier_paid
 from concentration import build_concentration
+from anomalies import build_anomalies
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -646,6 +647,46 @@ async def get_revenue_concentration(
         }
     finally:
         conn.close()
+
+
+@app.get("/api/anomalies")
+async def get_anomalies(
+    as_of: Optional[str] = None,
+    ctx: Context = Depends(access.feature_access("anomaly_detection")),
+):
+    """
+    Returns detected financial anomalies and operational warnings.
+    Scoped by tenant_id and department (via access.feature_access("anomaly_detection")).
+    Optional as_of query param (YYYY-MM-DD); invalid format returns 422.
+    """
+    ref_date = None
+    if as_of:
+        try:
+            ref_date = date.fromisoformat(as_of)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "as_of must be in YYYY-MM-DD format"},
+            )
+
+    conn = get_connection()
+    try:
+        if ref_date is None:
+            ref_date = ds.get_data_as_of(conn, ctx.tenant_id, department=ctx.department) or date.today()
+
+        bank_rows = ds.list_bank_rows_for_cash(conn, ctx.tenant_id, department=ctx.department)
+        sale_invoices = ds.list_invoices_for_aging(conn, ctx.tenant_id, ctx.department, direction="sale")
+
+        receivables = build_aging(sale_invoices, ref_date) if sale_invoices else None
+        anomalies_data = build_anomalies(bank_rows, receivables)
+
+        return {
+            **anomalies_data,
+            "as_of": ref_date.isoformat(),
+        }
+    finally:
+        conn.close()
+
 
 
 
