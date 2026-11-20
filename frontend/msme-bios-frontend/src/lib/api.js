@@ -196,6 +196,17 @@ export const getReceivablesPayables = (asOf) => {
 }
 
 /**
+ * GET /api/revenue-concentration - revenue concentration summary and ranked customers.
+ */
+export const getRevenueConcentration = (from, to) => {
+  const params = new URLSearchParams()
+  if (from) params.set('from', from)
+  if (to) params.set('to', to)
+  const qs = params.toString()
+  return getJson(`/api/revenue-concentration${qs ? `?${qs}` : ''}`)
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

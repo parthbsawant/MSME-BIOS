@@ -20,7 +20,7 @@ import uuid
 from datetime import date
 from typing import Optional
 
-from fastapi import Depends, FastAPI, File, Form, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Request, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -39,6 +39,7 @@ import access
 from access import Context
 from cash_summary import build_cash_summary
 from aging import build_aging, build_supplier_paid
+from concentration import build_concentration
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -596,6 +597,56 @@ async def get_receivables_payables(
         }
     finally:
         conn.close()
+
+
+@app.get("/api/revenue-concentration")
+async def get_revenue_concentration(
+    from_date: Optional[str] = Query(None, alias="from"),
+    to_date: Optional[str] = Query(None, alias="to"),
+    ctx: Context = Depends(access.feature_access("revenue_concentration")),
+):
+    """
+    Returns revenue concentration metrics and ranked customers.
+    Scoped by tenant_id and department (via access.feature_access("revenue_concentration")).
+    Optional from and to query params (YYYY-MM-DD); invalid format returns 422.
+    """
+    f_date = None
+    if from_date:
+        try:
+            f_date = date.fromisoformat(from_date)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "from must be in YYYY-MM-DD format"},
+            )
+
+    t_date = None
+    if to_date:
+        try:
+            t_date = date.fromisoformat(to_date)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "to must be in YYYY-MM-DD format"},
+            )
+
+    conn = get_connection()
+    try:
+        rows = ds.list_sale_invoices_for_concentration(
+            conn, ctx.tenant_id, department=ctx.department, from_date=f_date, to_date=t_date
+        )
+        min_date, max_date = ds.get_sales_date_range(conn, ctx.tenant_id, department=ctx.department)
+        concentration = build_concentration(rows)
+        return {
+            **concentration,
+            "from": f_date.isoformat() if f_date else None,
+            "to": t_date.isoformat() if t_date else None,
+            "data_from": min_date.isoformat() if min_date else None,
+            "data_to": max_date.isoformat() if max_date else None,
+        }
+    finally:
+        conn.close()
+
 
 
 # ============================================================
