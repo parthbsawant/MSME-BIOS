@@ -44,6 +44,7 @@ from concentration import build_concentration
 from anomalies import build_anomalies
 import health
 import simulator
+import pnl
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -792,6 +793,61 @@ async def cash_simulator(
                 status_code=422,
                 content={"error": "invalid_input", "message": str(e)},
             )
+    finally:
+        conn.close()
+
+
+@app.get("/api/pnl")
+async def get_pnl(
+    from_date: Optional[str] = Query(None, alias="from"),
+    to_date: Optional[str] = Query(None, alias="to"),
+    ctx: Context = Depends(access.feature_access("pnl_statement")),
+):
+    """
+    Returns the Cash-basis Profit and Loss statement.
+    Scoped by tenant_id and department (via access.feature_access("pnl_statement")).
+    Optional from and to query params (YYYY-MM-DD); invalid format returns 422 invalid_date;
+    from > to returns 422 invalid_range.
+    """
+    f_date = None
+    if from_date:
+        try:
+            f_date = date.fromisoformat(from_date)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "from must be in YYYY-MM-DD format"},
+            )
+
+    t_date = None
+    if to_date:
+        try:
+            t_date = date.fromisoformat(to_date)
+        except (ValueError, TypeError):
+            return JSONResponse(
+                status_code=422,
+                content={"error": "invalid_date", "message": "to must be in YYYY-MM-DD format"},
+            )
+
+    if f_date and t_date and f_date > t_date:
+        return JSONResponse(
+            status_code=422,
+            content={"error": "invalid_range", "message": "from date cannot be after to date"},
+        )
+
+    conn = get_connection()
+    try:
+        rows = ds.list_bank_rows_for_cash(conn, ctx.tenant_id, department=ctx.department)
+        all_dates = [r["txn_date"] for r in rows if r.get("txn_date") is not None]
+        avail_from = min(all_dates).isoformat() if all_dates else None
+        avail_to = max(all_dates).isoformat() if all_dates else None
+
+        res = pnl.build_pnl(rows, start=f_date, end=t_date)
+        return {
+            **res,
+            "available_from": avail_from,
+            "available_to": avail_to,
+        }
     finally:
         conn.close()
 

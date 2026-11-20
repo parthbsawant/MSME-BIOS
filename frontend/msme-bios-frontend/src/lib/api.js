@@ -248,6 +248,17 @@ async function postJson(path, payload, { auth = true } = {}) {
 export const simulateCash = (params) => postJson('/api/cash-simulator', params)
 
 /**
+ * GET /api/pnl - Cash-basis profit and loss statement.
+ */
+export const getPnl = (from, to) => {
+  const params = new URLSearchParams()
+  if (from) params.set('from', from)
+  if (to) params.set('to', to)
+  const qs = params.toString()
+  return getJson(`/api/pnl${qs ? `?${qs}` : ''}`)
+}
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

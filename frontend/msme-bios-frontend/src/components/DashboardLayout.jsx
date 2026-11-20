@@ -126,10 +126,11 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       icon: <DollarSign className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
-      id: 'Reports',
-      label: t('layout.items.reports'),
-      comingSoon: true,
-      deptColor: DEPARTMENT_COLORS.sales,
+      id: 'Profit & Loss',
+      label: t('layout.items.pnl', 'Profit & Loss'),
+      path: '/pnl',
+      feature: 'pnl_statement',
+      deptColor: DEPARTMENT_COLORS.finance,
       icon: <BarChart3 className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
