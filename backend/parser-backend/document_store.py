@@ -311,3 +311,29 @@ def get_document(conn, tenant_id: str, document_id: str, department: Optional[st
             })
 
     return out
+
+
+def list_bank_rows_for_cash(conn, tenant_id: str, department: Optional[str] = None) -> list:
+    """Returns normalized bank transaction rows for cash summary calculation."""
+    where, params = _scope("b", tenant_id, department)
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""
+            SELECT b.txn_date, b.line_no, b.debit, b.credit, b.balance, b.category
+            FROM bank_transactions b
+            WHERE {where}
+            ORDER BY b.txn_date, b.line_no
+            """,
+            params,
+        )
+        return cur.fetchall()
+
+
+def count_documents(conn, tenant_id: str, department: Optional[str] = None) -> int:
+    """Number of documents for this tenant and department scoping."""
+    where, params = _scope("d", tenant_id, department)
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT count(*) AS count FROM documents d WHERE {where}", params)
+        row = cur.fetchone()
+        return row["count"] if row else 0
+
