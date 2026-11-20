@@ -1,0 +1,99 @@
+{
+  "title": "Profit & Loss Statement",
+  "subtitle": "Cash-basis financial performance statement compiled directly from verified bank transactions.",
+  "department": "Finance",
+  "asOf": "Data as of {{date}}",
+  "filters": {
+    "from": "From",
+    "to": "To",
+    "presets": {
+      "full": "Full period",
+      "last3Months": "Last 3 months",
+      "lastMonth": "Last month"
+    }
+  },
+  "tiles": {
+    "revenue": "Revenue",
+    "grossProfit": "Gross Profit",
+    "grossMargin": "{{margin}}% margin",
+    "operatingProfit": "Operating Profit",
+    "netProfit": "Net Profit",
+    "netMargin": "{{margin}}% net margin"
+  },
+  "statement": {
+    "title": "Cash-Basis P&L Breakdown",
+    "revenue": "Revenue",
+    "lessPurchases": "Less: Purchases (Suppliers)",
+    "grossProfit": "Gross Profit",
+    "lessOperatingCosts": "Less: Operating Costs",
+    "operatingProfit": "Operating Profit",
+    "lessFinanceCosts": "Less: Finance Costs",
+    "netProfit": "Net Profit (Cash Basis)",
+    "line": "Particulars",
+    "amount": "Amount",
+    "share": "Share %"
+  },
+  "chart": {
+    "title": "Monthly Net Profit",
+    "subtitle": "Month-by-month cash performance",
+    "netPositive": "Positive Net Profit",
+    "netNegative": "Negative Net Profit"
+  },
+  "memo": {
+    "title": "Not Part of Profit",
+    "subtitle": "Balance sheet movements and statutory transfers tracked separately from operating performance",
+    "items": {
+      "gst_paid": {
+        "title": "GST Paid",
+        "desc": "Taxes remitted to the government, kept separate from operational revenue and costs."
+      },
+      "owner_drawings": {
+        "title": "Owner Drawings",
+        "desc": "Funds withdrawn for personal use by the business proprietor or partners."
+      },
+      "owner_capital": {
+        "title": "Owner Capital Introduced",
+        "desc": "Personal equity funds or proprietor capital injected into the business bank account."
+      },
+      "other_receipts": {
+        "title": "Other Receipts",
+        "desc": "Non-sales inflows such as security refunds, subsidies, or bank credit adjustments."
+      }
+    }
+  },
+  "unclassifiedNote": "{{count}} payment could not be classified and is shown as Unclassified. Review it in Documents.",
+  "unclassifiedNote_plural": "{{count}} payments could not be classified and are shown as Unclassified. Review them in Documents.",
+  "basisNote": "Cash basis: based on money received and paid in your bank statements. Purchases are payments to suppliers, not cost of goods sold, and amounts include GST.",
+  "categories": {
+    "customer_receipt": "Customer Receipt",
+    "collection": "Collection",
+    "sales_upi": "Sales UPI",
+    "cash_deposit": "Cash Deposit",
+    "supplier_payment": "Supplier Payment",
+    "salary": "Salary & Wages",
+    "electricity": "Electricity",
+    "internet": "Internet & Telecom",
+    "transport": "Transport & Logistics",
+    "packaging": "Packaging Materials",
+    "repairs": "Repairs & Maintenance",
+    "bank_charges": "Bank Charges",
+    "misc_expense": "Miscellaneous Expense",
+    "emi": "Loan EMI",
+    "od_interest": "OD Interest",
+    "unclassified": "Unclassified Payment"
+  },
+  "empty": {
+    "title": "No bank transactions found",
+    "description": "Upload a bank statement to see your cash-basis profit and loss statement and margins.",
+    "uploadBtn": "Upload Bank Statement"
+  },
+  "locked": {
+    "title": "Profit & Loss Statement Locked",
+    "description": "The Profit & Loss statement is an executive accounting feature available on Growth, Intelligence, and Full Suite plans.",
+    "upgradeBtn": "Upgrade Plan"
+  },
+  "error": {
+    "title": "Failed to load profit & loss statement",
+    "retry": "Try again"
+  }
+}

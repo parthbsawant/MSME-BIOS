@@ -102,6 +102,7 @@ export const FEATURE_ROUTES = {
   anomaly_detection: '/anomalies',
   business_health_index: '/health',
   cash_flow_simulator: '/simulator',
+  pnl_statement: '/pnl',
 }
 
 export const TIERS = [
