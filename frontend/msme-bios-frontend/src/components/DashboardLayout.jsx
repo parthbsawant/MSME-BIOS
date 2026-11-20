@@ -85,6 +85,14 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       icon: <Scale className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
+      id: 'Customers',
+      label: t('layout.items.customers', 'Customers'),
+      path: '/concentration',
+      feature: 'revenue_concentration',
+      deptColor: DEPARTMENT_COLORS.sales,
+      icon: <Users className="h-4 w-4 shrink-0" strokeWidth={2} />,
+    },
+    {
       id: 'Invoices',
       label: t('layout.items.invoices'),
       comingSoon: true,

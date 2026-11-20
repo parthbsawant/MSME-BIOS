@@ -98,6 +98,7 @@ export const FEATURE_ROUTES = {
   cash_dashboard: '/dashboard',
   receivables_payables: '/receivables',
   aging_reports: '/receivables?view=aging',
+  revenue_concentration: '/concentration',
 }
 
 export const TIERS = [

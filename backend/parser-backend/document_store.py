@@ -20,6 +20,7 @@ Rules every save follows:
     not as a binary-float approximation.
 """
 
+from datetime import date
 from decimal import Decimal
 from typing import Optional
 
@@ -395,4 +396,44 @@ def get_data_as_of(conn, tenant_id: str, department: Optional[str] = None):
         )
         row = cur.fetchone()
         return row["as_of"] if row else None
+
+
+def list_sale_invoices_for_concentration(
+    conn, tenant_id: str, department: Optional[str] = None,
+    from_date: Optional[date] = None, to_date: Optional[date] = None
+) -> list:
+    """Returns sale invoices (all payment modes) for revenue concentration."""
+    where, params = _scope("i", tenant_id, department)
+    sql = f"""
+        SELECT i.party_name, i.invoice_date, i.total
+        FROM invoices i
+        WHERE {where} AND i.direction = 'sale'
+    """
+    if from_date is not None:
+        sql += " AND i.invoice_date >= %s"
+        params.append(from_date)
+    if to_date is not None:
+        sql += " AND i.invoice_date <= %s"
+        params.append(to_date)
+    sql += " ORDER BY i.invoice_date DESC"
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return cur.fetchall()
+
+
+def get_sales_date_range(conn, tenant_id: str, department: Optional[str] = None):
+    """Returns (min_invoice_date, max_invoice_date) for sale invoices; (None, None) if none."""
+    where, params = _scope("i", tenant_id, department)
+    sql = f"""
+        SELECT MIN(i.invoice_date) AS min_date, MAX(i.invoice_date) AS max_date
+        FROM invoices i
+        WHERE {where} AND i.direction = 'sale'
+    """
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        row = cur.fetchone()
+        if not row:
+            return None, None
+        return row["min_date"], row["max_date"]
+
 

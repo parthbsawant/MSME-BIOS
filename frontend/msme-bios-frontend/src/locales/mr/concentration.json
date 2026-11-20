@@ -1,0 +1,68 @@
+{
+  "title": "Revenue Concentration",
+  "subtitle": "Customer revenue distribution, dependency metrics, and Pareto analysis",
+  "dataRange": "Data from {{from}} to {{to}}",
+  "periods": {
+    "all": "All time",
+    "d90": "Last 90 days",
+    "d180": "Last 180 days"
+  },
+  "risk": {
+    "badge": {
+      "high": "High Risk",
+      "medium": "Medium Risk",
+      "low": "Low Risk"
+    },
+    "highDesc": "High revenue concentration risk: top customer represents {{top1}}% of sales or top 3 represent {{top3}}%.",
+    "mediumDesc": "Moderate revenue concentration risk: top customer represents {{top1}}% of sales or top 3 represent {{top3}}%.",
+    "lowDesc": "Healthy revenue distribution across your customer base.",
+    "rule": "Risk rule: High if Top 1 ≥ 25% or Top 3 ≥ 50%; Medium if Top 1 ≥ 10% or Top 3 ≥ 30%; Low otherwise."
+  },
+  "cards": {
+    "totalSales": "Total Sales",
+    "customerCount": "Active Customers",
+    "top1Share": "Top Customer Share",
+    "top5Share": "Top 5 Customers Share",
+    "invoicesProcessed": "{{count}} invoices recorded",
+    "shareOfTotal": "{{pct}}% of total revenue"
+  },
+  "notes": {
+    "paretoSummary": "{{need50}} {{customerWord50}} make up 50% of sales and {{need80}} make up 80%.",
+    "customerSingle": "customer",
+    "customerPlural": "customers",
+    "unattributed": "{{pct}}% of sales are walk-in or unnamed customers and are not ranked."
+  },
+  "chart": {
+    "title": "Customer Revenue (Pareto Analysis)",
+    "subtitle": "Bars show individual customer sales; the curve shows cumulative share of total revenue.",
+    "salesAxis": "Sales (₹)",
+    "cumulativeAxis": "Cumulative %",
+    "salesLegend": "Customer Revenue",
+    "cumulativeLegend": "Cumulative %"
+  },
+  "table": {
+    "title": "Top Customers",
+    "subtitle": "Ranked by sales volume for the selected period",
+    "rank": "Rank",
+    "customer": "Customer",
+    "sales": "Sales",
+    "share": "Share",
+    "cumulative": "Cumulative",
+    "invoices": "Invoices",
+    "lastPurchase": "Last Purchase"
+  },
+  "empty": {
+    "title": "No sales data found",
+    "description": "No sale invoices are recorded for the selected period. Upload invoices or bills to see your customer concentration.",
+    "uploadBtn": "Upload Invoices"
+  },
+  "locked": {
+    "title": "Revenue Concentration Locked",
+    "description": "This feature analyzes customer concentration and helps you avoid revenue dependency risks. Available on the Intelligence and Full Suite plans.",
+    "upgradeBtn": "Upgrade Plan"
+  },
+  "error": {
+    "title": "Error loading concentration data",
+    "retry": "Try again"
+  }
+}
