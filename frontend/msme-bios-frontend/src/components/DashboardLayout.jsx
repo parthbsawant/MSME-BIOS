@@ -18,6 +18,7 @@ import {
   X,
   LogOut,
   Scale,
+  AlertTriangle,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useBusiness } from '../context/BusinessContext'
@@ -83,6 +84,14 @@ export default function DashboardLayout({ children, activeItem = 'Dashboard' }) 
       feature: 'receivables_payables',
       deptColor: DEPARTMENT_COLORS.finance,
       icon: <Scale className="h-4 w-4 shrink-0" strokeWidth={2} />,
+    },
+    {
+      id: 'Anomalies',
+      label: t('layout.items.anomalies', 'Anomalies'),
+      path: '/anomalies',
+      feature: 'anomaly_detection',
+      deptColor: DEPARTMENT_COLORS.finance,
+      icon: <AlertTriangle className="h-4 w-4 shrink-0" strokeWidth={2} />,
     },
     {
       id: 'Customers',

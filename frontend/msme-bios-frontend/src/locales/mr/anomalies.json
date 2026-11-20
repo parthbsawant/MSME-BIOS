@@ -1,0 +1,45 @@
+{
+  "title": "विसंगती शोध (Anomaly Detection)",
+  "subtitle": "अनियमित पैसे काढणे, असामान्य खर्च, दुहेरी पेमेंट आणि प्रलंबित थकबाकीचा स्वयंचलित शोध.",
+  "department": "वित्त",
+  "asOf": "माहिती दिनांक: {{date}}",
+  "cards": {
+    "totalFlagged": "एकूण नोंदवलेले प्रकार",
+    "highSeverity": "गंभीर जोखीम",
+    "mediumSeverity": "मध्यम जोखीम",
+    "asOfDate": "माहिती तारीख",
+    "actionRequired": "त्वरित पडताळणी आवश्यक",
+    "monitorRegularly": "पडताळणी करा",
+    "activeMonitor": "प्रणाली कार्यरत आहे"
+  },
+  "rules": {
+    "all": "सर्व नियम",
+    "large_owner_withdrawal": "मालकाकडून उचल",
+    "unusual_expense": "असामान्य खर्च",
+    "duplicate_payment": "दुहेरी पेमेंट",
+    "overdue_customer": "थकबाकीदार ग्राहक"
+  },
+  "chart": {
+    "title": "नियमांनुसार विसंगती",
+    "count": "{{count}} नोंदी"
+  },
+  "card": {
+    "high": "गंभीर",
+    "medium": "मध्यम",
+    "reference": "संदर्भ"
+  },
+  "empty": {
+    "title": "No unusual activity found in your data",
+    "description": "सर्व बँक व्यवहार, खर्च, पेमेंट्स आणि येणी सुरळीत सुरू आहेत.",
+    "uploadBtn": "दस्तऐवज अपलोड करा"
+  },
+  "locked": {
+    "title": "विसंगती शोध लॉक आहे",
+    "description": "दुहेरी पेमेंट, असामान्य खर्च आणि संशयास्पद व्यवहारांचा शोध घेण्यासाठी इंटेलिजन्स किंवा फुल सुइट प्लॅन निवडा.",
+    "upgradeBtn": "प्लॅन अपग्रेड करा"
+  },
+  "error": {
+    "title": "विसंगती डेटा लोड करण्यात अयशस्वी",
+    "retry": "पुन्हा प्रयत्न करा"
+  }
+}

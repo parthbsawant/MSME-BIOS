@@ -1,0 +1,45 @@
+{
+  "title": "Anomaly Detection",
+  "subtitle": "Real-time automated detection of irregular withdrawals, unusual expenses, duplicate payments, and long-overdue dues.",
+  "department": "Finance",
+  "asOf": "Data as of {{date}}",
+  "cards": {
+    "totalFlagged": "Total Flagged",
+    "highSeverity": "High Severity",
+    "mediumSeverity": "Medium Severity",
+    "asOfDate": "As of Date",
+    "actionRequired": "Immediate review recommended",
+    "monitorRegularly": "Review and verify",
+    "activeMonitor": "System active and analyzing"
+  },
+  "rules": {
+    "all": "All Rules",
+    "large_owner_withdrawal": "Owner Withdrawal",
+    "unusual_expense": "Unusual Expense",
+    "duplicate_payment": "Duplicate Payment",
+    "overdue_customer": "Overdue Customer"
+  },
+  "chart": {
+    "title": "Anomalies by Rule",
+    "count": "{{count}} flagged"
+  },
+  "card": {
+    "high": "High",
+    "medium": "Medium",
+    "reference": "Reference"
+  },
+  "empty": {
+    "title": "No unusual activity found in your data",
+    "description": "All bank withdrawals, expenses, payments, and receivables look consistent with normal business operations.",
+    "uploadBtn": "Upload Documents"
+  },
+  "locked": {
+    "title": "Anomaly Detection Locked",
+    "description": "Upgrade to the Intelligence or Full Suite plan to automatically detect duplicate payments, unusual expenses, and risky withdrawals.",
+    "upgradeBtn": "Upgrade Plan"
+  },
+  "error": {
+    "title": "Failed to load anomaly detection data",
+    "retry": "Try again"
+  }
+}

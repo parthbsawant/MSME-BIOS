@@ -99,6 +99,7 @@ export const FEATURE_ROUTES = {
   receivables_payables: '/receivables',
   aging_reports: '/receivables?view=aging',
   revenue_concentration: '/concentration',
+  anomaly_detection: '/anomalies',
 }
 
 export const TIERS = [
