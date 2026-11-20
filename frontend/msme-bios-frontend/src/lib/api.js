@@ -183,6 +183,11 @@ export async function acceptInvite(token) {
 }
 
 /**
+ * GET /api/dashboard/cash - cash summary for the caller's tenant.
+ */
+export const getCashSummary = () => getJson('/api/dashboard/cash')
+
+/**
  * GET /api/documents - this business's saved documents, newest first
  * (summaries: type, file, department, item_count, total, created_at).
  */

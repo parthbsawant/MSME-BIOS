@@ -35,6 +35,7 @@ import team
 import tenant_resolution as tr
 import access
 from access import Context
+from cash_summary import build_cash_summary
 
 app = FastAPI(title="MSME-BIOS Parser API")
 
@@ -530,6 +531,23 @@ async def get_my_document(document_id: str, ctx: Context = Depends(access.requir
     finally:
         conn.close()
     return document if document is not None else not_found
+
+
+@app.get("/api/dashboard/cash")
+async def get_cash_dashboard(ctx: Context = Depends(access.feature_access("cash_dashboard"))):
+    """
+    Returns the cash dashboard summary for the caller's tenant.
+    Scoped by tenant_id and department (via access.feature_access("cash_dashboard")).
+    """
+    conn = get_connection()
+    try:
+        rows = ds.list_bank_rows_for_cash(conn, ctx.tenant_id, department=ctx.department)
+        doc_count = ds.count_documents(conn, ctx.tenant_id, department=ctx.department)
+        summary = build_cash_summary(rows)
+        summary["documents_count"] = doc_count
+        return summary
+    finally:
+        conn.close()
 
 
 # ============================================================
